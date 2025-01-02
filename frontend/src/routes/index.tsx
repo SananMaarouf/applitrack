@@ -1,32 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
-import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchData } from "../api/test";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
 });
 
 function HomeComponent() {
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['hello'],
+    queryFn:fetchData,
+  });
 
-  useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-
-    fetch(`${apiUrl}/`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();
-      })
-      .then((data) => setMessage(data))
-      .catch((error) => setError(error.message));
-  }, []);
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div style={{ color: 'red' }}>{(error as Error).message}</div>;
 
   return (
     <div>
       <h1>Message from Backend</h1>
-      {error ? <p style={{ color: 'red' }}>{error}</p> : <p>{message}</p>}
+      <p>{data}</p>
     </div>
   );
 }
