@@ -11,12 +11,25 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TosImport } from './routes/tos'
+import { Route as ForgotPasswordImport } from './routes/forgot-password'
 import { Route as DashboardImport } from './routes/dashboard'
-import { Route as AuthpageImport } from './routes/authpage'
-import { Route as AboutImport } from './routes/about'
+import { Route as AuthImport } from './routes/auth'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const TosRoute = TosImport.update({
+  id: '/tos',
+  path: '/tos',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ForgotPasswordRoute = ForgotPasswordImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const DashboardRoute = DashboardImport.update({
   id: '/dashboard',
@@ -24,15 +37,9 @@ const DashboardRoute = DashboardImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthpageRoute = AuthpageImport.update({
-  id: '/authpage',
-  path: '/authpage',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
+const AuthRoute = AuthImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,18 +60,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
-      parentRoute: typeof rootRoute
-    }
-    '/authpage': {
-      id: '/authpage'
-      path: '/authpage'
-      fullPath: '/authpage'
-      preLoaderRoute: typeof AuthpageImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
     '/dashboard': {
@@ -74,6 +74,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardImport
       parentRoute: typeof rootRoute
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/tos': {
+      id: '/tos'
+      path: '/tos'
+      fullPath: '/tos'
+      preLoaderRoute: typeof TosImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -81,47 +95,52 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/authpage': typeof AuthpageRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/tos': typeof TosRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/authpage': typeof AuthpageRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/tos': typeof TosRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/authpage': typeof AuthpageRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/tos': typeof TosRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/authpage' | '/dashboard'
+  fullPaths: '/' | '/auth' | '/dashboard' | '/forgot-password' | '/tos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/authpage' | '/dashboard'
-  id: '__root__' | '/' | '/about' | '/authpage' | '/dashboard'
+  to: '/' | '/auth' | '/dashboard' | '/forgot-password' | '/tos'
+  id: '__root__' | '/' | '/auth' | '/dashboard' | '/forgot-password' | '/tos'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
-  AuthpageRoute: typeof AuthpageRoute
+  AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  TosRoute: typeof TosRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
-  AuthpageRoute: AuthpageRoute,
+  AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  TosRoute: TosRoute,
 }
 
 export const routeTree = rootRoute
@@ -135,22 +154,26 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about",
-        "/authpage",
-        "/dashboard"
+        "/auth",
+        "/dashboard",
+        "/forgot-password",
+        "/tos"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/about": {
-      "filePath": "about.tsx"
-    },
-    "/authpage": {
-      "filePath": "authpage.tsx"
+    "/auth": {
+      "filePath": "auth.tsx"
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
+    },
+    "/forgot-password": {
+      "filePath": "forgot-password.tsx"
+    },
+    "/tos": {
+      "filePath": "tos.tsx"
     }
   }
 }
