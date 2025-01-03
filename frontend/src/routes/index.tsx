@@ -25,12 +25,16 @@ function HomeComponent() {
   };
 
   return (
-    <div className="bg-background flex flex-col items-center w-full">
+    <div className="bg-transparent flex flex-col items-center w-full">
       {/* Landing Section */}
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col lg:flex-row w-full my-2 px-0 py-1 md:py-16 text-center md:text-left justify-center h-full text-white"
+        className="
+          flex flex-col
+          lg:flex-row w-full 
+          my-2 px-0 py-1 
+          md:py-16 text-center md:text-left justify-center h-full text-white"
       >
         <div className="w-full lg:w-1/2 flex flex-col md:items-start overflow-hidden">
           <h1 className="text-5xl text-left md:text-7xl font-bold mb-4 md:mx-auto lg:mx-0">
@@ -64,7 +68,7 @@ function HomeComponent() {
         <div className="flex flex-wrap justify-center gap-8">
           <motion.div 
             whileHover={{ scale: 0.9 }}
-            className="flex flex-col items-center p-6 bg-foreground rounded-lg shadow-md w-11/12 md:w-80">
+            className="flex flex-col items-center p-6 bg-card rounded-lg shadow-md w-11/12 md:w-80">
             <h3 className="text-2xl font-semibold mb-4">User friendly UI</h3>
             <p className="text-center">
               Ditch the spreadsheet, embrace the form
@@ -72,7 +76,7 @@ function HomeComponent() {
           </motion.div>
           <motion.div 
             whileHover={{ scale: 0.9 }}
-            className="flex flex-col items-center p-6 bg-foreground rounded-lg shadow-md w-11/12 md:w-80">
+            className="flex flex-col items-center p-6 bg-card rounded-lg shadow-md w-11/12 md:w-80">
             <h3 className="text-2xl font-semibold mb-4">Status tracking</h3>
             <p className="text-center">
               See who you have interviews with and who is ghosting you
@@ -80,7 +84,7 @@ function HomeComponent() {
             </motion.div>
           <motion.div 
             whileHover={{ scale: 0.9 }}
-            className="flex flex-col items-center p-6 bg-foreground rounded-lg shadow-md w-11/12 md:w-80">
+            className="flex flex-col items-center p-6 bg-card rounded-lg shadow-md w-11/12 md:w-80">
             <h3 className="text-2xl font-semibold mb-4">Application History</h3>
             <p className="text-center">
               Quickly access details of past applications, interviews, and
