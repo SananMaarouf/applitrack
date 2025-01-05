@@ -100,8 +100,13 @@ function HomeComponent() {
         <p className="text-xl mb-8">Stay on track with Applitrack</p>
         <Link to="/auth">
           <motion.p 
-            whileHover={{ scale: 1.1 }}
-          className="px-6 py-3 bg-white text-black rounded-md font-semibold">Sign Up</motion.p>
+            whileHover={{ scale: 0.90 }}
+            className="
+              px-6 py-3 bg-foreground 
+              text-black rounded-md 
+              font-semibold">
+              Get started
+          </motion.p>
         </Link>
       </section>
     </div>

@@ -25,6 +25,18 @@ app.get('/error', (c) => {
   return c.json({ error: 'Intentional error' }, 500);
 });
 
+app.post('/signup', async (c) => {
+  const body = await c.req.json();
+  console.log(body);
+  return c.json({ message: 'Signup request received' },201);
+});
+
+app.post('/login', async (c) => {
+  const body = await c.req.json();
+  console.log(body);
+  return c.json({ message: 'Login request received' },201);
+});
+
 showRoutes(app);
 
 export default app; 
