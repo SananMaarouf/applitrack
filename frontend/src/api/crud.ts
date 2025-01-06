@@ -1,32 +1,3 @@
-// Function that handles user login by sending form data to the login endpoint.
-export const handleLogin = async (formData: FormData): Promise<void> => {
-  // Get api url from env
-  const apiUrl = import.meta.env.VITE_API_URL;
-
-  // Make a POST request to the login endpoint with the form data.
-  const response = await fetch(`${apiUrl}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
-};
-
-// This function handles user signup by sending form data to the signup endpoint.
-export const handleSignup = async (formData: FormData): Promise<void> => {
-  // Retrieve the base API URL from environment variables.
-  const apiUrl = import.meta.env.VITE_API_URL;
-  // Make a POST request to the /signup endpoint with the form data.
-  const response = await fetch(`${apiUrl}/signup`, {
-    method: 'POST', // HTTP method
-    headers: {
-      'Content-Type': 'application/json', // Specify the content type as JSON
-    },
-    body: JSON.stringify(formData), // Convert form data to JSON string
-  });
-  // Note: No error handling or response processing is done here.
-};
 
 // This function fetches data from a given endpoint and returns the response as a string.
 export const fetchData = async (endpoint: string): Promise<string> => {

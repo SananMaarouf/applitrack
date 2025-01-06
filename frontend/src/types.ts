@@ -1,7 +1,12 @@
-type FormData = {
+type SignupFormData = {
   email: string;
   password: string;
-  confirmPassword?: string;
+  passwordConfirm?: string;
+}
+
+type LoginFormData = {
+  email: string;
+  password: string;
 }
 
 type JobApplication = {
@@ -14,4 +19,4 @@ type JobApplication = {
   status: number;
 };
 
-export type { FormData, JobApplication };
+export type { SignupFormData, LoginFormData, JobApplication };

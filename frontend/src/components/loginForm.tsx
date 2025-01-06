@@ -1,6 +1,5 @@
-// filepath: /c:/Users/sanan/dev/applitrack-v2/frontend/src/components/loginForm.tsx
 import { useForm } from "react-hook-form";
-import { FormData } from '@/types';
+import { LoginFormData } from '@/types';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -17,11 +16,11 @@ import { useAuthStore } from '@/store/authStore';
 
 const LoginForm = () => {
   const { toast } = useToast();
-  const form = useForm<FormData>();
+  const form = useForm<LoginFormData>();
   const navigate = useNavigate();
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
 
-  const handleLogin = async (data: FormData) => {
+  const handleLogin = async (data: LoginFormData) => {
     try {
       /* get api url  */
       const apiUrl = import.meta.env.VITE_API_URL;

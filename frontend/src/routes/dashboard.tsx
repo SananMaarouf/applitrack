@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { DataTable } from "@/components/data-table";
 import { Chart } from "@/components/PieChart";
+
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async ({ location }) => {
     const token = localStorage.getItem("authToken");

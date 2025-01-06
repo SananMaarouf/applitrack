@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
-import { FormData } from '@/types';
+import { SignupFormData } from '@/types';
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -10,11 +11,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from '@tanstack/react-router';
+import { useAuthStore } from '@/store/authStore';
 
 const SignupForm = () => {
-  const form = useForm<FormData>();
+  const { toast } = useToast();
+  const form = useForm<SignupFormData>();
+  const navigate = useNavigate();
+  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
 
-  const handleSignup = async (data: FormData) => {
+  const handleSignup = async (data: SignupFormData) => {
     try {
       /* get api url  */
       const apiUrl = import.meta.env.VITE_API_URL;
@@ -28,12 +34,37 @@ const SignupForm = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Signup request failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error);
       }
 
       const result = await response.json();
-    } catch (error) {
-      console.error(error);
+
+      // Save the JWT token in local storage
+      localStorage.setItem('authToken', result.authData.token);
+
+      toast({
+        title: 'Success',
+        description: 'Redirecting to dashboard...',
+        duration: 800,
+        variant: "default"
+      });
+
+      // Delay the following actions by 1 second
+      setTimeout(() => {
+        // Update the authentication state
+        setIsAuthenticated(true);
+
+        // Redirect to the dashboard page
+        navigate({ to: '/dashboard' });
+      }, 1000);
+
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: "destructive"
+      });
     }
   };
 
@@ -68,7 +99,7 @@ const SignupForm = () => {
         />
         <FormField
           control={form.control}
-          name="confirmPassword"
+          name="passwordConfirm"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>

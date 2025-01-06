@@ -8,7 +8,6 @@ export const Route = createFileRoute('/auth')({
   beforeLoad: async () => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      // Redirect to the dashboard page if the token is present
       throw redirect({
         to: '/dashboard',
       });

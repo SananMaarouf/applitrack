@@ -1,11 +1,9 @@
-type LoginRequest = {
+interface LoginRequest {
   email: string;
   password: string;
 }
 
-type SignupRequest = {
-  email: string;
-  password: string;
+interface SignupRequest extends LoginRequest {
   passwordConfirm: string;
 }
 
