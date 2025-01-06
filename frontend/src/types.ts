@@ -1,7 +1,17 @@
-interface FormData {
+type FormData = {
   email: string;
   password: string;
   confirmPassword?: string;
 }
 
-export type { FormData };
+type JobApplication = {
+  id: number;
+  position: string;
+  company: string;
+  applied_at: string;
+  link: string;
+  expires_at: string;
+  status: number;
+};
+
+export type { FormData, JobApplication };
