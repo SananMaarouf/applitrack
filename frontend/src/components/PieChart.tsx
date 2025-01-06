@@ -1,6 +1,6 @@
 
-import useStore from "@/useStore"
-import { motion } from "framer-motion"
+/* import useStore from "@/useStore"
+ */import { motion } from "motion/react"
 import { JobApplication } from "@/types"
 import { Label, Pie, PieChart } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -52,7 +52,45 @@ const chartConfig: ChartConfig = {
 
 export function Chart() {
 	// Get job applications from Zustand store
-	const jobApplications: JobApplication[] = useStore((state) => state.jobApplications);
+	/* const jobApplications: JobApplication[] = useStore((state) => state.jobApplications);*/
+	const jobApplications: JobApplication[] = [
+		{
+			id: 1,
+			position: "Software Engineer",
+			company: "Google",
+			applied_at: "2022-01-01",
+			status: JobStatus.APPLIED,
+		},
+		{
+			id: 2,
+			position: "Product Manager",
+			company: "Facebook",
+			applied_at: "2022-01-02",
+			status: JobStatus.INTERVIEW,
+		},
+		{
+			id: 3,
+			position: "Data Analyst",
+			company: "Amazon",
+			applied_at: "2022-01-03",
+			status: JobStatus.OFFER,
+		},
+		{
+			id: 4,
+			position: "Software Engineer",
+			company: "Microsoft",
+			applied_at: "2022-01-04",
+			status: JobStatus.REJECTED,
+		},
+		{
+			id: 5,
+			position: "Product Manager",
+			company: "Apple",
+			applied_at: "2022-01-05",
+			status: JobStatus.GHOSTED,
+		},
+	];
+	
 
 	// Group job applications by status and count them
 	const statusCounts: { [key: number]: number } = jobApplications.reduce((acc, job) => {
@@ -74,7 +112,7 @@ export function Chart() {
 			initial={{ x: -100, opacity: 0 }}
 			animate={{ x: 0, opacity: 1 }}
 		>
-			<Card className="flex flex-col bg-black">
+			<Card className="flex flex-col bg-black ">
 				<CardHeader className="items-center pb-0">
 					<CardTitle>Job applications</CardTitle>
 				</CardHeader>

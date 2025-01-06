@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { DataTable } from "@/components/data-table";
 import { Chart } from "@/components/PieChart";
+import JobApplicationForm from "@/components/JobApplicationForm";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async ({ location }) => {
@@ -21,10 +22,9 @@ export const Route = createFileRoute("/dashboard")({
 
 function RouteComponent() {
   return (
-    <section className="flex flex-col items-center">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <p className="text-lg">Welcome to the dashboard!</p>
-      <Chart />
+    <section className="flex flex-col w-screen max-w-6xl border ">
+        <Chart />
+        <JobApplicationForm />
     </section>
   );
 }

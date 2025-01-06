@@ -14,8 +14,8 @@ type JobApplication = {
   position: string;
   company: string;
   applied_at: string;
-  link: string;
-  expires_at: string;
+  link?: string; // link can be undefined
+  expires_at?: string; // expires_at can be undefined
   status: number;
 };
 
