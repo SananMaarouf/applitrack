@@ -34,6 +34,7 @@ app.post('/signup', async (c) => {
 
 app.post('/login', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
+  
   const { email, password }: LoginRequest = await c.req.json();
 
   // Validate the request body
@@ -46,8 +47,7 @@ app.post('/login', async (c) => {
     const authData = await pb.collection('users').authWithPassword(email, password);
     return c.json({ authData }, 200);
   } catch (error) {
-    console.error(error);
-    return c.json({ error: 'Login failed' }, 400);
+    return c.json({ error: 'Email or password incorrect' }, 400);
   }
 });
 
@@ -68,7 +68,6 @@ app.get('/posts', async (c) => {
     const posts = await pb.collection('posts').getFullList();
     return c.json({ posts }, 200);
   } catch (error) {
-    console.error('PocketBase error:', error);
     return c.json({ error: 'Failed to fetch posts' }, 400);
   }
 });
@@ -88,12 +87,9 @@ app.post('/createPost', async (c) => {
   try {
     pb.authStore.save(token, null); // Save the token to the auth store
     const postData: PostData = await c.req.json();
-    console.log('Post data:', postData);
-
     const post = await pb.collection('posts').create(postData);
     return c.json({ message: 'Post created successfully', post }, 201);
   } catch (error) {
-    console.error('PocketBase error:', error);
     return c.json({ error: 'Failed to create post' }, 400);
   }
 });

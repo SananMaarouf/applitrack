@@ -1,6 +1,8 @@
+// filepath: /c:/Users/sanan/dev/applitrack-v2/frontend/src/components/loginForm.tsx
 import { useForm } from "react-hook-form";
 import { FormData } from '@/types';
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -11,10 +13,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from '@tanstack/react-router';
+import { useAuthStore } from '@/store/authStore';
 
 const LoginForm = () => {
+  const { toast } = useToast();
   const form = useForm<FormData>();
   const navigate = useNavigate();
+  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
 
   const handleLogin = async (data: FormData) => {
     try {
@@ -30,18 +35,37 @@ const LoginForm = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Login request failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error);
       }
 
       const result = await response.json();
-      
+
       // Save the JWT token in local storage
       localStorage.setItem('authToken', result.authData.token);
 
-      // Redirect to the dashboard page
-      navigate({ to: '/dashboard' });
-    } catch (error) {
-      console.error(error);
+      toast({
+        title: 'Success',
+        description: 'Redirecting to dashboard...',
+        duration: 800,
+        variant: "default"
+      });
+
+      // Delay the following actions by 1 second
+      setTimeout(() => {
+        // Update the authentication state
+        setIsAuthenticated(true);
+
+        // Redirect to the dashboard page
+        navigate({ to: '/dashboard' });
+      }, 1000);
+
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: "destructive"
+      });
     }
   }
 

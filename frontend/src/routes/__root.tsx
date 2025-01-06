@@ -2,6 +2,7 @@ import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import Footer from '../components/footer'
 import Navbar from '../components/navbar'
+import { Toaster } from '@/components/ui/toaster'
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -15,6 +16,7 @@ function RootComponent() {
         <Outlet />
       </div>
       <Footer />
+      <Toaster />
       <TanStackRouterDevtools position="bottom-right" />
     </div>
   )

@@ -70,6 +70,6 @@ export const createPost = async (postData: FormData): Promise<void> => {
   }
   // Parse the JSON response.
   const result = await response.json();
-  // Log the success message and the result.
-  console.log('Post created successfully:', result);
+  // Return success if the request was successful.
+  return result.success;
 };
