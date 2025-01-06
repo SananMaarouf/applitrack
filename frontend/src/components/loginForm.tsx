@@ -10,9 +10,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from '@tanstack/react-router';
 
 const LoginForm = () => {
   const form = useForm<FormData>();
+  const navigate = useNavigate();
 
   const handleLogin = async (data: FormData) => {
     try {
@@ -26,18 +28,22 @@ const LoginForm = () => {
         },
         body: JSON.stringify(data),
       });
-  
+
       if (!response.ok) {
         throw new Error('Login request failed');
       }
-  
+
       const result = await response.json();
-      console.log(result);
+      
+      // Save the JWT token in local storage
+      localStorage.setItem('authToken', result.authData.token);
+
+      // Redirect to the dashboard page
+      navigate({ to: '/dashboard' });
     } catch (error) {
       console.error(error);
     }
   }
-
 
   return (
     <Form {...form}>
