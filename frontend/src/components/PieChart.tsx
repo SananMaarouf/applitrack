@@ -111,12 +111,13 @@ export function Chart() {
 		<motion.div
 			initial={{ x: -100, opacity: 0 }}
 			animate={{ x: 0, opacity: 1 }}
+			className="h-full grow"
 		>
-			<Card className="flex flex-col bg-black ">
-				<CardHeader className="items-center pb-0">
+			<Card className="flex flex-col bg-card h-full grow ">
+				<CardHeader className="items-center">
 					<CardTitle>Job applications</CardTitle>
 				</CardHeader>
-				<CardContent className="flex-1 pb-0">
+				<CardContent className="flex-1 pb-0 ">
 					{jobApplications.length === 0 ? (
 						<p className="text-center text-muted-foreground my-10">You have no job applications</p>
 					) : (

@@ -21,10 +21,19 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function RouteComponent() {
-  return (
-    <section className="flex flex-col w-screen max-w-6xl border ">
-        <Chart />
-        <JobApplicationForm />
+    return (
+    <section className="flex flex-col w-screen max-w-6xl">
+      <section className="flex flex-col md:flex-row">
+        <div className="w-full md:w-1/2 p-2">
+          <Chart />
+        </div>
+        <div className="w-full md:w-1/2 p-2">
+          <JobApplicationForm />
+        </div>
+      </section>
+      <section className="flex flex-row">
+        <div className="w-full h-20"></div>
+      </section>
     </section>
   );
 }

@@ -1,80 +1,125 @@
-import { motion } from "motion/react";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { motion } from "motion/react";
 
-export default function JobApplicationForm (){
+const JobApplicationForm = () => {
   const { toast } = useToast();
+  const form = useForm();
 
-  /* get state from zustand store */
-  const jobApplications = useStore((state) => state.jobApplications);
-  const user = useStore((state) => state.user);
-
-  /* set state in zustand */
-  const setJobApplications = useStore((state) => state.setJobApplications);
-
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-
-    const response = await registerJobApplication(formData, user!.id);
-
-    if (response.error) {
+  const handleSubmit = async (data: any) => {
+    try {
+      toast({
+        title: "Success",
+        description: "Job application added successfully.",
+        duration: 2000,
+      });
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: response.error || "An error occurred while adding the job application.",
+        description: error.message || "An error occurred while adding the job application.",
         duration: 5000,
         variant: "destructive",
       });
-      return;
     }
-
-    // Update the Zustand store with the new job application
-    setJobApplications([...jobApplications, response?.record as any]);    
-    toast({
-      title: "Success",
-      description: "Job application added successfully.",
-      duration: 2000,
-    });
   };
 
   return (
-    <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-      <div className="border border-b bg-card rounded-lg h-full">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-[1.6rem] text-black">
-          <div className="flex flex-col">
-            <label htmlFor="position" className="text-white text-2xl font-semibold">
-              Position
-            </label>
-            <input type="text" name="position" placeholder="Supreme leader" required className="border p-2" />
+    <motion.div
+      initial={{ x: 100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      className="h-full grow bg-card text-lg rounded-lg flex flex-col"
+    >
+      <Form {...form} >
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="flex flex-col flex-grow"
+        >
+          <div className="flex flex-col gap-2 p-2 flex-grow ">
+            <FormField
+              control={form.control}
+              name="position"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Position</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Supreme leader" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="company"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company</FormLabel>
+                  <FormControl>
+                    <Input placeholder="BlackRock" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="applied_at"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Applied At</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="expires_at"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Expiry Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="link"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Link to job posting" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="company" className="text-white text-2xl font-semibold">
-              Company
-            </label>
-            <input type="text" name="company" placeholder="BlackRock" required className="border p-2" />
+          <div className="flex justify-end p-2">
+            <Button className="hover:scale-110 w-full md:w-24" type="submit">
+              Submit
+            </Button>
           </div>
-          <div className="flex flex-col">
-            <label htmlFor="applied_at" className="text-white text-2xl font-semibold">
-              Applied At
-            </label>
-            <input type="date" name="applied_at" placeholder="Date" required className="border p-2" />
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="expires_at" className="text-white text-2xl font-semibold">
-              Expiry Date
-            </label>
-            <input type="date" name="expires_at" placeholder="Expiry Date" required className="border p-2" />
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="link" className="text-white text-2xl font-semibold">
-              Link (optional)
-            </label>
-            <input type="text" name="link" placeholder="link to job posting" className="border p-2" />
-          </div>
-          <button type="submit" className="bg-green-800 rounded-sm hover:bg-green-600 font-semibold text-xl text-white p-2">
-            Submit
-          </button>
         </form>
-      </div>
+      </Form>
     </motion.div>
   );
 };
+
+export default JobApplicationForm;
