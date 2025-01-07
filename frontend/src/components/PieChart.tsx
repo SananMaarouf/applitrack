@@ -2,6 +2,7 @@
 /* import useStore from "@/useStore"
  */import { motion } from "motion/react"
 import { JobApplication } from "@/types"
+import { useJobsStore } from "@/store/jobsStore"
 import { Label, Pie, PieChart } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -52,44 +53,8 @@ const chartConfig: ChartConfig = {
 
 export function Chart() {
 	// Get job applications from Zustand store
-	/* const jobApplications: JobApplication[] = useStore((state) => state.jobApplications);*/
-	const jobApplications: JobApplication[] = [
-		{
-			id: 1,
-			position: "Software Engineer",
-			company: "Google",
-			applied_at: "2022-01-01",
-			status: JobStatus.APPLIED,
-		},
-		{
-			id: 2,
-			position: "Product Manager",
-			company: "Facebook",
-			applied_at: "2022-01-02",
-			status: JobStatus.INTERVIEW,
-		},
-		{
-			id: 3,
-			position: "Data Analyst",
-			company: "Amazon",
-			applied_at: "2022-01-03",
-			status: JobStatus.OFFER,
-		},
-		{
-			id: 4,
-			position: "Software Engineer",
-			company: "Microsoft",
-			applied_at: "2022-01-04",
-			status: JobStatus.REJECTED,
-		},
-		{
-			id: 5,
-			position: "Product Manager",
-			company: "Apple",
-			applied_at: "2022-01-05",
-			status: JobStatus.GHOSTED,
-		},
-	];
+	const jobApplications: JobApplication[] = useJobsStore((state) => state.jobApplications);
+	
 	
 
 	// Group job applications by status and count them

@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "./ui/button";
 import { ArrowUpDown } from "lucide-react";
 import StatusSelect from "@/components/statusSelect"
-import { deleteJobApplication } from "@/api/crud";
+import { deleteApplication } from "@/api/crud";
 import { JobApplication } from "@/types";
 import { useJobsStore } from "@/store/jobsStore";
 import { useToast } from "@/hooks/use-toast";
@@ -121,7 +121,7 @@ export const columns: ColumnDef<JobApplication>[] = [
             const handleDelete = async () => {
                 const jobId = row.original.id.toString();
                 try {
-                    await deleteJobApplication(jobId);
+                    await deleteApplication(jobId);
                     
                     // Update the Zustand store to remove the deleted job application
                     setJobApplications(jobApplications.filter((job) => job.id.toString() !== jobId));

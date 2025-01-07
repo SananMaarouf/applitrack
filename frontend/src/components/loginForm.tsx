@@ -19,6 +19,7 @@ const LoginForm = () => {
   const form = useForm<LoginFormData>();
   const navigate = useNavigate();
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const setUserAuthData = useAuthStore((state) => state.setUserAuthData);
 
   const handleLogin = async (data: LoginFormData) => {
     try {
@@ -42,6 +43,13 @@ const LoginForm = () => {
 
       // Save the JWT token in local storage
       localStorage.setItem('authToken', result.authData.token);
+      // Save the user data in local storage
+      const { id, email } = result.authData.record;
+      localStorage.setItem('authData', JSON.stringify({ id, email }));
+
+      // Update the authentication state and user auth data
+      setIsAuthenticated(true);
+      setUserAuthData(id, email);
 
       toast({
         title: 'Success',
@@ -52,9 +60,6 @@ const LoginForm = () => {
 
       // Delay the following actions by 1 second
       setTimeout(() => {
-        // Update the authentication state
-        setIsAuthenticated(true);
-
         // Redirect to the dashboard page
         navigate({ to: '/dashboard' });
       }, 1000);

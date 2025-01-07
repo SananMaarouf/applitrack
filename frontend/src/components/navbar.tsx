@@ -16,7 +16,9 @@ const Navbar = () => {
 
   const handleSignOut = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('authData');
     setIsAuthenticated(false);
+
     navigate({ to: '/' });
   };
 

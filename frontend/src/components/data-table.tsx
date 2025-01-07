@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useJobsStore } from "@/store/jobsStore";
+import { columns } from "@/components/columns";
 import {
   ColumnDef,
   flexRender,
@@ -13,7 +14,6 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-
 import {
   Table,
   TableBody,
@@ -28,30 +28,20 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-}
-
 const LOCAL_STORAGE_KEY = "dataTableVisibilityState";
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
+export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const jobApplications = useJobsStore((state) => state.jobApplications);
-  const setJobApplications = useJobsStore((state) => state.setJobs);
-
+  
   const table = useReactTable({
-    data: jobApplications as any,
+    data: jobApplications,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -81,12 +71,6 @@ export function DataTable<TData, TValue>({
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(columnVisibility));
     }
   }, [columnVisibility]);
-
-  // Update the job application state in Zustand store when DataTable mounts
-  useEffect(() => {
-    setJobApplications(data as any);
-  }, [data, setJobApplications]);
-
 
   return (
     <motion.div

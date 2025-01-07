@@ -11,13 +11,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { motion } from "motion/react";
+import { createApplication } from "@/api/crud";
+import { ApplicationForm } from "@/types";
 
 const JobApplicationForm = () => {
   const { toast } = useToast();
-  const form = useForm();
+  const form = useForm<ApplicationForm>();
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: ApplicationForm) => {
     try {
+      console.log(data);
+      const response = await createApplication(data);
+      console.log(response);
       toast({
         title: "Success",
         description: "Job application added successfully.",
@@ -26,7 +31,7 @@ const JobApplicationForm = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "An error occurred while adding the job application.",
+        description: "Failed to add job application.",
         duration: 5000,
         variant: "destructive",
       });

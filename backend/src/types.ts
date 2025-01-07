@@ -7,11 +7,27 @@ interface SignupRequest extends LoginRequest {
   passwordConfirm: string;
 }
 
-type PostData = {
-  id: string;
-  createdby: string;
-  created: string;
-  updated: string;
+type JobApplicationForm = {
+  position: string;
+  company: string;
+  applied_at?: string;
+  expires_at?: string;
+  link?: string;
 }
 
-export { LoginRequest, SignupRequest, PostData };
+type JobApplication = {
+  applied_at?: string;
+  collectionId?: string;
+  collectionName?: string;
+  company: string;
+  created?: string;
+  expires_at?: string;
+  id: string;
+  link?: string;
+  position: string;
+  status: number;
+  updated?: string;
+  user?: string;
+}
+
+export { LoginRequest, SignupRequest, JobApplicationForm, JobApplication };

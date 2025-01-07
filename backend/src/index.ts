@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { showRoutes } from 'hono/dev';
 import PocketBase from 'pocketbase';
-import { LoginRequest, SignupRequest, PostData } from './types'; // Import the LoginRequest type
+import { LoginRequest, SignupRequest, JobApplicationForm } from './types'; // Import the LoginRequest type
 
 const app = new Hono();
 
@@ -13,6 +13,7 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 }));
 
+// Auth
 app.post('/signup', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
   const { email, password, passwordConfirm }: SignupRequest = await c.req.json();
@@ -35,7 +36,7 @@ app.post('/signup', async (c) => {
     return c.json({ error: 'Signup failed: ' + error }, 400);
   }
 });
-
+// Auth
 app.post('/login', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
   
@@ -55,6 +56,25 @@ app.post('/login', async (c) => {
   }
 });
 
+// Create job application
+app.post('/createJobApplication', async (c) => {
+  const pb = new PocketBase('https://applitrack.pockethost.io');
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  try {
+    pb.authStore.save(token, null); // Save the token to the auth store
+    const postData: JobApplicationForm = await c.req.json();
+    const post = await pb.collection('job_applications').create(postData);
+    return c.json({ post }, 200);
+  } catch (error) {
+    return c.json({ error }, 400);
+  }
+});
+
+// Get job applications
 app.get('/jobs', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
 
@@ -70,13 +90,15 @@ app.get('/jobs', async (c) => {
   try {
     pb.authStore.save(token, null); // Save the token to the auth store    
     const job_applications = await pb.collection('job_applications').getFullList();
+    console.log(job_applications);
     return c.json(job_applications, 200);
   } catch (error) {
     return c.json({ error: 'Failed to fetch posts' }, 400);
   }
 });
 
-app.post('/createPost', async (c) => {
+/* // Update a job application
+app.patch('/job_applications/:id', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
 
   // Extract the JWT token from the Authorization header
@@ -90,13 +112,37 @@ app.post('/createPost', async (c) => {
   // Authenticate using the token
   try {
     pb.authStore.save(token, null); // Save the token to the auth store
-    const postData: PostData = await c.req.json();
-    const post = await pb.collection('posts').create(postData);
-    return c.json({ message: 'Post created successfully', post }, 201);
+    const { id } = c.body;
+    const { status } = await c.req.json();
+    const job_application = await pb.collection('job_applications').update(id, { status });
+    return c.json(job_application, 200);
   } catch (error) {
-    return c.json({ error: 'Failed to create post' }, 400);
+    return c.json({ error: 'Failed to update job application' }, 400);
   }
-});
+}); */
+
+/* // Delete a job application
+app.delete('/job_applications/:id', async (c) => {
+  const pb = new PocketBase('https://applitrack.pockethost.io');
+
+  // Extract the JWT token from the Authorization header
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+  // Authenticate using the token
+  try {
+    pb.authStore.save(token, null); // Save the token to the auth store
+    const { id } = c.params;
+    const job_application = await pb.collection('job_applications').delete(id);
+    return c.json(job_application, 200);
+  } catch (error) {
+    return c.json({ error: 'Failed to delete job application' }, 400);
+  }
+}); */
 
 showRoutes(app);
 
