@@ -16,7 +16,7 @@ type JobApplication = {
   company: string;
   created?: string;
   expires_at?: string;
-  id: string;
+  id?: string;
   link?: string;
   position: string;
   status: number;

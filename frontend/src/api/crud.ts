@@ -1,11 +1,12 @@
 import type { ApplicationForm, JobApplication } from '../types';
+import { useJobsStore } from '@/store/jobsStore';
 
 // Create a new job application record.
 export const createApplication = async (formData: ApplicationForm): Promise<any> => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem('authToken');
   const authData = localStorage.getItem('authData');
-
+  
   if (!token || !authData) {
     throw new Error('No authentication token found');
   }
@@ -29,7 +30,14 @@ export const createApplication = async (formData: ApplicationForm): Promise<any>
     throw new Error(errorResponse.message);
   }
 
-  return response.json();
+  const responseData = await response.json();
+  const newJobApplication = responseData.post;
+
+  // Update the JobsStore with the new job application
+  const jobsStore = useJobsStore.getState();
+  jobsStore.setJobs([...jobsStore.jobApplications, newJobApplication]);
+
+  return newJobApplication;
 };
 
 // Fetch data from the /jobs endpoint.
