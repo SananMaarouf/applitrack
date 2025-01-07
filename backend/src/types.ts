@@ -7,7 +7,8 @@ interface SignupRequest extends LoginRequest {
   passwordConfirm: string;
 }
 
-type JobApplicationForm = {
+type ApplicationForm = {
+  user: string;
   position: string;
   company: string;
   applied_at?: string;
@@ -30,4 +31,4 @@ type JobApplication = {
   user?: string;
 }
 
-export { LoginRequest, SignupRequest, JobApplicationForm, JobApplication };
+export { LoginRequest, SignupRequest, ApplicationForm, JobApplication };

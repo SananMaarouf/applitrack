@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { showRoutes } from 'hono/dev';
 import PocketBase from 'pocketbase';
-import { LoginRequest, SignupRequest, JobApplicationForm } from './types'; // Import the LoginRequest type
+import { LoginRequest, SignupRequest, ApplicationForm } from './types'; // Import the LoginRequest type
 
 const app = new Hono();
 
@@ -63,10 +63,11 @@ app.post('/createJobApplication', async (c) => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  const token = authHeader.substring(7);
+  
   try {
     pb.authStore.save(token, null); // Save the token to the auth store
-    const postData: JobApplicationForm = await c.req.json();
+    const postData: ApplicationForm = await c.req.json();
     const post = await pb.collection('job_applications').create(postData);
     return c.json({ post }, 200);
   } catch (error) {
@@ -90,7 +91,6 @@ app.get('/jobs', async (c) => {
   try {
     pb.authStore.save(token, null); // Save the token to the auth store    
     const job_applications = await pb.collection('job_applications').getFullList();
-    console.log(job_applications);
     return c.json(job_applications, 200);
   } catch (error) {
     return c.json({ error: 'Failed to fetch posts' }, 400);

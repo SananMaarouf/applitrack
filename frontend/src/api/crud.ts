@@ -4,9 +4,16 @@ import type { ApplicationForm, JobApplication } from '../types';
 export const createApplication = async (formData: ApplicationForm): Promise<any> => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem('authToken');
-  if (!token) {
+  const authData = localStorage.getItem('authData');
+
+  if (!token || !authData) {
     throw new Error('No authentication token found');
   }
+
+  const user = JSON.parse(authData).id;
+  const status = 1;
+  const updatedFormData = { ...formData, user, status };
+
   // Make a POST request to the /createJobApplication endpoint with the post data.
   const response = await fetch(`${apiUrl}/createJobApplication`, {
     method: 'POST',
@@ -14,12 +21,14 @@ export const createApplication = async (formData: ApplicationForm): Promise<any>
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify(formData),
+    body: JSON.stringify(updatedFormData),
   });
+
   if (!response.ok) {
     const errorResponse = await response.json();
     throw new Error(errorResponse.message);
   }
+
   return response.json();
 };
 

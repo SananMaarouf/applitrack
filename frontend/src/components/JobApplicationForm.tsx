@@ -20,9 +20,7 @@ const JobApplicationForm = () => {
 
   const handleSubmit = async (data: ApplicationForm) => {
     try {
-      console.log(data);
-      const response = await createApplication(data);
-      console.log(response);
+      await createApplication(data);
       toast({
         title: "Success",
         description: "Job application added successfully.",
