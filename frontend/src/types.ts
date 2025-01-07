@@ -10,7 +10,7 @@ type LoginFormData = {
 }
 
 type JobApplication = {
-  id: number;
+  id: string;
   position: string;
   company: string;
   applied_at: string;

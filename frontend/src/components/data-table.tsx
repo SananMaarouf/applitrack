@@ -1,9 +1,6 @@
-"use client";
-import React from "react";
 import { useEffect, useState } from "react";
-import useStore from "@/useStore";
 import { motion } from "framer-motion";
-import { JobApplication } from "@/types";
+import { useJobsStore } from "@/store/jobsStore";
 import {
   ColumnDef,
   flexRender,
@@ -50,8 +47,8 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const jobApplications = useStore((state) => state.jobApplications);
-  const setJobApplications = useStore((state) => state.setJobApplications);
+  const jobApplications = useJobsStore((state) => state.jobApplications);
+  const setJobApplications = useJobsStore((state) => state.setJobs);
 
   const table = useReactTable({
     data: jobApplications as any,
@@ -87,13 +84,15 @@ export function DataTable<TData, TValue>({
 
   // Update the job application state in Zustand store when DataTable mounts
   useEffect(() => {
-    setJobApplications(data as JobApplication[]);
+    setJobApplications(data as any);
   }, [data, setJobApplications]);
+
 
   return (
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
+      className="w-full"
     >
       <div className="bg-black px-2 rounded-lg">
         <div className="flex items-center py-4">

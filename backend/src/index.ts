@@ -9,7 +9,7 @@ const app = new Hono();
 // Use CORS middleware with restricted origins
 app.use('*', cors({
   origin: ['http://localhost:3000', 'https://www.applitrack.no', 'https://applitrack.pockethost.io/'], // Allowed origins
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+  allowMethods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'], // Allowed methods
   allowHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 }));
 
@@ -55,7 +55,7 @@ app.post('/login', async (c) => {
   }
 });
 
-app.get('/posts', async (c) => {
+app.get('/jobs', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
 
   // Extract the JWT token from the Authorization header
@@ -69,8 +69,8 @@ app.get('/posts', async (c) => {
   // Authenticate using the token
   try {
     pb.authStore.save(token, null); // Save the token to the auth store    
-    const posts = await pb.collection('posts').getFullList();
-    return c.json({ posts }, 200);
+    const job_applications = await pb.collection('job_applications').getFullList();
+    return c.json(job_applications, 200);
   } catch (error) {
     return c.json({ error: 'Failed to fetch posts' }, 400);
   }
