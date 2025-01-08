@@ -121,7 +121,7 @@ app.patch('/job_applications/:id', async (c) => {
   }
 });
 
-/* // Delete a job application
+// Delete a job application
 app.delete('/job_applications/:id', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
 
@@ -136,13 +136,13 @@ app.delete('/job_applications/:id', async (c) => {
   // Authenticate using the token
   try {
     pb.authStore.save(token, null); // Save the token to the auth store
-    const { id } = c.params;
+    const { id } = c.req.param();
     const job_application = await pb.collection('job_applications').delete(id);
     return c.json(job_application, 200);
   } catch (error) {
     return c.json({ error: 'Failed to delete job application' }, 400);
   }
-}); */
+});
 
 showRoutes(app);
 
