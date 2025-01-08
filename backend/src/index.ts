@@ -64,7 +64,7 @@ app.post('/createJobApplication', async (c) => {
     return c.json({ error: 'Unauthorized' }, 401);
   }
   const token = authHeader.substring(7);
-  
+
   try {
     pb.authStore.save(token, null); // Save the token to the auth store
     const postData: ApplicationForm = await c.req.json();
@@ -97,7 +97,7 @@ app.get('/jobs', async (c) => {
   }
 });
 
-/* // Update a job application
+// Update a job application
 app.patch('/job_applications/:id', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
 
@@ -112,14 +112,14 @@ app.patch('/job_applications/:id', async (c) => {
   // Authenticate using the token
   try {
     pb.authStore.save(token, null); // Save the token to the auth store
-    const { id } = c.body;
+    const { id } = c.req.param();
     const { status } = await c.req.json();
     const job_application = await pb.collection('job_applications').update(id, { status });
     return c.json(job_application, 200);
   } catch (error) {
     return c.json({ error: 'Failed to update job application' }, 400);
   }
-}); */
+});
 
 /* // Delete a job application
 app.delete('/job_applications/:id', async (c) => {

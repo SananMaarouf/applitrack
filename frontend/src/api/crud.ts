@@ -64,6 +64,7 @@ export const fetchData = async (): Promise<JobApplication[]> => {
 export const statusUpdate = async (jobId: string, status: number): Promise<JobApplication> => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem('authToken');
+  const authData = localStorage.getItem('authData');
   if (!token) {
     throw new Error('No authentication token found');
   }

@@ -59,7 +59,7 @@ export default function StatusSelect({ row }: any) {
             // Handle any unexpected errors that occur during the process
             toast({
                 title: "Error",
-                description: error.message || "An unexpected error occurred.",
+                description: "Could not update status.",
                 duration: 5000,
                 variant: "destructive"
             });
