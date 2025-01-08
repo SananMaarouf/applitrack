@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuthStore } from '@/store/authStore';
 
 const LoginForm = () => {
@@ -102,8 +102,12 @@ const LoginForm = () => {
             </FormItem>
           )}
         />
-        <div className='flex justify-end'>
-          <Button className='hover:scale-110' type="submit">Log in</Button>
+        <div className="flex flex-col-reverse justify-between items-center gap-4">
+          <Link to="/forgot-password" className="
+            text-sm text-foreground underline hover:decoration-1">
+            Forgot your password?
+          </Link>
+          <Button className='hover:scale-110 w-full' type="submit">Log in</Button>
         </div>
       </form>
     </Form>

@@ -56,6 +56,41 @@ app.post('/login', async (c) => {
   }
 });
 
+// Auth
+app.post('/forgot-password', async (c) => {
+  const pb = new PocketBase('https://applitrack.pockethost.io');
+  const { email }: { email: string } = await c.req.json();
+
+  // Validate the request body
+  if (!email) {
+    console.error('Validation error: Missing required fields');
+    return c.json({ error: 'Validation error: Missing required fields' }, 400);
+  }
+
+  await pb.collection('users').requestPasswordReset(email);
+  return c.json({ message: 'If this email exists in our system, you will receive a password reset link shortly.' }, 200);
+});
+
+// Auth
+app.post('/reset-password', async (c) => {
+  const pb = new PocketBase('https://applitrack.pockethost.io');
+  const { token, password, passwordConfirm } = await c.req.json();
+
+  // Validate the request body
+  if (!token || !password || !passwordConfirm) {
+    console.error('Validation error: Missing required fields');
+    return c.json({ error: 'Validation error: Missing required fields' }, 400);
+  }
+
+  try {
+    await pb.collection('users').confirmPasswordReset(token, password, passwordConfirm);
+    return c.json({ message: 'Password reset successful' }, 200);
+  } catch (error) {
+    console.log(error)
+    return c.json({ error: 'Password reset failed. Invalid or expired token' }, 400);
+  }
+});
+
 // Create job application
 app.post('/createJobApplication', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');

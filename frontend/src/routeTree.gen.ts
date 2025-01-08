@@ -16,6 +16,7 @@ import { Route as ForgotPasswordImport } from './routes/forgot-password'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AuthImport } from './routes/auth'
 import { Route as IndexImport } from './routes/index'
+import { Route as ResetPasswordTokenImport } from './routes/reset-password.$token'
 
 // Create/Update Routes
 
@@ -46,6 +47,12 @@ const AuthRoute = AuthImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ResetPasswordTokenRoute = ResetPasswordTokenImport.update({
+  id: '/reset-password/$token',
+  path: '/reset-password/$token',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -88,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TosImport
       parentRoute: typeof rootRoute
     }
+    '/reset-password/$token': {
+      id: '/reset-password/$token'
+      path: '/reset-password/$token'
+      fullPath: '/reset-password/$token'
+      preLoaderRoute: typeof ResetPasswordTokenImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -99,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/tos': typeof TosRoute
+  '/reset-password/$token': typeof ResetPasswordTokenRoute
 }
 
 export interface FileRoutesByTo {
@@ -107,6 +122,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/tos': typeof TosRoute
+  '/reset-password/$token': typeof ResetPasswordTokenRoute
 }
 
 export interface FileRoutesById {
@@ -116,14 +132,34 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/tos': typeof TosRoute
+  '/reset-password/$token': typeof ResetPasswordTokenRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/forgot-password' | '/tos'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/forgot-password'
+    | '/tos'
+    | '/reset-password/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/forgot-password' | '/tos'
-  id: '__root__' | '/' | '/auth' | '/dashboard' | '/forgot-password' | '/tos'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/forgot-password'
+    | '/tos'
+    | '/reset-password/$token'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/forgot-password'
+    | '/tos'
+    | '/reset-password/$token'
   fileRoutesById: FileRoutesById
 }
 
@@ -133,6 +169,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   TosRoute: typeof TosRoute
+  ResetPasswordTokenRoute: typeof ResetPasswordTokenRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -141,6 +178,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   TosRoute: TosRoute,
+  ResetPasswordTokenRoute: ResetPasswordTokenRoute,
 }
 
 export const routeTree = rootRoute
@@ -157,7 +195,8 @@ export const routeTree = rootRoute
         "/auth",
         "/dashboard",
         "/forgot-password",
-        "/tos"
+        "/tos",
+        "/reset-password/$token"
       ]
     },
     "/": {
@@ -174,6 +213,9 @@ export const routeTree = rootRoute
     },
     "/tos": {
       "filePath": "tos.tsx"
+    },
+    "/reset-password/$token": {
+      "filePath": "reset-password.$token.tsx"
     }
   }
 }

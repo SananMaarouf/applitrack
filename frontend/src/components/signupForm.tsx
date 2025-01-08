@@ -70,7 +70,7 @@ const SignupForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSignup)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSignup)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -111,7 +111,7 @@ const SignupForm = () => {
           )}
         />
         <div className='flex justify-end'>
-          <Button className='hover:scale-110' type="submit">Register</Button>
+          <Button className='hover:scale-110 w-full' type="submit">Register</Button>
         </div>
       </form>
     </Form>

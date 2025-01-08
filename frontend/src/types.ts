@@ -9,6 +9,16 @@ type LoginFormData = {
   password: string;
 }
 
+type forgotPasswordFormData = {
+  email: string;
+}
+
+type resetPasswordFormData = {
+  token: string;
+  password: string;
+  passwordConfirm: string;
+}
+
 type JobApplication = {
   applied_at?: string;
   collectionId?: string;
@@ -34,4 +44,8 @@ type ApplicationForm = {
 }
 
 
-export type { SignupFormData, LoginFormData, JobApplication, ApplicationForm };
+export type { 
+  SignupFormData, LoginFormData, 
+  JobApplication, ApplicationForm,
+  forgotPasswordFormData, resetPasswordFormData
+};
