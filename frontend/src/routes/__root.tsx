@@ -12,7 +12,7 @@ function RootComponent() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="flex flex-grow mx-auto border">
+      <div className="flex flex-grow mx-auto ">
         <Outlet />
       </div>
       <Footer />

@@ -78,7 +78,7 @@ export function DataTable() {
       animate={{ y: 0, opacity: 1 }}
       className="w-full"
     >
-      <div className="bg-black px-2 rounded-lg">
+      <div className="bg-card px-2 rounded-lg">
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter positions..."
@@ -86,11 +86,11 @@ export function DataTable() {
             onChange={(event) =>
               table.getColumn("position")?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="max-w-sm border-gray-500"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="default" className="ml-auto bg-foreground text-black hover:scale-110">
                 Columns
               </Button>
             </DropdownMenuTrigger>
@@ -116,7 +116,7 @@ export function DataTable() {
           </DropdownMenu>
           
         </div>
-        <div className="rounded-md border">
+        <div className="rounded-md border border-gray-500">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

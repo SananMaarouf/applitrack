@@ -102,7 +102,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     },
     cell: ({ row }) => {
       return (
-        <StatusSelect row={row} />
+        <StatusSelect className="" row={row} />
       );
     },
   },
