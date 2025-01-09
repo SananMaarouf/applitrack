@@ -2,6 +2,7 @@ type SignupFormData = {
   email: string;
   password: string;
   passwordConfirm?: string;
+  terms?: boolean;
 }
 
 type LoginFormData = {

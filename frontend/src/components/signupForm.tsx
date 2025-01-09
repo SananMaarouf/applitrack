@@ -11,8 +11,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '@/store/authStore';
+import { Checkbox } from "./ui/checkbox";
 
 const SignupForm = () => {
   const { toast } = useToast();
@@ -110,6 +111,25 @@ const SignupForm = () => {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="terms"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className="flex items-center"  {...field}>
+                  <Checkbox />
+                  <span className="ml-2">I agree to the 
+                    <Link to="/tos" className="underline ml-1">
+                      terms and conditions
+                    </Link></span>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
         <div className='flex justify-end'>
           <Button className='hover:scale-110 w-full duration-300 transition-all' type="submit">Register</Button>
         </div>
