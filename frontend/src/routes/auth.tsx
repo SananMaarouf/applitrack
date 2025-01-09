@@ -18,7 +18,7 @@ export const Route = createFileRoute('/auth')({
 
 function RouteComponent() {
   return (
-    <section className="flex items-center justify-center mx-auto">
+    <section className="flex items-center justify-center mx-2 md:mx-auto w-full">
       <Card className='w-full md:w-96 border flex flex-col p-6'>
         <Tabs defaultValue="login" className='w-full'>
           <TabsList className='w-full'>

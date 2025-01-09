@@ -122,7 +122,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     cell: ({ row }) => {
       return (
         row.original && row.original.link ? (
-          <Button>
+          <Button className="hover:scale-95 transition-all duration-300">
             <a href={row.original.link} target="_blank" rel="noopener noreferrer">Link</a>
           </Button>
         ) : (
@@ -142,7 +142,7 @@ export const columns: ColumnDef<JobApplication>[] = [
 
       return (
         <div className="flex space-x-2">
-          <Button variant="destructive" onClick={() => handleDelete(row.original.id!.toString(), setJobApplications, jobApplications, toast)}>Delete</Button>
+          <Button variant="destructive" className="border hover:scale-95 transition-all duration-300" onClick={() => handleDelete(row.original.id!.toString(), setJobApplications, jobApplications, toast)}>Delete</Button>
         </div>
       );
     },

@@ -38,10 +38,14 @@ const JobApplicationForm = () => {
 
   return (
     <motion.div
-      initial={{ x: 100, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      className="h-full grow bg-card text-lg rounded-lg flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="h-full grow bg-card border text-lg rounded-lg flex flex-col hover:border hover:border-gray-500 duration-1000"
     >
+      <h2
+        className="text-2xl font-bold text-center pt-2">
+        Add Job Application
+      </h2>
       <Form {...form} >
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
@@ -74,32 +78,38 @@ const JobApplicationForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="applied_at"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Applied At</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="expires_at"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Expiry Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex flex-row space-x-4">
+              <div className="w-1/2">
+                <FormField
+                  control={form.control}
+                  name="applied_at"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Applied At</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="w-1/2">
+                <FormField
+                  control={form.control}
+                  name="expires_at"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Expiry Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
             <FormField
               control={form.control}
               name="link"
@@ -115,8 +125,8 @@ const JobApplicationForm = () => {
             />
           </div>
           <div className="flex justify-end p-2">
-            <Button className="hover:scale-110 w-full md:w-24" type="submit">
-              Submit
+            <Button className="hover:scale-90 transition-all w-full md:w-24" type="submit">
+              Add
             </Button>
           </div>
         </form>

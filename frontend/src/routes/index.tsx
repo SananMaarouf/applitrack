@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import BusyMan from "../components/busyMan";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,

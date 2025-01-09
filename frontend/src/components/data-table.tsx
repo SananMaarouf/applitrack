@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useJobsStore } from "@/store/jobsStore";
 import { columns } from "@/components/columns";
 import {
@@ -76,9 +76,9 @@ export function DataTable() {
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="w-full"
+      className="w-full "
     >
-      <div className="bg-card px-2 rounded-lg">
+      <div className="bg-card px-3 rounded-lg border hover:border-gray-500 transition-all duration-1000">
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter positions..."
@@ -90,7 +90,7 @@ export function DataTable() {
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="ml-auto bg-foreground text-black hover:scale-110">
+              <Button variant="default" className="ml-auto bg-foreground text-black hover:scale-90 transition-all">
                 Columns
               </Button>
             </DropdownMenuTrigger>
