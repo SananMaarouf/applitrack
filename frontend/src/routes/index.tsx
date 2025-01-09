@@ -36,8 +36,8 @@ function HomeComponent() {
           my-2 px-0 py-1 
           md:py-16 text-center md:text-left justify-center h-full text-white"
       >
-        <div className="w-full lg:w-1/2 flex flex-col md:items-start overflow-hidden">
-          <h1 className="text-5xl text-left md:text-7xl font-bold mb-4 md:mx-auto lg:mx-0">
+        <div className="w-full md:px-0 lg:w-1/2 flex flex-col md:items-start overflow-hidden">
+          <h1 className="px-4 md:px-0 text-5xl text-left md:text-7xl font-bold mb-4 md:mx-auto lg:mx-0">
             From{" "}
             <span className="underline text-pretty break-words">
               application

@@ -82,8 +82,8 @@ export function Chart() {
 
   return (
     <motion.div
-      initial={{ x: -100, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="h-full grow "
     >
       <Card className="flex flex-col hover:border hover:border-gray-500 transition-all duration-700 bg-card h-full grow ">
