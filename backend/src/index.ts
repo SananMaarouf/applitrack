@@ -91,6 +91,25 @@ app.post('/reset-password', async (c) => {
   }
 });
 
+// Auth
+app.delete('/delete-account', async (c) => {
+  const pb = new PocketBase('https://applitrack.pockethost.io');
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const token = authHeader.substring(7);
+
+  try {
+    const { id } = await c.req.json(); // Extract user.id from the request body
+    pb.authStore.save(token, null); // Save the token to the auth store
+    await pb.collection('users').delete(id); // Pass the id to the delete method
+    return c.json({ message: 'Account deleted' }, 200);
+  } catch (error) {
+    return c.json({ error: 'Failed to delete account' }, 400);
+  }
+});
+
 // Create job application
 app.post('/createJobApplication', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');

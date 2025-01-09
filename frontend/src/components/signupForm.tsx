@@ -111,7 +111,7 @@ const SignupForm = () => {
           )}
         />
         <div className='flex justify-end'>
-          <Button className='hover:scale-110 w-full' type="submit">Register</Button>
+          <Button className='hover:scale-110 w-full duration-300 transition-all' type="submit">Register</Button>
         </div>
       </form>
     </Form>

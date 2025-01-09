@@ -7,22 +7,6 @@ export const Route = createFileRoute("/")({
 });
 
 function HomeComponent() {
-  // Define animation variants
-  const containerVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        staggerChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
 
   return (
     <div className="bg-transparent flex flex-col items-center w-full">
@@ -37,7 +21,7 @@ function HomeComponent() {
           md:py-16 text-center md:text-left justify-center h-full text-white"
       >
         <div className="w-full md:px-0 lg:w-1/2 flex flex-col md:items-start overflow-hidden">
-          <h1 className="px-4 md:px-0 text-5xl text-left md:text-7xl font-bold mb-4 md:mx-auto lg:mx-0">
+          <h1 className="px-4 lg:px-0 text-5xl text-left md:text-7xl font-bold mb-4 md:mx-auto lg:mx-0">
             From{" "}
             <span className="underline text-pretty break-words">
               application
@@ -99,14 +83,12 @@ function HomeComponent() {
         <h2 className="text-4xl font-bold mb-8">What are you waiting for?</h2>
         <p className="text-xl mb-8">Stay on track with Applitrack</p>
         <Link to="/auth">
-          <motion.p 
-            whileHover={{ scale: 0.90 }}
-            className="
+          <p className="
               px-6 py-3 bg-foreground 
               text-black rounded-md 
-              font-semibold">
+              font-semibold hover:scale-125 duration-300">
               Get started
-          </motion.p>
+          </p>
         </Link>
       </section>
     </div>

@@ -37,11 +37,7 @@ const JobApplicationForm = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="h-full grow bg-card border text-lg rounded-lg flex flex-col hover:border hover:border-gray-500 duration-1000"
-    >
+    <div className="h-full grow bg-card border text-lg rounded-lg flex flex-col hover:border hover:border-gray-500 duration-1000">
       <h2
         className="text-2xl font-bold text-center pt-2">
         Add Job Application
@@ -131,7 +127,7 @@ const JobApplicationForm = () => {
           </div>
         </form>
       </Form>
-    </motion.div>
+    </div>
   );
 };
 

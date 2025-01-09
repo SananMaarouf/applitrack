@@ -36,7 +36,7 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="w-full md:w-2/3 mx-auto h-20 content-center"
+      className="w-full lg:w-2/3 mx-auto h-20 content-center"
     >
       <div className="flex justify-between px-2 md:px-9">
         <Link to="/" className="rounded-md text-sm font-medium">
@@ -46,15 +46,15 @@ const Navbar = () => {
         {/* Conditionals for authenticated users */}
         {isAuthenticated ? (
           location.pathname === '/' ? (
-            <motion.div className='my-auto' whileHover={{ scale: 0.95 }}>
+            <div className='my-auto hover:scale-95'>
               <Link to="/dashboard"
                 className=" py-3 px-3 text-md bg-card font-bold flex rounded-lg no-underline border hover:border-white"
               >
                 Dashboard
               </Link>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div className='my-auto' whileHover={{ scale: 0.95 }}>
+            <div className='my-auto duration-300' >
             <DropdownMenu>
               <DropdownMenuTrigger asChild
                 className="p-1 my-auto border rounded-md bg-card hover:border-white transition-all duration-500">
@@ -69,10 +69,10 @@ const Navbar = () => {
                 </Link>
                 <DropdownMenuSeparator />
                 <Link
-                  to='/profile'
+                  to='/account'
                   className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-gray-500 transition-all duration-300"
                 >
-                  Profile
+                  Account
                 </Link>
                 <DropdownMenuSeparator />
                 <Link
@@ -88,17 +88,17 @@ const Navbar = () => {
                 </button>
               </DropdownMenuContent>
             </DropdownMenu>
-            </motion.div>
+            </div>
 
           )
         ) : (
-          <motion.div className='my-auto' whileHover={{ scale: 1.1 }}>
+          <div className='my-auto hover:scale-110 duration-150 '>
             <Link to="/auth"
               className=" py-3 px-3 mr-2 md:mr-0 text-md bg-card font-bold flex rounded-lg no-underline border hover:border-white"
             >
-              Login / Register
+              Get started
             </Link>
-          </motion.div>
+          </div>
         )}
       </div>
     </motion.nav>

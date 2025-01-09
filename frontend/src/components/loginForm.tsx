@@ -107,7 +107,7 @@ const LoginForm = () => {
             text-sm text-foreground underline hover:decoration-1">
             Forgot your password?
           </Link>
-          <Button className='hover:scale-110 w-full' type="submit">Log in</Button>
+          <Button className='hover:scale-110 w-full transition-all duration-300' type="submit">Log in</Button>
         </div>
       </form>
     </Form>
