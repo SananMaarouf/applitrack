@@ -69,7 +69,7 @@ const Navbar = () => {
                 </Link>
                 <DropdownMenuSeparator />
                 <Link
-                  to='/dashboard'
+                  to='/profile'
                   className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-gray-500 transition-all duration-300"
                 >
                   Profile
