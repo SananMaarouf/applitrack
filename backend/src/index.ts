@@ -29,6 +29,7 @@ app.post('/signup', async (c) => {
 
     // Sign in the user to get the JWT token
     const authData = await pb.collection('users').authWithPassword(email, password);
+    
     return c.json({ message: 'Signup successful', authData, token: authData.token }, 200);
   } catch (error) {
     console.error('PocketBase error:', error);
