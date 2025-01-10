@@ -25,11 +25,11 @@ app.post('/signup', async (c) => {
   }
 
   try {
-    const user = await pb.collection('users').create({ email, password, passwordConfirm });
+    await pb.collection('users').create({ email, password, passwordConfirm });
 
     // Sign in the user to get the JWT token
     const authData = await pb.collection('users').authWithPassword(email, password);
-    return c.json({ message: 'Signup successful', user, token: authData.token }, 200);
+    return c.json({ message: 'Signup successful', authData, token: authData.token }, 200);
   } catch (error) {
     console.error('PocketBase error:', error);
     return c.json({ error: 'Signup failed: ' + error }, 400);
