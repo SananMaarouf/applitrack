@@ -8,7 +8,7 @@ const app = new Hono();
 
 // Use CORS middleware with restricted origins
 app.use('*', cors({
-  origin: ['https://www.applitrack.no', 'https://applitrack.pockethost.io/'], // Allowed origins
+  origin: ['http://localhost:3000', 'https://www.applitrack.no', 'https://applitrack.pockethost.io/'], // Allowed origins
   allowMethods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'], // Allowed methods
   allowHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 }));
@@ -29,7 +29,6 @@ app.post('/signup', async (c) => {
 
     // Sign in the user to get the JWT token
     const authData = await pb.collection('users').authWithPassword(email, password);
-
     return c.json({ message: 'Signup successful', user, token: authData.token }, 200);
   } catch (error) {
     console.error('PocketBase error:', error);
