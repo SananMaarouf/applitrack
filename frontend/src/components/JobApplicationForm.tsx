@@ -10,7 +10,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { motion } from "motion/react";
 import { createApplication } from "@/api/crud";
 import { ApplicationForm } from "@/types";
 

@@ -41,13 +41,15 @@ const SignupForm = () => {
 
       const result = await response.json();
 
-      // Save the JWT token in local storage
-      localStorage.setItem('authToken', result.authData.token);
+      if (result) {
+        localStorage.setItem('authToken', result.token);
+        localStorage.setItem('authData', JSON.stringify(result.user));
+      }
 
       toast({
         title: 'Success',
         description: 'Redirecting to dashboard...',
-        duration: 800,
+        duration: 1000,
         variant: "default"
       });
 
