@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { motion } from 'motion/react'
 import { Link } from '@tanstack/react-router'
 export const Route = createFileRoute('/404')({
   component: RouteComponent,
