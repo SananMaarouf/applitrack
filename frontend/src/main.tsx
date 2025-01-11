@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { RouterProvider, createRouter, Navigate } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { routeTree } from './routeTree.gen';
@@ -9,6 +9,7 @@ import './main.css';
 const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
+  defaultNotFoundComponent: () => <Navigate to="/404" />,
 });
 
 // Register things for typesafety

@@ -16,6 +16,7 @@ import { Route as ForgotPasswordImport } from './routes/forgot-password'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AuthImport } from './routes/auth'
 import { Route as AccountImport } from './routes/account'
+import { Route as R404Import } from './routes/404'
 import { Route as IndexImport } from './routes/index'
 import { Route as ResetPasswordTokenImport } from './routes/reset-password.$token'
 
@@ -51,6 +52,12 @@ const AccountRoute = AccountImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const R404Route = R404Import.update({
+  id: '/404',
+  path: '/404',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -72,6 +79,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/404': {
+      id: '/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof R404Import
       parentRoute: typeof rootRoute
     }
     '/account': {
@@ -123,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
@@ -133,6 +148,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
@@ -144,6 +160,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
@@ -156,6 +173,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/404'
     | '/account'
     | '/auth'
     | '/dashboard'
@@ -165,6 +183,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/404'
     | '/account'
     | '/auth'
     | '/dashboard'
@@ -174,6 +193,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/404'
     | '/account'
     | '/auth'
     | '/dashboard'
@@ -185,6 +205,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R404Route: typeof R404Route
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
@@ -195,6 +216,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R404Route: R404Route,
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
@@ -214,6 +236,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/404",
         "/account",
         "/auth",
         "/dashboard",
@@ -224,6 +247,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/404": {
+      "filePath": "404.tsx"
     },
     "/account": {
       "filePath": "account.tsx"
