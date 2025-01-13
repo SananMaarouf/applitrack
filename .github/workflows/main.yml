@@ -28,6 +28,6 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: backend
-          wranglerVersion: 3.1.0
+accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
           command: deploy
