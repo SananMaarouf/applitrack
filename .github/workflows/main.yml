@@ -18,19 +18,21 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Navigate to backend folder
+        run: cd backend
+
       - name: Install dependencies
         run: npm install
-        working-directory: backend
 
       - name: Install Wrangler
         run: npm install -g wrangler
 
-      - name: Deploy to Cloudflare Workers with Wrangler
-        uses: cloudflare/wrangler-action@v3.1.0
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          environment: production
-          workingDirectory: backend
-          wranglerVersion: 3.1.0
-          command: deploy
+      - name: Authenticate Wrangler
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: wrangler login
+
+      - name: Deploy to Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: wrangler publish
