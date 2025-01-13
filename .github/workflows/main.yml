@@ -8,25 +8,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js environment
+      # Step 2: Setup Node
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # Step 3: Navigate to backend folder and install dependencies
+      # Step 3: Install dependencies
       - name: Install dependencies
         working-directory: backend
         run: npm install
 
-      # Step 4: Use cloudflare/wrangler-action@v3 to deploy
+      # Step 4: Deploy
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
+          command: deploy backend/src/index.ts
