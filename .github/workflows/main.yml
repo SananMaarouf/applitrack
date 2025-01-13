@@ -18,28 +18,16 @@ jobs:
         with:
           node-version: '18'
 
-      # Step 3: Navigate to backend folder
-      - name: Navigate to backend folder
-        run: cd backend
-
-      # Step 4: Install project dependencies
+      # Step 3: Navigate to backend folder (optional)
       - name: Install dependencies
         run: npm install
         working-directory: backend
 
-      # Step 5: Install Wrangler globally
-      - name: Install Wrangler
-        run: npm install -g wrangler
-
-      # Step 6: Authenticate Wrangler with Cloudflare API token
-      - name: Authenticate Wrangler
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: wrangler login
-
-      # Step 7: Deploy to Cloudflare Workers
+      # Step 4: Use cloudflare/wrangler-action@v3 to deploy
       - name: Deploy to Cloudflare Workers
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: wrangler publish
-        working-directory: backend
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: backend
+          wranglerVersion: 3.1.0
+          command: publish
