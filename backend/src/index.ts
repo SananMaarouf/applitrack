@@ -8,8 +8,8 @@ const app = new Hono();
 
 // Use CORS middleware with restricted origins
 app.use('*', cors({
-  origin:'https://www.applitrack.no', // Allowed origin
-  allowMethods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'], // Allowed methods
+  origin: ['https://applitrack-v2.pages.dev', 'https://www.applitrack.no'], // Allowed origins
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allowed methods
   allowHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 }));
 

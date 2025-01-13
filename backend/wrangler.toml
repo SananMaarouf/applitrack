@@ -22,5 +22,5 @@ compatibility_date = "2025-01-02"
 # binding = "AI"
 
 # [observability]
-enabled = false
+enabled = true
 # head_sampling_rate = 1
