@@ -21,12 +21,17 @@ jobs:
         with:
           node-version: 18
 
+      - name: Log Node.js version
+        run: node -v
+
       - name: Install dependencies
         run: npm install
 
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: wrangler deploy
+      - name: Log installed packages
+        run: npm list
+
+      - name: Deploy worker
+        run: npm run deploy
+
+      - name: Deployment complete
+        run: echo "Deployment to Cloudflare Workers completed successfully."
