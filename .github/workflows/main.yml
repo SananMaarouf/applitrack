@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Workers
+name: Deploy Cloudflare Worker
 
 on:
   workflow_dispatch:
@@ -18,10 +18,10 @@ jobs:
         with:
           node-version: '18'
 
-      # Step 3: Navigate to backend folder (optional)
+      # Step 3: Navigate to backend folder and install dependencies
       - name: Install dependencies
-        run: npm install
         working-directory: backend
+        run: npm install
 
       # Step 4: Use cloudflare/wrangler-action@v3 to deploy
       - name: Deploy to Cloudflare Workers
@@ -29,3 +29,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
