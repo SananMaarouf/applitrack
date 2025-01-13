@@ -1,6 +1,7 @@
 name = "applitrack"
 main = "src/index.ts"
 compatibility_date = "2025-01-02"
+minify = true
 
 # [vars]
 # POCKETBASE_SUPERUSER_TOKEN ="my-variable"

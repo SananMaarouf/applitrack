@@ -1,22 +1,17 @@
-name: Cloudflare Worker
+name: Deploy
 
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
+    name: Deploy
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Location
-      run: pwd
-
-    - name: Deploy 
-      uses: cloudflare/wrangler-action@v3
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        workingDirectory: "backend"
-        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - uses: actions/checkout@v4
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
