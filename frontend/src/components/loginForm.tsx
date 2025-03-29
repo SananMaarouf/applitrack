@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuthStore } from '@/store/authStore';
+import { useState } from "react";
+import { Loader2 } from "lucide-react"; // Import Loader2 icon from lucide-react
 
 const LoginForm = () => {
   const { toast } = useToast();
@@ -20,9 +22,12 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   const setUserAuthData = useAuthStore((state) => state.setUserAuthData);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (data: LoginFormData) => {
     try {
+      setIsLoading(true); // Set loading to true when starting the request
+      
       /* get api url  */
       const apiUrl = import.meta.env.VITE_API_URL;
       /* post the formdata */
@@ -70,6 +75,8 @@ const LoginForm = () => {
         description: 'Error description: ' + error.message,
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false); // Set loading to false when request completes (success or error)
     }
   }
 
@@ -107,7 +114,20 @@ const LoginForm = () => {
             text-sm text-foreground underline hover:decoration-1">
             Forgot your password?
           </Link>
-          <Button className='hover:scale-110 w-full transition-all duration-300' type="submit">Log in</Button>
+          <Button 
+            className='hover:scale-110 w-full transition-all duration-300' 
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Log in"
+            )}
+          </Button>
         </div>
       </form>
     </Form>
