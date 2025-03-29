@@ -24,18 +24,25 @@ app.post('/signup', async (c) => {
     return c.json({ error: 'Validation error: Missing required fields' }, 400);
   }
 
+  // step 1 create user and handle error if user already exists
   try {
     await pb.collection('users').create({ email, password, passwordConfirm });
+  } catch (error) {
+    console.error('PocketBase error:', error);
+    return c.json({ error: 'User already exists' }, 400);
+  }
 
+  // step 2 sign in the user to get the JWT token
+  try {
     // Sign in the user to get the JWT token
     const authData = await pb.collection('users').authWithPassword(email, password);
-    
     return c.json({ message: 'Signup successful', authData, token: authData.token }, 200);
   } catch (error) {
     console.error('PocketBase error:', error);
     return c.json({ error: 'Signup failed: ' + error }, 400);
   }
 });
+
 // Auth
 app.post('/login', async (c) => {
   const pb = new PocketBase('https://applitrack.pockethost.io');
