@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '@/store/authStore';
 import { Checkbox } from "./ui/checkbox";
+import { useState } from "react";
+import { Loader2 } from "lucide-react"; // Import Loader2 icon
 
 const SignupForm = () => {
   const { toast } = useToast();
@@ -21,9 +23,12 @@ const SignupForm = () => {
   const navigate = useNavigate();
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   const setUserAuthData = useAuthStore((state) => state.setUserAuthData);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
 
   const handleSignup = async (data: SignupFormData) => {
     try {
+      setIsLoading(true); // Set loading to true when starting the request
+      
       /* get api url  */
       const apiUrl = import.meta.env.VITE_API_URL;
       /* post the formdata */
@@ -71,6 +76,8 @@ const SignupForm = () => {
         description: error.message,
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false); // Set loading to false when request completes
     }
   };
 
@@ -136,7 +143,20 @@ const SignupForm = () => {
         />
         
         <div className='flex justify-end'>
-          <Button className='hover:scale-110 w-full duration-300 transition-all' type="submit">Register</Button>
+          <Button 
+            className='hover:scale-110 w-full duration-300 transition-all' 
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Registering...
+              </>
+            ) : (
+              "Register"
+            )}
+          </Button>
         </div>
       </form>
     </Form>
