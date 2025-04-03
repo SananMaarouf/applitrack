@@ -7,12 +7,12 @@
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 10%;
-    --card-foreground: 0 0% 98%;
+    --card-foreground: 0 0% 40%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --secondary: 0 0% 100%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
@@ -38,7 +38,44 @@
     --color-rejected: hsl(var(--chart-6));
     --color-ghosted: hsl(var(--chart-7));
     --radius: 0.5rem;
+    --svg-fill:white;
   }
+
+  .light {
+    --background: 52, 94%, 94%; /* beige */
+    --card: 74, 32%, 32%; /* light green */
+    --card-foreground: 88, 38%, 15%; /* dark green */
+    --primary: 74, 32%, 32%; /* light green */
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 100%; /* white */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 224 100% 58%; /* Applied */
+    --chart-2: 33 100% 50%; /* Interview */
+    --chart-3: 191 100% 52%;  /* Second interview  */
+    --chart-4: 275 100% 50%; /* Third interview  */
+    --chart-5: 73 100% 45%; /* Offer -  */
+    --chart-6: 339 100% 50%; /* Rejection  */
+    --chart-7: 195 49% 84%;  /* Ghosted  */
+    --color-applied: hsl(var(--chart-1));
+    --color-interview: hsl(var(--chart-2));
+    --color-second-interview: hsl(var(--chart-3));
+    --color-third-interview: hsl(var(--chart-4));
+    --color-offer: hsl(var(--chart-5));
+    --color-rejected: hsl(var(--chart-6));
+    --color-ghosted: hsl(var(--chart-7));
+    --radius: 0.5rem;
+    --svg-fill:hsl(var(--card));
+  }
+
 }
 
 @layer base {
