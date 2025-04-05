@@ -88,7 +88,7 @@ const SignupForm = () => {
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="text-secondary">
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="email" {...field} />
@@ -101,7 +101,7 @@ const SignupForm = () => {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="text-secondary">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="password" {...field} />
@@ -114,7 +114,7 @@ const SignupForm = () => {
           control={form.control}
           name="passwordConfirm"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="text-secondary">
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="confirm password" {...field} />
@@ -127,7 +127,7 @@ const SignupForm = () => {
           control={form.control}
           name="terms"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="text-secondary">
               <FormControl>
                 <div className="flex items-center"  {...field}>
                   <Checkbox />
@@ -144,7 +144,7 @@ const SignupForm = () => {
         
         <div className='flex justify-end'>
           <Button 
-            className='hover:scale-110 w-full duration-300 transition-all' 
+            className='bg-background hover:bg-card-foreground text-primary hover:text-secondary w-full transition-all duration-300' 
             type="submit"
             disabled={isLoading}
           >

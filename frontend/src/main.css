@@ -11,6 +11,7 @@
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
+    --primary-muted: 0 0% 40%;
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 100%;
     --secondary-foreground: 0 0% 98%;
@@ -46,17 +47,18 @@
     --card: 74, 32%, 32%; /* light green */
     --card-foreground: 88, 38%, 15%; /* dark green */
     --primary: 74, 32%, 32%; /* light green */
+    --primary-muted: 88, 38%, 15%; /* dark green */
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 100%; /* white */
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
+    --muted: 52, 94%, 94%;
+    --muted-foreground: 74, 32%, 32%;
     --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
+    --input: 52, 94%, 94%;
     --ring: 0 0% 83.1%;
     --chart-1: 224 100% 58%; /* Applied */
     --chart-2: 33 100% 50%; /* Interview */

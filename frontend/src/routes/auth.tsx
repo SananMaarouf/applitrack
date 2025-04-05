@@ -19,7 +19,7 @@ export const Route = createFileRoute('/auth')({
 function RouteComponent() {
   return (
     <section className="flex items-center justify-center mx-2 md:mx-auto w-full transition-all duration-500">
-      <Card className='w-11/12 sm:w-10/12 md:w-1/2 lg:w-1/3 border flex flex-col p-6 transition-all duration-500'>
+      <Card className='w-11/12 sm:w-10/12 md:w-1/2 lg:w-1/3 flex flex-col p-6 transition-all duration-500'>
         <Tabs defaultValue="login" className='w-full'>
           <TabsList className='w-full'>
             <TabsTrigger className='w-full' value="login">Log in</TabsTrigger>

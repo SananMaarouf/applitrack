@@ -93,7 +93,7 @@ const Navbar = () => {
             <div className='my-auto'>
               <Link to="/auth" className="
                 p-3 text-md bg-card
-                font-bold flex rounded-full 
+                font-bold flex rounded-lg 
                 no-underline transition-colors duration-500
                 hover:bg-card-foreground
                 "

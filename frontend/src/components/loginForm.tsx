@@ -86,11 +86,12 @@ const LoginForm = () => {
         <FormField
           control={form.control}
           name="email"
+          
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="text-secondary">
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="email" {...field} />
+                <Input placeholder="someone@somewhere.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -100,10 +101,10 @@ const LoginForm = () => {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="text-secondary">
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="password" {...field} />
+                <Input type="password" placeholder="your secret password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -115,7 +116,7 @@ const LoginForm = () => {
             Forgot your password?
           </Link>
           <Button 
-            className='hover:scale-110 w-full transition-all duration-300' 
+            className='bg-background hover:bg-card-foreground text-primary hover:text-secondary w-full transition-all duration-300' 
             type="submit"
             disabled={isLoading}
           >
