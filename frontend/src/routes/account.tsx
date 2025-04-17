@@ -114,13 +114,13 @@ function RouteComponent() {
     <section className="flex flex-col w-screen max-w-3xl my-auto mx-auto">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-4xl font-bold text-center">
+          <CardTitle className="text-4xl font-bold text-secondary text-center">
             Account page
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="my-4 mx-2">
-            <label className="text-2xl" htmlFor="email">
+            <label className="text-2xl text-secondary" htmlFor="email">
               Your email
             </label>
             <Input
@@ -137,14 +137,14 @@ function RouteComponent() {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Please confirm</AlertDialogTitle>
+                  <AlertDialogTitle className='text-primary'>Please confirm</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action will send a password reset link to your email.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleResetPassword} className='hover:scale-95'>Confirm</AlertDialogAction>
+                  <AlertDialogCancel className='bg-destructive hover:bg-destructive'>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleResetPassword} className='bg-link_btn text-link_btn-text hover:bg-link_btn'>Confirm</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -154,15 +154,15 @@ function RouteComponent() {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogTitle className='text-primary'>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete your
                     account and remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAccount} className='bg-red-700 text-white border hover:border-white duration-300 hover:bg-red-700 hover:scale-95'>Delete me</AlertDialogAction>
+                  <AlertDialogCancel className='bg-link_btn text-link_btn-text hover:bg-link_btn hover:text-link_btn-text'>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteAccount} className='bg-red-700 text-white duration-300 hover:bg-red-700'>Delete me</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

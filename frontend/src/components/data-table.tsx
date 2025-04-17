@@ -39,7 +39,7 @@ export function DataTable() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const jobApplications = useJobsStore((state) => state.jobApplications);
-  
+
   const table = useReactTable({
     data: jobApplications,
     columns,
@@ -90,11 +90,11 @@ export function DataTable() {
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="ml-auto bg-foreground text-black hover:scale-90 transition-all">
+              <Button variant="default" className="ml-auto bg-btn text-card hover:bg-btn">
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent className="bg-btn text-card" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -114,66 +114,67 @@ export function DataTable() {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          
-        </div>
-        <div className="rounded-md border border-gray-500">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
 
+        </div>
+        <Table>
+          <TableHeader className="">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody className="bg-table">
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        {/* prev/next btns */}
         <div className="flex items-center justify-end space-x-2 py-4">
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+          className="bg-btn text-card"
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
           >
             Previous
           </Button>
           <Button
+            className="bg-btn text-card"
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}

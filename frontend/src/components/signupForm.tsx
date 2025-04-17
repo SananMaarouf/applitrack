@@ -91,7 +91,7 @@ const SignupForm = () => {
             <FormItem className="text-secondary">
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="email" {...field} />
+                <Input placeholder="someone@somewhere.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -104,7 +104,7 @@ const SignupForm = () => {
             <FormItem className="text-secondary">
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="password" {...field} />
+                <Input type="password" placeholder="your secret password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -117,7 +117,7 @@ const SignupForm = () => {
             <FormItem className="text-secondary">
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="confirm password" {...field} />
+                <Input type="password" placeholder="repeat the secret password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

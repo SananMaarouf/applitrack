@@ -65,17 +65,23 @@ function HomeComponent() {
       </motion.section>
 
       {/* Features Section */}
-      <motion.section className="flex flex-col w-full items-center rounded-lg my-4 py-20">
-        <h2 className="text-4xl font-bold mb-8 text-primary">Features</h2>
+      <motion.section className="
+        flex flex-col w-full items-center 
+        rounded-lg my-4 py-20">
+        <h2 className="text-4xl font-bold mb-8 text-primary">
+          Features
+        </h2>
         <div className="flex flex-wrap justify-center gap-8">
           {features.map((feature, index) => (
             <motion.div
               key={index}
               whileHover={{ scale: 0.9 }}
-              className="flex flex-col items-center p-6 bg-card rounded-lg shadow-md w-11/12 md:w-80"
-            >
-              <h3 className="text-2xl font-semibold mb-4">{feature.title}</h3>
-              <p className="text-center">{feature.description}</p>
+              className="
+                flex flex-col items-center p-6 
+                bg-card rounded-lg shadow-md w-11/12 md:w-80
+              ">
+              <h3 className="text-2xl text-btn font-semibold mb-4">{feature.title}</h3>
+              <p className="text-center text-btn">{feature.description}</p>
             </motion.div>
           ))}
         </div>
@@ -88,7 +94,7 @@ function HomeComponent() {
         <Link to="/auth">
           <p
             className="
-              px-6 py-3 bg-card text-secondary
+              px-6 py-3 bg-card text-btn
               rounded-md font-semibold duration-300
               hover:scale-125 "
           >

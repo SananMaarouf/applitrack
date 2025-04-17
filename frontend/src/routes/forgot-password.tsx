@@ -49,17 +49,17 @@ function RouteComponent() {
 
   return (
     <section className="flex items-center justify-center mx-auto">
-      <Card className='w-full md:w-96 border flex flex-col p-6'>
+      <Card className='w-full md:w-96 flex flex-col p-6'>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <FormItem>
+            <FormItem className="text-secondary">
               <FormLabel htmlFor="email">Email</FormLabel>
               <FormControl>
-                <Input {...form.register('email')} id="email" type="email" />
+                <Input placeholder="someone@somewhere.com" {...form.register('email')} id="email" type="email" />
               </FormControl>
             </FormItem>
             <FormItem className="mt-4">
-              <Button className="w-full hover:scale-110" type="submit">Submit</Button>
+              <Button className="bg-background hover:bg-card-foreground text-primary hover:text-secondary w-full transition-all duration-300" type="submit">Submit</Button>
             </FormItem>
           </form>
         </Form>

@@ -4,26 +4,28 @@
 
 @layer base {
   :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 40%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-muted: 0 0% 40%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 100%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --background: 0 0% 3.9%; /* black */
+    --foreground: 0 0% 98%; /* white */
+    --btn: 0 0% 98%; /* white */
+    --btn-add: 74, 32%, 32%; /* light green */
+    --card: 0 0% 10%; /* dark gray */
+    --card-foreground: 0 0% 40%; /* light gray */
+    --popover: 0 0% 3.9%; /* black */
+    --popover-foreground: 0 0% 98%; /* white */
+    --primary: 0 0% 98%; /* white */
+    --primary-muted: 0 0% 40%; /* light gray */
+    --primary-foreground: 0 0% 9%; /* black */
+    --secondary: 0 0% 100%; /* black */
+    --secondary-foreground: 0 0% 98%; /* white */
+    --muted: 0 0% 14.9%; /* dark gray */
+    --muted-foreground: 0 0% 100%; /* white */
+    --accent: 0 0% 14.9%; /* dark gray */
+    --accent-foreground: 0 0% 98%; /* white */
+    --destructive: 0 62.8% 30.6%; /* red */
+    --destructive-foreground: 0 0% 98%; /* white */
+    --border: 0 0% 14.9%; /* dark gray */
+    --input: 0 0% 14.9%; /* dark gray */
+    --ring: 0 0% 83.1%; /* light gray */
     --chart-1: 224 100% 58%; /* Applied */
     --chart-2: 33 100% 50%; /* Interview */
     --chart-3: 191 100% 52%;  /* Second interview  */
@@ -39,27 +41,34 @@
     --color-rejected: hsl(var(--chart-6));
     --color-ghosted: hsl(var(--chart-7));
     --radius: 0.5rem;
-    --svg-fill:white;
+    --svg-fill:white; /* white */
+    --table: hsl(var(--background));
+    --table-hover: 0 0% 14.9%; /* dark gray */
+    --link-btn: 0 0 98%; /* white */ 
+    --link-btn-text: 0 0% 3.9%; /* black */    
   }
 
   .light {
     --background: 52, 94%, 94%; /* beige */
+    --foreground: 52, 94%, 94%; /* beige */
+    --btn: 52, 94%, 94%; /* beige */
+    --btn-add: 88, 38%, 15%; /* light green */
     --card: 74, 32%, 32%; /* light green */
     --card-foreground: 88, 38%, 15%; /* dark green */
     --primary: 74, 32%, 32%; /* light green */
     --primary-muted: 88, 38%, 15%; /* dark green */
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 100%; /* white */
-    --secondary-foreground: 0 0% 98%;
-    --muted: 52, 94%, 94%;
-    --muted-foreground: 74, 32%, 32%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 52, 94%, 94%;
-    --ring: 0 0% 83.1%;
+    --primary-foreground: 0 0% 9%; /* black */
+    --secondary: 52 94% 94%; /* white */
+    --secondary-foreground: 0 0% 98%; /* white */
+    --muted: 52, 94%, 94%; /* beige */
+    --muted-foreground: 74, 32%, 32%; /* light green */
+    --accent: 74, 32%, 32%; /* dark green */
+    --accent-foreground: 0 0% 98%; /* white */
+    --destructive: 0 62.8% 30.6%; /* red */
+    --destructive-foreground: 0 0% 98%; /* white */
+    --border: 88, 38%, 15%; /* dark green */
+    --input: 52, 94%, 94%; /* beige */
+    --ring: 0 0% 83.1%; /* light gray */
     --chart-1: 224 100% 58%; /* Applied */
     --chart-2: 33 100% 50%; /* Interview */
     --chart-3: 191 100% 52%;  /* Second interview  */
@@ -76,6 +85,10 @@
     --color-ghosted: hsl(var(--chart-7));
     --radius: 0.5rem;
     --svg-fill:hsl(var(--card));
+    --table: 52, 94%, 94%; /* beige */
+    --table-hover: 52 94% 86%; /* light beige */
+    --link-btn: 74, 32%, 32%; /* light green */
+    --link-btn-text: 52, 94%, 94%; /* beige */
   }
 
 }

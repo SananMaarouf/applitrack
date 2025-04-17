@@ -47,7 +47,7 @@ const Navbar = () => {
               <div className='my-auto hover:scale-95'>
                 <Link to="/dashboard"
                   className="
-                    py-3 px-3 text-md bg-card font-bold flex rounded-lg no-underline border hover:border-white"
+                    py-3 px-3 text-md bg-card text-btn font-bold flex rounded-lg no-underline hover:border-white"
                 >
                   Dashboard
                 </Link>
@@ -62,21 +62,21 @@ const Navbar = () => {
                 <DropdownMenuContent className='bg-card'>
                   <Link
                     to='/dashboard'
-                    className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-gray-500 transition-all duration-300"
+                    className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-white transition-all duration-300"
                   >
                     Dashboard
                   </Link>
                   <DropdownMenuSeparator />
                   <Link
                     to='/account'
-                    className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-gray-500 transition-all duration-300"
+                    className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-white transition-all duration-300"
                   >
                     Account
                   </Link>
                   <DropdownMenuSeparator />
                   <Link
                     to='/tos'
-                    className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-gray-500 transition-all duration-300"
+                    className="w-full flex border border-transparent rounded-sm py-1 px-2 text-lg hover:bg-card hover:border-white transition-all duration-300"
                   >
                     Privacy
                   </Link>
@@ -92,7 +92,7 @@ const Navbar = () => {
           ) : (
             <div className='my-auto'>
               <Link to="/auth" className="
-                p-3 text-md bg-card
+                p-3 text-md bg-card text-btn
                 font-bold flex rounded-lg 
                 no-underline transition-colors duration-500
                 hover:bg-card-foreground

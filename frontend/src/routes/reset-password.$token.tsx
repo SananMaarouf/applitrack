@@ -87,7 +87,7 @@ function RouteComponent() {
       <Card className="w-full md:w-96 border flex flex-col p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} autoComplete="off">
-            <FormItem>
+            <FormItem className='text-secondary'>
               <FormLabel htmlFor="password">New Password</FormLabel>
               <FormControl>
                 <div className="relative">
@@ -95,7 +95,6 @@ function RouteComponent() {
                     {...form.register('password')}
                     autoComplete="new-password"
                     spellCheck="false"
-                    className="text-white"
                     id="password"
                     type={passwordVisible ? 'text' : 'password'}
                   />
@@ -114,7 +113,7 @@ function RouteComponent() {
               </FormControl>
               <FormMessage />
             </FormItem>
-            <FormItem>
+            <FormItem className='text-secondary'>
               <FormLabel htmlFor="passwordConfirm">
                 Confirm New Password
               </FormLabel>
@@ -147,7 +146,7 @@ function RouteComponent() {
             <FormItem className="mt-4">
               <Button
                 type="submit"
-                className="w-full hover:scale-110 transition-all"
+                className="bg-background hover:bg-card-foreground text-primary hover:text-secondary w-full transition-all duration-300"
               >
                 Reset Password
               </Button>

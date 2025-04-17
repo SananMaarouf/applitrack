@@ -88,11 +88,11 @@ export function Chart() {
     >
       <Card className="flex flex-col hover:border hover:border-gray-500 transition-all duration-700 bg-card h-full grow ">
         <CardHeader className="items-center">
-          <CardTitle className="font-bold text-2xl">Your stats</CardTitle>
+          <CardTitle className="font-bold text-2xl text-btn">Your stats</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 pb-0 ">
           {jobApplications.length === 0 ? (
-            <p className="text-center text-muted-foreground my-10">You have no job applications</p>
+            <p className="text-center text-white my-10">You have no job applications</p>
           ) : (
             <ChartContainer
               config={chartConfig}
@@ -123,14 +123,14 @@ export function Chart() {
                             <tspan
                               x={viewBox.cx}
                               y={viewBox.cy}
-                              className="fill-foreground text-3xl font-bold"
+                              className="fill-btn text-3xl font-bold"
                             >
                               {jobApplications.length}
                             </tspan>
                             <tspan
                               x={viewBox.cx}
                               y={(viewBox.cy || 0) + 24}
-                              className="fill-muted-foreground"
+                              className="fill-btn"
                             >
                               Applications
                             </tspan>

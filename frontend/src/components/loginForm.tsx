@@ -112,7 +112,7 @@ const LoginForm = () => {
         />
         <div className="flex flex-col-reverse justify-between items-center gap-4">
           <Link to="/forgot-password" className="
-            text-sm text-foreground underline hover:decoration-1">
+            text-sm text-white hover:underline">
             Forgot your password?
           </Link>
           <Button 

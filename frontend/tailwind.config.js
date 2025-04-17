@@ -1,3 +1,6 @@
+import { table } from 'console';
+import { text } from 'stream/consumers';
+
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: "class",
@@ -13,6 +16,18 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+				link_btn : {
+					DEFAULT: 'hsl(var(--link-btn))',
+					text: 'hsl(var(--link-btn-text))',
+				},
+				table : {
+					DEFAULT: 'hsl(var(--table))',
+					hover: 'hsl(var(--table-hover))',
+				},
+				btn : {
+					DEFAULT: 'hsl(var(--btn))',
+					add: 'hsl(var(--btn-add))',
+				},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

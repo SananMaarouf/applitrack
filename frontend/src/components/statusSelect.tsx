@@ -72,7 +72,7 @@ export default function StatusSelect({ row }: any) {
                 value={status.toString()}
                 onValueChange={(value) => updateJobStatus(row.original.id, parseInt(value), setJobApplications, jobApplications)}
             >
-                <SelectTrigger className='border-gray-500 hover:border-gray-100 hover:bg-card '>
+                <SelectTrigger className='border-gray-500  '>
                     <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent className='bg-card border-2 border-gray-500'>     

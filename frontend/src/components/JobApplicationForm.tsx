@@ -120,7 +120,8 @@ const JobApplicationForm = () => {
             />
           </div>
           <div className="flex justify-end p-2">
-            <Button className="hover:scale-90 transition-all w-full md:w-24" type="submit">
+            <Button 
+            className="w-full md:w-24 text-card bg-btn hover:bg-btn-add hover:text-secondary transition-colors duration-300" type="submit">
               Add
             </Button>
           </div>
