@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "./ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Trash2, ExternalLink, Link, Link2Off } from "lucide-react";
 import StatusSelect from "@/components/statusSelect";
 import { deleteApplication } from "@/api/crud";
 import { JobApplication } from "@/types";
@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 const handleDelete = async (jobId: string, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[], toast: any) => {
   try {
     await deleteApplication(jobId);
-    
+
     // Update the Zustand store to remove the deleted job application
     setJobApplications(jobApplications.filter((job) => job.id!.toString() !== jobId));
     toast({
@@ -86,6 +86,13 @@ export const columns: ColumnDef<JobApplication>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const date = row.getValue("expires") as String;
+      if (date != "") {
+        return <div>{date}</div>
+      }
+      return <div>¯\_(ツ)_/¯</div>
+    }
   },
   {
     accessorKey: "status",
@@ -122,11 +129,11 @@ export const columns: ColumnDef<JobApplication>[] = [
     cell: ({ row }) => {
       return (
         row.original && row.original.link ? (
-          <Button className="bg-link_btn text-link_btn-text hover:bg-link_btn" >
-            <a href={row.original.link} target="_blank" rel="noopener noreferrer">Link</a>
-          </Button>
+          <a className="flex bg-link_btn text-link_btn-text w-fit p-1.5 rounded-md mx-auto" href={row.original.link} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="h-6 w-6" />
+          </a>
         ) : (
-          <span>No Link</span>
+          <Link2Off className="h-6 w-6 mx-auto " />
         )
       );
     },
@@ -141,9 +148,11 @@ export const columns: ColumnDef<JobApplication>[] = [
       const { toast } = useToast();
 
       return (
-        <div className="flex space-x-2">
-          <Button variant="destructive" className="" onClick={() => handleDelete(row.original.id!.toString(), setJobApplications, jobApplications, toast)}>Delete</Button>
-        </div>
+        <Button
+          variant="destructive"
+          onClick={() => handleDelete(row.original.id!.toString(), setJobApplications, jobApplications, toast)}>
+          <Trash2 className="h-6 w-6" />
+        </Button>
       );
     },
   },

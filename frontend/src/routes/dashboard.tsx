@@ -19,6 +19,7 @@ export const Route = createFileRoute("/dashboard")({
     }
     // Fetch the jobs data using the token
     const data: JobApplication[] = await fetchData();
+    console.log("Fetched data:", data);
     // Save the data to the Zustand store
     useJobsStore.getState().setJobs(data);
   },
