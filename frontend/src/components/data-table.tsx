@@ -3,14 +3,12 @@ import { motion } from "motion/react";
 import { useJobsStore } from "@/store/jobsStore";
 import { columns } from "@/components/columns";
 import {
-  ColumnDef,
   flexRender,
   SortingState,
   useReactTable,
   getCoreRowModel,
   VisibilityState,
   getSortedRowModel,
-  ColumnFiltersState,
   getFilteredRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
@@ -32,13 +30,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const LOCAL_STORAGE_KEY = "dataTableVisibilityState";
-
+interface GlobalFilter {
+  globalFilter: any
+}
 export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [globalFilter, setGlobalFilter] = useState<any>([])
 
   const jobApplications = useJobsStore((state) => state.jobApplications);
+
 
   const table = useReactTable({
     data: jobApplications,
@@ -47,14 +48,14 @@ export function DataTable() {
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
-      columnFilters,
+      globalFilter,
       columnVisibility,
     },
+    onGlobalFilterChange: setGlobalFilter,
   });
 
   // Load column visibility state from localStorage
@@ -81,11 +82,9 @@ export function DataTable() {
       <div className="bg-card px-3 rounded-lg border hover:border-gray-500 transition-all duration-1000">
         <div className="flex items-center py-4">
           <Input
-            placeholder="Filter positions..."
-            value={table.getColumn("position")?.getFilterValue() as string}
-            onChange={(event) =>
-              table.getColumn("position")?.setFilterValue(event.target.value)
-            }
+            placeholder="search..."
+            value={table.getState().globalFilter ?? ""}
+            onChange={e => table.setGlobalFilter(String(e.target.value))}
             className="max-w-sm border-gray-500"
           />
           <DropdownMenu>
@@ -116,6 +115,7 @@ export function DataTable() {
           </DropdownMenu>
 
         </div>
+        {/* table */}
         <Table>
           <TableHeader className="">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -165,11 +165,11 @@ export function DataTable() {
         {/* prev/next btns */}
         <div className="flex items-center justify-end space-x-2 py-4">
           <Button
-          className="bg-btn text-card"
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+            className="bg-btn text-card"
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
           >
             Previous
           </Button>

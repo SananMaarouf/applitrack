@@ -61,6 +61,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     accessorKey: "applied_at",
     enableHiding: true,
     id: "applied",
+    enableGlobalFilter: false,
     header: ({ column }) => {
       return (
         <Button
@@ -76,6 +77,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     accessorKey: "expires_at",
     enableHiding: true,
     id: "expires",
+    enableGlobalFilter: false,
     header: ({ column }) => {
       return (
         <Button
@@ -116,6 +118,7 @@ export const columns: ColumnDef<JobApplication>[] = [
   {
     accessorKey: "link",
     enableHiding: true,
+    enableGlobalFilter: false,
     header: ({ column }) => {
       return (
         <Button
@@ -142,6 +145,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     accessorKey: "actions",
     enableHiding: true,
     header: "",
+    enableGlobalFilter: false,
     cell: ({ row }) => {
       const setJobApplications = useJobsStore((state) => state.setJobs);
       const jobApplications = useJobsStore((state) => state.jobApplications);
