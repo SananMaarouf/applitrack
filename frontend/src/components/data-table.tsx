@@ -30,9 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const LOCAL_STORAGE_KEY = "dataTableVisibilityState";
-interface GlobalFilter {
-  globalFilter: any
-}
+
 export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
