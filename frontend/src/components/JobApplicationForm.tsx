@@ -1,7 +1,7 @@
 import { Calendar } from "./ui/calendar";
 import { useForm } from "react-hook-form";
 import { ApplicationForm } from "@/types";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Plus } from "lucide-react";
 import { format, isBefore } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -195,8 +195,8 @@ const JobApplicationForm = () => {
             />
           </div>
           <div className="flex justify-end p-2">
-            <Button className="w-full md:w-24 text-card bg-btn hover:bg-btn-add hover:text-secondary transition-colors duration-300" type="submit">
-              Add
+            <Button className="w-24 text-card bg-btn hover:bg-btn-add hover:text-secondary transition-colors duration-300" type="submit">
+              <Plus />
             </Button>
           </div>
         </form>

@@ -160,6 +160,18 @@ export function DataTable() {
           </TableBody>
         </Table>
 
+        {/* showing x of x job applications */}
+        <div className="flex items-center justify-between py-4 px-2">
+          <div className="text-sm ">
+            Showing {table.getRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} job applications
+          </div>
+          <div className="text-sm">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </div>
+        </div>
+
         {/* prev/next btns */}
         <div className="flex items-center justify-end space-x-2 py-4">
           <Button
