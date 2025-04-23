@@ -109,8 +109,11 @@ export function Chart() {
                   nameKey="jobs"
                   innerRadius={60}
                   strokeWidth={5}
+                  onClick={() => {
+                    console.log("Pie chart clicked")
+                  }}
                 >
-                  <Label
+                  <Label                  
                     content={({ viewBox }) => {
                       if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                         return (
