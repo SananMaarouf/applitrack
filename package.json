@@ -5,6 +5,9 @@
     "build": "next build",
     "start": "next start"
   },
+  "overrides": {
+  "react-is": "19.1.0"
+  },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
