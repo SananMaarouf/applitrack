@@ -1,5 +1,5 @@
 "use client"
-
+import { motion } from "framer-motion";
 import { JobApplication } from "../types/jobApplication";
 import { useJobsStore } from "@/store/jobsStore";
 import { Label, Pie, PieChart } from "recharts";
@@ -82,7 +82,11 @@ export function Chart() {
     }));
 
   return (
-    <div className="h-full grow ">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="h-full grow "
+    >
       <Card className="flex flex-col hover:border hover:border-gray-500 transition-all duration-700 bg-card h-full grow ">
         <CardHeader className="items-center">
           <CardTitle className="font-bold text-2xl text-btn">Your stats</CardTitle>
@@ -91,9 +95,15 @@ export function Chart() {
           {jobApplications.length === 0 ? (
             <p className="text-center text-white my-10">You have no job applications</p>
           ) : (
-            <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[23rem] lg:max-h-[28rem]">
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto aspect-square max-h-[23rem] lg:max-h-[28rem]"
+            >
               <PieChart>
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
                 <Pie
                   data={chartData}
                   dataKey="applications"
@@ -104,21 +114,35 @@ export function Chart() {
                     console.log("Pie chart clicked")
                   }}
                 >
-                  <Label content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                          <tspan x={viewBox.cx} y={viewBox.cy} className="text-foreground text-3xl font-bold">
-                            {jobApplications.length}
-                          </tspan>
-                          <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="" >
-                            Applications
-                          </tspan>
-                        </text>
-                      )
-                    }
-                    return null;
-                  }}
+                  <Label                  
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-current text-3xl font-bold"
+                            >
+                              {jobApplications.length}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-current"
+                            >
+                              Applications
+                            </tspan>
+                          </text>
+                        )
+                      }
+                      return null;
+                    }}
                   />
                 </Pie>
               </PieChart>
@@ -126,6 +150,6 @@ export function Chart() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   )
 }
