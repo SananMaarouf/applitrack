@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { Input } from "./ui/input"
-import { columns } from './columns'
-import { Button } from "./ui/button"
-import { useState, useEffect } from 'react'
-import { useJobsStore } from "@/store/jobsStore"
+import { Input } from "./ui/input";
+import { columns } from "./columns";
+import { Button } from "./ui/button";
+import { useState, useEffect } from "react";
+import { useJobsStore } from "@/store/jobsStore";
 import {
   Table,
   TableRow,
@@ -12,13 +12,13 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-} from "./ui/table"
+} from "./ui/table";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
-} from "./ui/dropdown-menu"
+} from "./ui/dropdown-menu";
 import {
   flexRender,
   SortingState,
@@ -27,19 +27,24 @@ import {
   VisibilityState,
   getSortedRowModel,
   getFilteredRowModel,
-  getPaginationRowModel
-} from '@tanstack/react-table'
+  getPaginationRowModel,
+} from "@tanstack/react-table";
 
-const LOCAL_STORAGE_KEY = "tableVisibilityState"
+const LOCAL_STORAGE_KEY = "tableVisibilityState";
 
 export function DataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [globalFilter, setGlobalFilter] = useState<any>([])
+  const [globalFilter, setGlobalFilter] = useState<any>([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const jobApplications = useJobsStore((state) => state.jobApplications);
-  console.log(`[${new Date().toISOString()}] in data-table:`, jobApplications);  
 
+  useEffect(() => {
+    if (jobApplications.length > 0 || loading) {
+      setLoading(false); // Set loading to false once data is available
+    }
+  }, [jobApplications]);
 
   const table = useReactTable({
     data: jobApplications,
@@ -60,7 +65,8 @@ export function DataTable() {
 
   // Load column visibility state from localStorage
   useEffect(() => {
-    const savedState = typeof window !== "undefined" ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
+    const savedState =
+      typeof window !== "undefined" ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
     if (savedState) {
       setColumnVisibility(JSON.parse(savedState));
     }
@@ -74,45 +80,50 @@ export function DataTable() {
   }, [columnVisibility]);
 
   return (
-    <div className="w-full ">
+    <div className="w-full">
       <div className="bg-card px-3 rounded-lg border hover:border-gray-500 transition-all duration-1000">
-        {jobApplications.length ? (
-          <>
-            <div className="flex items-center py-4">
-              <Input
-                placeholder="search..."
-                value={table.getState().globalFilter ?? ""}
-                onChange={e => table.setGlobalFilter(String(e.target.value))}
-                className="max-w-sm border-gray-500"
-              />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="default" className="ml-auto text-card hover:bg-btn">
-                    Columns
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-btn text-card" align="end">
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => {
-                      return (
-                        <DropdownMenuCheckboxItem
-                          key={column.id}
-                          className="capitalize"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={(value) =>
-                            column.toggleVisibility(!!value)
-                          }
-                        >
-                          {column.id}
-                        </DropdownMenuCheckboxItem>
-                      );
-                    })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="search..."
+            value={table.getState().globalFilter ?? ""}
+            onChange={(e) => table.setGlobalFilter(String(e.target.value))}
+            className="max-w-sm border-gray-500"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default" className="ml-auto text-card hover:bg-btn">
+                Columns
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-btn text-card" align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+                {loading ? (
+          // Case 1: Loading state
+          <div className="flex items-center justify-center h-96 text-muted-foreground text-sm font-semibold">
+            Loading job applications...
+          </div>
+        ) : jobApplications.length > 0 ? (
+          // Case 2: Loading is done and jobApplications is not empty
+          <div>
             <Table>
               <TableHeader className="">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -123,9 +134,9 @@ export function DataTable() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                         </TableHead>
                       );
                     })}
@@ -158,7 +169,7 @@ export function DataTable() {
                 )}
               </TableBody>
             </Table>
-
+        
             {/* showing x of x job applications */}
             <div className="flex items-center justify-between py-4 px-2">
               <div className="text-sm ">
@@ -170,7 +181,7 @@ export function DataTable() {
                 {table.getPageCount()}
               </div>
             </div>
-
+        
             {/* prev/next btns */}
             <div className="flex items-center justify-end space-x-2 py-4">
               <Button
@@ -192,8 +203,9 @@ export function DataTable() {
                 Next
               </Button>
             </div>
-          </>
+          </div>
         ) : (
+          // Case 3: Loading is done and jobApplications is empty
           <div className="flex items-center justify-center h-96 text-muted-foreground text-sm font-semibold">
             No job applications. Add some to get started!
           </div>

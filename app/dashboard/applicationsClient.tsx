@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { useJobsStore } from "@/store/jobsStore";
-import { DataTable } from "@/components/data-table";
 
 interface ApplicationsClientProps {
   applications: any[];
+  children: ReactNode; // Allow rendering children inside this component
 }
 
-export default function ApplicationsClient({ applications }: ApplicationsClientProps) {
+export default function ApplicationsClient({ applications, children }: ApplicationsClientProps) {
   const setApplications = useJobsStore((state) => state.setJobs);
 
   useEffect(() => {
@@ -16,10 +16,11 @@ export default function ApplicationsClient({ applications }: ApplicationsClientP
     setApplications(applications);
   }, [applications, setApplications]);
 
-  console.log(`[${new Date().toISOString()}] in applicationsClient:`, applications);  
-  return (
-    <div className="flex-1 w-full flex flex-col gap-12">
-      <DataTable />
-    </div>
-  );
+  /* console.log(
+    `[${new Date().toISOString()}] 
+    zustand store populated with job applications in applicationsClient:`, 
+    applications
+  );*/
+
+  return <>{children}</>;
 }
