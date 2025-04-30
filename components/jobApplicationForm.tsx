@@ -10,6 +10,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { saveJobApplicationAction } from "@/app/actions";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { useToast } from "@/hooks/use-toast";
+import { useJobsStore } from "@/store/jobsStore";
+import { JobApplication } from "@/types/jobApplication";
 
 const formSchema = z.object({
   position: z.string().min(1, {
@@ -18,11 +21,11 @@ const formSchema = z.object({
   company: z.string().min(1, {
     message: "Company name is required"
   }),
-  dateApplied: z.date({
+  applied_at: z.date({
     required_error: "Date applied is required",
     invalid_type_error: "Date applied must be a valid date"
   }),
-  dateExpires: z.date({
+  expires_at: z.date({
     required_error: "Date expires is required",
     invalid_type_error: "Date expires must be a valid date"
   }).optional(),
@@ -30,15 +33,16 @@ const formSchema = z.object({
   status: z.number()
 });
 
-export function JobApplicationForm({ userId }: { userId: string }) {
-  // TODO: get zustand store 
+export function JobApplicationForm({ user_id }: { user_id: string }) {
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       position: "",
       company: "",
-      dateApplied: new Date(),
-      dateExpires: undefined,
+      applied_at: new Date(),
+      expires_at: undefined,
       link: "",
       status: 1,
     },
@@ -47,11 +51,10 @@ export function JobApplicationForm({ userId }: { userId: string }) {
   function onSubmit(data: z.infer<typeof formSchema>) {
     const formattedData = {
       ...data,
-      userId, // Include the userId in the submitted data
-      dateApplied: format(new Date(data.dateApplied), "yyyy-MM-dd"), // Format dateApplied to keep only the date
-      dateExpires: data.dateExpires
-        ? format(new Date(data.dateExpires), "yyyy-MM-dd") // Optional: Format dateExpires if it exists
-        : undefined,
+      user_id, // Include the userId in the submitted data
+      applied_at: format(new Date(data.applied_at), "yyyy-MM-dd"), // Format applied_at to keep only the date
+      expires_at: data.expires_at ? format(new Date(data.expires_at), "yyyy-MM-dd") : undefined, // Format expires_at to keep only the date
+      status: 1, // Set default status to 1 (applied)
     };
   
     console.log("Form submitted:", formattedData);
@@ -62,11 +65,28 @@ export function JobApplicationForm({ userId }: { userId: string }) {
         formData.append(key, value.toString());
       }
     });
-    saveJobApplicationAction(formData)
-      .then(() => {
-        console.log("Job application saved successfully");
-        // TODO update zustand store with new application and show success message in a toast
-        form.reset(); // Reset the form after successful submission
+        saveJobApplicationAction(formData)
+      .then((response) => {
+        if (response.success) {
+          console.log("Job application saved successfully");
+    
+          // Update Zustand store with the new application
+          const jobsStore = useJobsStore.getState();
+          jobsStore.setJobs([...jobsStore.jobApplications, formattedData]);
+          
+          toast({
+            title: "Success",
+            description: "Job application saved successfully",
+            variant: "default",
+          });
+
+          // console log new jobs store state
+          console.log("Updated jobs store:", useJobsStore.getState().jobApplications);
+
+          form.reset(); // Reset the form after successful submission
+        } else {
+          console.error("Error saving job application:", response.message);
+        }
       })
       .catch((error) => {
         console.error("Error saving job application:", error);
@@ -96,7 +116,7 @@ export function JobApplicationForm({ userId }: { userId: string }) {
               <FormMessage className="text-red-400" />
             </FormItem>
           )} />
-          <FormField control={form.control} name="dateApplied" render={({ field }) => (
+          <FormField control={form.control} name="applied_at" render={({ field }) => (
             <FormItem>
               <FormLabel>Date Applied*</FormLabel>
               <Popover>
@@ -115,7 +135,7 @@ export function JobApplicationForm({ userId }: { userId: string }) {
               <FormMessage />
             </FormItem>
           )} />
-          <FormField control={form.control} name="dateExpires" render={({ field }) => (
+          <FormField control={form.control} name="expires_at" render={({ field }) => (
             <FormItem>
               <FormLabel>Date Expires (optional)</FormLabel>
               <Popover>

@@ -1,16 +1,11 @@
 type JobApplication = {
-  applied_at?: string;
-  collectionId?: string;
-  collectionName?: string;
-  company: string;
-  created?: string;
+  applied_at: string;
   expires_at?: string;
-  id?: string;
+  company: string;
   link?: string;
   position: string;
   status: number;
-  updated?: string;
-  user?: string;
+  user_id: string;
 }
 
 export type { JobApplication };

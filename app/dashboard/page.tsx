@@ -27,7 +27,7 @@ export default async function DasboardPage() {
           <Chart />
         </div>
         <div className="w-full">
-          <JobApplicationForm userId={user?.id} />
+          <JobApplicationForm user_id={user?.id} />
         </div>
       </section>
       <DataTable />

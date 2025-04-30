@@ -141,26 +141,26 @@ export const saveJobApplicationAction = async (formData: FormData) => {
   const supabase = await createClient();
 
   // Get the form data
-  const userId = formData.get("userId")?.toString();
+  const user_id = formData.get("user_id")?.toString();
   const position = formData.get("position")?.toString();
   const company = formData.get("company")?.toString();
-  const dateApplied = formData.get("dateApplied")?.toString();
-  const dateExpires = formData.get("dateExpires")?.toString();
+  const applied_at = formData.get("applied_at")?.toString();
+  const expires_at = formData.get("expires_at")?.toString();
   const link = formData.get("link")?.toString();
   const status = formData.get("status")?.toString();
 
-  if (!position || !company || !dateApplied || !status) {
-    return { success: false, message: "Position, company, date applied, and status are required" };
+  if (!position || !company || !applied_at || !status) {
+    return { success: false, message: "position, company, date applied, and status are required" };
   }
 
   const { error } = await supabase.from("applications").insert({
-    user_id: userId,
+    user_id: user_id,
     position,
     company,
     status,
     link,
-    applied_at: dateApplied,
-    expires_at: dateExpires,
+    applied_at: applied_at,
+    expires_at: expires_at,
   });
 
   if (error) {
