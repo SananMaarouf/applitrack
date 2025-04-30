@@ -80,8 +80,8 @@ export function DataTable() {
   }, [columnVisibility]);
 
   return (
-    <div className="w-full">
-      <div className="bg-card px-3 rounded-lg border hover:border-gray-500 transition-all duration-1000">
+    <div className="w-full max-w-6xl mx-auto">
+      <div className="bg-card text-card-foreground px-3 rounded-lg border hover:border-gray-500 transition-all duration-1000">
         <div className="flex items-center py-4">
           <Input
             placeholder="search..."
@@ -91,11 +91,11 @@ export function DataTable() {
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="ml-auto text-card hover:bg-btn">
+              <Button variant="ghost" className="ml-auto border">
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-btn text-card" align="end">
+            <DropdownMenuContent className="bg-background" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())

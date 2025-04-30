@@ -136,3 +136,38 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
   return redirect("/");
 };
+
+export const saveJobApplicationAction = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  // Get the form data
+  const userId = formData.get("userId")?.toString();
+  const position = formData.get("position")?.toString();
+  const company = formData.get("company")?.toString();
+  const dateApplied = formData.get("dateApplied")?.toString();
+  const dateExpires = formData.get("dateExpires")?.toString();
+  const link = formData.get("link")?.toString();
+  const status = formData.get("status")?.toString();
+
+  if (!position || !company || !dateApplied || !status) {
+    return { success: false, message: "Position, company, date applied, and status are required" };
+  }
+
+  const { error } = await supabase.from("applications").insert({
+    user_id: userId,
+    position,
+    company,
+    status,
+    link,
+    applied_at: dateApplied,
+    expires_at: dateExpires,
+  });
+
+  if (error) {
+    console.error(error.message);
+    return { success: false, message: "Could not save job application" };
+  }
+
+  // Return a success message
+  return { success: true, message: "Job application saved successfully" };
+};
