@@ -48,47 +48,54 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+    function onSubmit(data: z.infer<typeof formSchema>) {
     const formattedData = {
       ...data,
       user_id, // Include the userId in the submitted data
       applied_at: format(new Date(data.applied_at), "yyyy-MM-dd"), // Format applied_at to keep only the date
       expires_at: data.expires_at ? format(new Date(data.expires_at), "yyyy-MM-dd") : undefined, // Format expires_at to keep only the date
-      status: 1, // Set default status to 1 (applied)
     };
   
-    console.log("Form submitted:", formattedData);
-    // handle the form submission with saveJobApplicationAction in actions.ts
     const formData = new FormData();
+    
     Object.entries(formattedData).forEach(([key, value]) => {
-      if (value !== undefined) {
-        formData.append(key, value.toString());
-      }
+      if (value !== undefined) { formData.append(key, value.toString()) }
     });
-        saveJobApplicationAction(formData)
+  
+    saveJobApplicationAction(formData)
       .then((response) => {
         if (response.success) {
-          console.log("Job application saved successfully");
-    
-          // Update Zustand store with the new application
+          console.log("Job application saved successfully:", response.data);
+  
+          // Update Zustand store with the new application from the response
           const jobsStore = useJobsStore.getState();
-          jobsStore.setJobs([...jobsStore.jobApplications, formattedData]);
-          
+          jobsStore.setJobs([...jobsStore.jobApplications, ...response.data as JobApplication[]]);
+  
           toast({
             title: "Success",
             description: "Job application saved successfully",
             variant: "default",
           });
-
-          // console log new jobs store state
+  
+          // Reset the form after successful submission
+          form.reset();
+  
+          // Log the updated jobs store state
           console.log("Updated jobs store:", useJobsStore.getState().jobApplications);
-
-          form.reset(); // Reset the form after successful submission
         } else {
-          console.error("Error saving job application:", response.message);
+          toast({
+            title: "Error",
+            description: response.message,
+            variant: "destructive",
+          });
         }
       })
       .catch((error) => {
+        toast({
+          title: "Error",
+          description: "An error occurred while saving the job application",
+          variant: "destructive",
+        });
         console.error("Error saving job application:", error);
       });
   }

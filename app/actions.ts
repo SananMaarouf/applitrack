@@ -150,24 +150,27 @@ export const saveJobApplicationAction = async (formData: FormData) => {
   const status = formData.get("status")?.toString();
 
   if (!position || !company || !applied_at || !status) {
-    return { success: false, message: "position, company, date applied, and status are required" };
+    return { success: false, message: "Position, company, date applied, and status are required" };
   }
 
-  const { error } = await supabase.from("applications").insert({
-    user_id: user_id,
-    position,
-    company,
-    status,
-    link,
-    applied_at: applied_at,
-    expires_at: expires_at,
-  });
+  const { data, error } = await supabase
+    .from("applications")
+    .insert({
+      user_id,
+      position,
+      company,
+      status: 1,
+      link,
+      applied_at,
+      expires_at,
+    })
+    .select(); // Use .select() to return the inserted row(s)
 
   if (error) {
     console.error(error.message);
     return { success: false, message: "Could not save job application" };
   }
 
-  // Return a success message
-  return { success: true, message: "Job application saved successfully" };
+  // Return the inserted row(s)
+  return { success: true, message: "Job application saved successfully", data };
 };
