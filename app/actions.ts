@@ -174,3 +174,24 @@ export const saveJobApplicationAction = async (formData: FormData) => {
   // Return the inserted row(s)
   return { success: true, message: "Job application saved successfully", data };
 };
+
+export const deleteApplication = async (id: string, user_id: string) => {
+  const supabase = await createClient();
+
+  if (!id || !user_id) {
+    return { success: false, message: "Job application ID and user ID are required"};
+  }
+
+  const { data, error } = await supabase
+    .from("applications")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user_id);
+
+  if (error) {
+    return { success: false, message: "Could not fetch job application" };
+  }
+
+  return { success: true, message: "Job application deleted successfully", data };
+};
+

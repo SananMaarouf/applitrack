@@ -65,11 +65,10 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
     saveJobApplicationAction(formData)
       .then((response) => {
         if (response.success) {
-          console.log("Job application saved successfully:", response.data);
   
           // Update Zustand store with the new application from the response
           const jobsStore = useJobsStore.getState();
-          jobsStore.setJobs([...jobsStore.jobApplications, ...response.data as JobApplication[]]);
+          jobsStore.setJobs([...response.data as JobApplication[], ...jobsStore.jobApplications ]);
   
           toast({
             title: "Success",
@@ -80,8 +79,6 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           // Reset the form after successful submission
           form.reset();
   
-          // Log the updated jobs store state
-          console.log("Updated jobs store:", useJobsStore.getState().jobApplications);
         } else {
           toast({
             title: "Error",

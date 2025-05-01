@@ -1,4 +1,5 @@
 type JobApplication = {
+  id: string;
   applied_at: string;
   expires_at?: string;
   company: string;

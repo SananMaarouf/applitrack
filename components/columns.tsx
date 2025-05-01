@@ -1,32 +1,45 @@
-import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "./ui/button";
-import { ArrowUpDown, Trash2, ExternalLink, Link, Link2Off } from "lucide-react";
-import StatusSelect from "../components/statusSelect";
-import { deleteApplication } from "../app/api/crud";
-import { JobApplication } from "../types/jobApplication";
-import { useJobsStore } from "@/store/jobsStore";
 import { useToast } from "@/hooks/use-toast";
+import { useJobsStore } from "@/store/jobsStore";
+import { deleteApplication } from "@/app/actions";
+import StatusSelect from "../components/statusSelect";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { JobApplication } from "../types/jobApplication";
+import { ArrowUpDown, Trash2, ExternalLink, Link, Link2Off } from "lucide-react";
 
-const handleDelete = async (jobId: string, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[], toast: any) => {
-  try {
-    await deleteApplication(jobId);
+const handleDelete = (row: Row<JobApplication>, toast: Function, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[],) => {
+  /* destructure the row */
+  const { id, user_id} = row.original;
 
-    // Update the Zustand store to remove the deleted job application
-    setJobApplications(jobApplications.filter((job) => job.id!.toString() !== jobId));
-    toast({
-      title: "Success",
-      description: "Job application deleted successfully.",
-      duration: 5000,
+  /* call deleteApplication server action and pass in id and user_id */
+    deleteApplication(id, user_id)
+    .then((res) => {
+      if (res.success) {
+        // Remove the application from the store
+        setJobApplications(jobApplications.filter((job) => job.id !== id));
+  
+        toast({
+          title: "Success",
+          description: "Job application deleted successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: res.message,
+          variant: "destructive",
+        });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      toast({
+        title: "Error",
+        description: "Could not delete job application",
+        variant: "destructive",
+      });
     });
-  } catch (error: any) {
-    toast({
-      title: "Error",
-      description: error.message || "An error occurred while deleting the job application.",
-      duration: 5000,
-      variant: "destructive"
-    });
-  }
-};
+
+}
 
 export const columns: ColumnDef<JobApplication>[] = [
   {
@@ -109,7 +122,8 @@ export const columns: ColumnDef<JobApplication>[] = [
         </Button>
       );
     },
-    /* cell: ({ row }) => {
+  /* TODO add status update functionality */    
+  /* cell: ({ row }) => {
       return (
         <StatusSelect row={row} />
       );
@@ -147,14 +161,14 @@ export const columns: ColumnDef<JobApplication>[] = [
     header: "",
     enableGlobalFilter: false,
     cell: ({ row }) => {
+      const { toast } = useToast();  
       const setJobApplications = useJobsStore((state) => state.setJobs);
       const jobApplications = useJobsStore((state) => state.jobApplications);
-      const { toast } = useToast();
 
       return (
         <Button
           variant="destructive"
-          onClick={() => handleDelete(row.original.id!.toString(), setJobApplications, jobApplications, toast)}>
+          onClick={() => handleDelete(row, toast, setJobApplications, jobApplications)} >
           <Trash2 className="h-6 w-6" />
         </Button>
       );

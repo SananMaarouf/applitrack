@@ -116,7 +116,7 @@ export function DataTable() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-                {loading ? (
+        {loading ? (
           // Case 1: Loading state
           <div className="flex items-center justify-center h-96 text-muted-foreground text-sm font-semibold">
             Loading job applications...
@@ -134,9 +134,9 @@ export function DataTable() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}
@@ -169,7 +169,7 @@ export function DataTable() {
                 )}
               </TableBody>
             </Table>
-        
+
             {/* showing x of x job applications */}
             <div className="flex items-center justify-between py-4 px-2">
               <div className="text-sm ">
@@ -181,7 +181,7 @@ export function DataTable() {
                 {table.getPageCount()}
               </div>
             </div>
-        
+
             {/* prev/next btns */}
             <div className="flex items-center justify-end space-x-2 py-4">
               <Button

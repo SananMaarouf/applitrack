@@ -14,9 +14,8 @@ export default async function DasboardPage() {
   if (!user) {
     return redirect("/sign-in");
   }
-
-  const { data: applications } = await supabase.from("applications").select();
-  //console.log(`[${new Date().toISOString()}] applications data:`, applications);
+  // Fetch applications from the database sorted by created_at in descending order
+  const { data: applications } = await supabase.from("applications").select().order("created_at", { ascending: false });
 
   return (
     <Suspense fallback={<Loading />}>

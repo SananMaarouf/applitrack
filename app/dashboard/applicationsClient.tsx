@@ -15,12 +15,6 @@ export default function ApplicationsClient({ applications, children }: Applicati
     // Populate Zustand store with applications data
     setApplications(applications);
   }, [applications, setApplications]);
-
-  /* console.log(
-    `[${new Date().toISOString()}] 
-    zustand store populated with job applications in applicationsClient:`, 
-    applications
-  );*/
-
+  
   return <>{children}</>;
 }
