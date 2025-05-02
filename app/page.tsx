@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { motion } from "motion/react";
 import BusyMan from "../components/busyMan";
 
 export default async function Home() {
@@ -26,11 +25,14 @@ export default async function Home() {
   ];
 
   return (
-    <div className="flex flex-col items-center w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto overflow-hidden">
+    <div className="
+      flex flex-col items-center 
+      w-full max-w-7xl px-4 
+      sm:px-6 lg:px-8 mx-auto overflow-hidden">
       {/* Landing Section */}
       <section className="
         w-full rounded-md justify-center 
-        flex flex-col my-4 py-6 text-primary
+        flex flex-col my-4 py-6
         md:py-12 md:my-8  
         lg:flex-row lg:rounded-xl lg:py-16"
       >
@@ -66,7 +68,7 @@ export default async function Home() {
       <section className="
         flex flex-col w-full items-center 
         rounded-lg my-8 py-12 sm:py-16 lg:py-20">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-primary">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-8">
           Features
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
@@ -75,10 +77,11 @@ export default async function Home() {
               key={index}
               className="
                 flex flex-col items-center p-6 
-                bg-card rounded-lg shadow-md h-full hover:scale-95 transition-transform duration-300
+                bg-card text-card-foreground rounded-lg
+                shadow-md h-full hover:scale-95 transition-transform duration-300
               ">
-              <h3 className="text-xl sm:text-2xl text-btn font-semibold mb-4">{feature.title}</h3>
-              <p className="text-center text-btn">{feature.description}</p>
+              <h3 className="text-xl sm:text-2xl font-semibold mb-4">{feature.title}</h3>
+              <p>{feature.description}</p>
             </div>
           ))}
         </div>
@@ -90,8 +93,8 @@ export default async function Home() {
         <p className="text-lg sm:text-xl mb-8 font-bold">Stay on track with Applitrack</p>
         <Link href="/sign-up">
           <p className="
-            px-6 py-3 bg-card text-btn
-            rounded-md font-semibold duration-300
+            px-6 py-3 bg-card text-card-foreground
+            rounded-md font-semibold duration-500
             hover:scale-110 text-lg"
           >
             Get started

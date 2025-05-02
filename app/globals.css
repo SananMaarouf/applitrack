@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --background: 52 94% 94%;
-    --foreground: 0 0% 3.9%;
-    --card: 88 38% 15%;
+    --background: 28 12% 75%;
+    --foreground: 330 6% 12%;;
+    --card: 330 6% 12%;
     --card-foreground: 0 0% 100%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
@@ -16,7 +16,7 @@
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
+    --accent: 28 12% 75%;
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -37,15 +37,15 @@
     --color-third-interview: hsl(var(--chart-4));
     --color-offer: hsl(var(--chart-5));
     --color-rejected: hsl(var(--chart-6));
-    --color-ghosted: hsl(var(--chart-7))
-    --svg-fill: black;
+    --color-ghosted: hsl(var(--chart-7));
+    --svg-fill: HSL(330, 6%, 12%)
   }
 
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 14.9%;
-    --card-foreground: 0 0% 98%;
+    --background: 330 6% 12%;
+    --foreground: 28 12% 75%;
+    --card: 28 12% 75%;
+    --card-foreground: 330 6% 12%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
@@ -75,7 +75,7 @@
     --color-offer: hsl(var(--chart-5));
     --color-rejected: hsl(var(--chart-6));
     --color-ghosted: hsl(var(--chart-7));
-    --svg-fill: white;
+    --svg-fill: HSL(28, 12%, 85%);
   }
 }
 

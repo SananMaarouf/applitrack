@@ -104,7 +104,7 @@ export const columns: ColumnDef<JobApplication>[] = [
 		},
 		cell: ({ row }) => {
 			const date = row.getValue("expires") as String;
-			if (date != "") {
+			if (date != null) {
 				return <div>{date}</div>
 			}
 			return <div>¯\_(ツ)_/¯</div>

@@ -168,8 +168,11 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             </FormItem>
           )} />
           <div className="flex justify-end">
-            <Button variant={"default"} type="submit" className="w-full mt-2 md:w-36">
-              <Plus className="h-5 w-5" />
+            <Button 
+              type="submit" 
+              variant={"add"} 
+              className="mt-2 w-1/3 md:w-36">
+                <Plus className="h-5 w-5" />
             </Button>
           </div>
         </form>
