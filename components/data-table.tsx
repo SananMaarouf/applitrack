@@ -103,7 +103,7 @@ export function DataTable() {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize focus:bg-card focus:text-card-foreground"
+                      className="capitalize focus:bg-hover focus:text-card-foreground"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
