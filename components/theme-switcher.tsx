@@ -1,16 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Laptop, Moon, Sun } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const ThemeSwitcher = () => {
   const [mounted, setMounted] = useState(false);
@@ -28,8 +22,8 @@ const ThemeSwitcher = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="switch" size={"sm"}>
+      <DropdownMenuTrigger asChild className="">
+        <Button variant="switch" size={"default"}>
           {theme === "light" ? (
             <Sun key="light" size={ICON_SIZE} className={""} />
           ) : theme === "dark" ? (

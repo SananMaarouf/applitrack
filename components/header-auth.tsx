@@ -12,9 +12,9 @@ export default async function AuthButton() {
 
   return user ? (
     <div className="flex items-center gap-4">
-      <ThemeSwitcher />
+      <ThemeSwitcher/>
       <form action={signOutAction}>
-        <Button type="submit" variant={"default"}>
+        <Button type="submit" >
           Sign out
         </Button>
       </form>
