@@ -125,7 +125,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
               <FormLabel>Date Applied*</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="default" className="w-full text-left">
+                  <Button variant="datepicker" className="w-full text-left">
                     {field.value ? format(field.value, "PP") : "Select a date"}
                     <CalendarIcon className="ml-2 h-5 w-5" />
                   </Button>
@@ -144,7 +144,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
               <FormLabel>Date Expires (optional)</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="default" className="w-full text-left">
+                  <Button variant="datepicker" className="w-full text-left">
                     {field.value ? format(field.value, "PPP") : "Select a date"}
                     <CalendarIcon className="ml-2 h-5 w-5" />
                   </Button>

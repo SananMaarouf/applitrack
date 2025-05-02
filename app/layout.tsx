@@ -45,7 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 w-full flex bg-card
                 text-card-foreground 
                 justify-center mx-auto mt-auto
-                gap-8 py-16">
+                gap-8 py-6">
                 <p>Applitrack © 2025</p>
                 <p>Created by <a href="https://www.sanan.no" target="_blank" rel="noopener noreferrer" className="underline">Sanan Maarouf</a></p>
               </footer>

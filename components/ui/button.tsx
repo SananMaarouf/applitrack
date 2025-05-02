@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
+        default: "bg-card text-card-foreground hover:bg-hover",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -18,11 +18,14 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        add:
-          "bg-background text-primary hover:bg-primary/60 hover:text-primary-foreground border border-input",
         switch:
-          "bg-background border border-background hover:text-background hover:bg-card hover:border-background ",
-      },
+          "bg-background border border-background hover:text-card-foreground hover:bg-hover hover:border-background ",
+        datepicker:
+          "bg-primary hover:bg-hover text-primary-foreground border border-input transition-colors duration-300",
+        add:
+          "bg-primary hover:bg-hover text-card hover:text-card-foreground border border-input",
+
+        },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",

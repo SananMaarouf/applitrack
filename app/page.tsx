@@ -88,7 +88,7 @@ export default async function Home() {
       </section>
 
       {/* Try It Now Section */}
-      <section className="flex flex-col rounded-lg text-primary items-center text-center justify-center w-full py-12 sm:py-16 lg:py-20 px-4">
+      <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 lg:py-20 px-4">
         <h2 className="text-3xl sm:text-4xl font-bold mb-6">What are you waiting for?</h2>
         <p className="text-lg sm:text-xl mb-8 font-bold">Stay on track with Applitrack</p>
         <Link href="/sign-up">
