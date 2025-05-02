@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -21,11 +21,11 @@ const buttonVariants = cva(
         switch:
           "bg-background border border-background hover:text-card-foreground hover:bg-hover hover:border-background ",
         datepicker:
-          "bg-primary hover:bg-hover text-primary-foreground border border-input transition-colors duration-300",
+        "bg-primary  hover:text-card-foreground hover:bg-hover focus:ring-3 focus:ring-primary-foreground focus:border-primary-foreground text-primary-foreground border-2 border-input transition-colors duration-300 focus:outline-none",
         add:
-          "bg-primary hover:bg-hover text-primary-foreground border border-input",
+          "bg-primary hover:bg-hover hover:text-card-foreground text-primary-foreground border border-input transition-colors duration-200",
         columns:
-          "bg-primary hover:bg-hover text-primary-foreground border border-input",
+        "bg-primary hover:bg-hover hover:text-card-foreground text-primary-foreground border border-input transition-colors duration-200",
 
         },
       size: {

@@ -4,15 +4,15 @@ import { z } from "zod";
 import { format } from "date-fns"
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
-import { CalendarIcon, Plus } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar"
-import { zodResolver } from "@hookform/resolvers/zod";
-import { saveJobApplicationAction } from "@/app/actions";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useToast } from "@/hooks/use-toast";
 import { useJobsStore } from "@/store/jobsStore";
+import { CalendarIcon, Plus } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { JobApplication } from "@/types/jobApplication";
+import { saveJobApplicationAction } from "@/app/actions";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 const formSchema = z.object({
   position: z.string().min(1, {
@@ -106,7 +106,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <FormItem>
               <FormLabel className="text-card-foreground">Position*</FormLabel>
               <FormControl>
-                <input {...field} className="mt-1 text-foreground p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
               </FormControl>
               <FormMessage className="text-red-400" />
             </FormItem>
@@ -115,7 +115,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <FormItem>
               <FormLabel className="text-card-foreground">Company*</FormLabel>
               <FormControl>
-                <input {...field} className="mt-1 text-foreground p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
               </FormControl>
               <FormMessage className="text-red-400" />
             </FormItem>
@@ -162,7 +162,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <FormItem>
               <FormLabel>Link (optional)</FormLabel>
               <FormControl>
-                <input {...field} className="mt-1 text-foreground p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
               </FormControl>
               <FormMessage />
             </FormItem>
