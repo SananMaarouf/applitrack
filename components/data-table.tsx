@@ -5,40 +5,18 @@ import { columns } from "./columns";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { useJobsStore } from "@/store/jobsStore";
-import {
-  Table,
-  TableRow,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-} from "./ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-} from "./ui/dropdown-menu";
-import {
-  flexRender,
-  SortingState,
-  useReactTable,
-  getCoreRowModel,
-  VisibilityState,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from "@tanstack/react-table";
+import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "./ui/table";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "./ui/dropdown-menu";
+import { flexRender, SortingState, useReactTable, getCoreRowModel, VisibilityState, getSortedRowModel, getFilteredRowModel, getPaginationRowModel } from "@tanstack/react-table";
 
 const LOCAL_STORAGE_KEY = "tableVisibilityState";
 
 export function DataTable() {
+  const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = useState<any>([]);
-  const [loading, setLoading] = useState(true); // Add loading state
-
   const jobApplications = useJobsStore((state) => state.jobApplications);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   useEffect(() => {
     if (jobApplications.length > 0 || loading) {
@@ -186,7 +164,7 @@ export function DataTable() {
             <div className="flex items-center justify-end space-x-2 py-4">
               <Button
                 className=""
-                variant="outline"
+                variant="add"
                 size="sm"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
@@ -195,7 +173,7 @@ export function DataTable() {
               </Button>
               <Button
                 className=""
-                variant="outline"
+                variant="add"
                 size="sm"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
