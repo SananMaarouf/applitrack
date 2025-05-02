@@ -4,42 +4,125 @@ import { useToast } from "@/hooks/use-toast";
 import { useJobsStore } from "@/store/jobsStore";
 import { deleteApplication } from "@/app/actions";
 import StatusSelect from "../components/statusSelect";
+import { useEffect, useState } from "react";
+
+import { Progress } from "./ui/progress";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { JobApplication } from "../types/jobApplication";
-import { ArrowUpDown, Trash2, ExternalLink, Link, Link2Off } from "lucide-react";
+import { ArrowUpDown, Trash2, ExternalLink, Link2Off } from "lucide-react";
 
-const handleDelete = (row: Row<JobApplication>, toast: Function, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[],) => {
-	/* destructure the row */
-	const { id, user_id } = row.original;
-
-	/* call deleteApplication server action and pass in id and user_id */
-	deleteApplication(id, user_id)
-		.then((res) => {
-			if (res.success) {
-				// Remove the application from the store
-				setJobApplications(jobApplications.filter((job) => job.id !== id));
-
-				toast({
-					title: "Success",
-					description: "Job application deleted successfully",
-				});
-			} else {
-				toast({
-					title: "Error",
-					description: res.message,
-					variant: "destructive",
-				});
-			}
-		})
-		.catch((err) => {
-			console.error(err);
-			toast({
-				title: "Error",
-				description: "Could not delete job application",
-				variant: "destructive",
-			});
-		});
-
+const handleDelete = (row: Row<JobApplication>, toast: Function, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[]) => {
+  /* destructure the row */
+  const { id, user_id } = row.original;
+  
+  // Create a copy of the job application for restoration if needed
+  const jobToDelete = jobApplications.find(job => job.id === id);
+  
+  // Remove the application from the UI immediately (optimistic UI update)
+  setJobApplications(jobApplications.filter((job) => job.id !== id));
+  
+  // Create a toast with undo button and progress bar
+  const ToastContent = () => {
+    const [progress, setProgress] = useState(0);
+    
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 2; // Increase by 2% every 100ms to reach 100% in 5 seconds
+        });
+      }, 100);
+      
+      return () => clearInterval(interval);
+    }, []);
+    
+    return (
+      <div className="w-full space-y-2">
+        <p>This action will complete in 5 seconds</p>
+        <Progress value={progress} className="w-full bg-red-700 h-2" />
+      </div>
+    );
+  };
+  
+  // Create a variable to track if deletion should be canceled
+  let cancelDeletion = false;
+  
+  const { dismiss } = toast({
+    title: "Job application will be deleted",
+    description: <ToastContent />,
+    duration: 5000, // 5 seconds
+    action: (
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => {
+          // Flag that deletion should be canceled
+          cancelDeletion = true;
+          
+          // Restore the job application in the store
+          if (jobToDelete) {
+            // Get the current state to ensure we're working with fresh data
+            const currentJobs = useJobsStore.getState().jobApplications;
+            setJobApplications([ jobToDelete,...currentJobs]);
+          }
+          
+          dismiss();
+        }}
+      >
+        Undo
+      </Button>
+    ),
+  });
+  
+  // Set a timeout to actually delete after 5 seconds
+  const deleteTimeout = setTimeout(() => {
+    // Only proceed with deletion if it wasn't canceled
+    if (!cancelDeletion) {
+      /* call deleteApplication server action and pass in id and user_id */
+      deleteApplication(id, user_id)
+        .then((res) => {
+          if (res.success) {
+            toast({
+              title: "Success",
+              description: "Job application deleted successfully",
+              duration: 3000,
+            });
+          } else {
+            // If deletion fails, restore the job in the UI
+            if (jobToDelete) {
+              // Get the current state to ensure we're working with fresh data
+              const currentJobs = useJobsStore.getState().jobApplications;
+              setJobApplications([...currentJobs, jobToDelete]);
+            }
+            
+            toast({
+              title: "Error",
+              description: res.message,
+              variant: "destructive",
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          
+          // If deletion fails, restore the job in the UI
+          if (jobToDelete) {
+            // Get the current state to ensure we're working with fresh data
+            const currentJobs = useJobsStore.getState().jobApplications;
+            setJobApplications([...currentJobs, jobToDelete]);
+          }
+          
+          toast({
+            title: "Error",
+            description: "Could not delete job application",
+            variant: "destructive",
+          });
+        });
+    }
+  }, 5000);
 }
 
 export const columns: ColumnDef<JobApplication>[] = [
