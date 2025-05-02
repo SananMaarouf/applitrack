@@ -23,7 +23,9 @@ const buttonVariants = cva(
         datepicker:
           "bg-primary hover:bg-hover text-primary-foreground border border-input transition-colors duration-300",
         add:
-          "bg-primary hover:bg-hover text-card hover:text-card-foreground border border-input",
+          "bg-primary hover:bg-hover text-primary-foreground border border-input",
+        columns:
+          "bg-primary hover:bg-hover text-primary-foreground border border-input",
 
         },
       size: {

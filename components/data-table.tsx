@@ -87,15 +87,15 @@ export function DataTable() {
             placeholder="search..."
             value={table.getState().globalFilter ?? ""}
             onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-            className="max-w-sm border-gray-500"
+            className="max-w-sm text-primary-foreground"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="ml-auto border">
+              <Button variant="columns" className="ml-auto border">
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-background" align="end">
+            <DropdownMenuContent className="bg-card-foreground text-card" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -103,7 +103,7 @@ export function DataTable() {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize"
+                      className="capitalize focus:bg-card focus:text-card-foreground"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
