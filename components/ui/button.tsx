@@ -26,7 +26,7 @@ const buttonVariants = cva(
           "bg-primary hover:bg-hover hover:text-card-foreground text-primary-foreground border border-input transition-colors duration-200",
         columns:
         "bg-primary hover:bg-hover hover:text-card-foreground text-primary-foreground border border-input transition-colors duration-200",
-
+        
         },
       size: {
         default: "h-10 px-4 py-2",
