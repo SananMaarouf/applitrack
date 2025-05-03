@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { changePasswordAction } from "@/app/actions";
 import { createClient } from "@/utils/supabase/server";
 import { FormMessage, Message } from "@/components/form-message";
+import { UpdatePasswordForm } from "@/components/updatePasswordForm";
 
 export default async function ChangePasswordPage(props: {
   searchParams: Promise<Message>;
@@ -32,35 +33,7 @@ export default async function ChangePasswordPage(props: {
       </div>
 
       <Card className="w-full mx-auto max-w-3xl">
-        <form className="flex flex-col mx-auto w-full p-4 gap-2 [&>input]:mb-4">
-          <h1 className="text-2xl font-medium">Update password</h1>
-          <p className="text-sm">
-            Please enter your new password below.
-          </p>
-          <Label htmlFor="password">New password</Label>
-          <Input
-            type="password"
-            name="password"
-            placeholder="New password"
-            required
-          />
-          <Label htmlFor="confirmPassword">Confirm password</Label>
-          <Input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm password"
-            required
-          />
-          <Button
-            type="submit"
-            variant={"columns"}
-            formAction={changePasswordAction}
-            className="w-full md:w-1/3 md:ml-auto"
-          >
-            Update password
-          </Button>
-          <FormMessage message={searchParams} />
-        </form>
+        <UpdatePasswordForm />
       </Card>
     </>
   );

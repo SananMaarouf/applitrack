@@ -137,34 +137,35 @@ export const changePasswordAction = async (formData: FormData) => {
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!password || !confirmPassword) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/settings/change-password",
-      "Password and confirm password are required",
-    );
+    return { 
+      success: false, 
+      message: "Password and confirm password are required" 
+    };
   }
+  
   if (password !== confirmPassword) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/settings/change-password",
-      "Passwords do not match",
-    );
+    return { 
+      success: false, 
+      message: "Passwords do not match" 
+    };
   }
+  
   const { error } = await supabase.auth.updateUser({
     password: password,
   });
+  
   if (error) {
-    return encodedRedirect(
-      "error",
-      "/dashboard/settings/change-password",
-      "Password update failed",
-    );
+    return { 
+      success: false, 
+      message: "Password update failed", 
+      error: error.message 
+    };
   }
-  return encodedRedirect(
-    "success",
-    "/dashboard/settings/change-password",
-    "Password updated",
-  );
+  
+  return { 
+    success: true, 
+    message: "Password updated successfully" 
+  };
 };
 
 

@@ -89,3 +89,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Clean Eye button in input */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
+}

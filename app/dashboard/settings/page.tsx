@@ -1,24 +1,14 @@
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import { Suspense } from "react";
+import Link from "next/link";
 import Loading from "../loading";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+import { Suspense } from "react";
+import { ArrowLeft } from "lucide-react"; 
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react"; 
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/server";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -31,13 +21,11 @@ export default async function SettingsPage() {
   return (
     <Suspense fallback={<Loading />}>
       <div className="mb-4 w-full max-w-4xl mx-auto">
-        <Link 
-          href="/dashboard" 
-          className="flex items-center w-fit text-sm hover:underline"
-        >
+        <Link href="/dashboard" className="flex items-center w-fit text-sm hover:underline" >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to dashboard
         </Link>
       </div>
+
       <Card className="w-full max-w-3xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
         <section className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
