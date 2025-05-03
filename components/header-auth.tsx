@@ -24,9 +24,7 @@ export default async function AuthButton() {
       <ThemeSwitcher />
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button variant={"switch"} size={"default"} className="hover:text-card-foreground">
-            <Settings className="w-6 h-6 " />
-          </Button>
+            <Settings className="w-14 h-10 bg-background border border-background hover:text-card-foreground hover:bg-hover hover:border-background p-2 rounded-md" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-card text-card-foreground">
           <DropdownMenuLabel className="font-bold">My Account</DropdownMenuLabel>
