@@ -2,6 +2,7 @@
 
 import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -253,3 +254,40 @@ export const updateApplication = async (id: string, user_id: string, status: num
 
   return { success: true, message: "Job application updated successfully", data };
 }
+
+export const deleteAccountAction = async (user_id: string) => {
+  // Regular client for user operations
+  const supabase = await createAdminClient();
+  
+  if (!user_id) {
+    return encodedRedirect("error", "/dashboard/settings", "User ID is required");
+  }
+
+  console.log("Deleting account for user ID:", user_id);
+
+  // The delete cascade should handle deleting applications
+  // but we'll keep the explicit delete for clarity
+  const { error: applicationsError } = await supabase
+    .from("applications")
+    .delete()
+    .eq("user_id", user_id);
+
+  if (applicationsError) {
+    console.error("Error deleting applications:", applicationsError);
+    return encodedRedirect("error", "/dashboard/settings", "Could not delete account data");
+  }
+
+  // Use the admin client to delete the user with service role permissions
+  const { error: authError } = await supabase.auth.admin.deleteUser(user_id);
+
+  if (authError) {
+    console.error("Error deleting auth user:", authError);
+    return encodedRedirect("error", "/dashboard/settings", "Could not delete account");
+  }
+  
+  // Sign the user out
+  await supabase.auth.signOut();
+  
+  // Redirect to home page with success message
+  return encodedRedirect("success", "/", "Account deleted successfully");
+};

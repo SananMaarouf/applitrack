@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Loading from "../loading";
 import { Suspense } from "react";
-import { ArrowLeft } from "lucide-react"; 
+import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
+import { deleteAccountAction } from "@/app/actions";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export default async function SettingsPage() {
@@ -17,6 +18,7 @@ export default async function SettingsPage() {
   if (!user) {
     return redirect("/sign-in");
   }
+
 
   return (
     <Suspense fallback={<Loading />}>
@@ -64,13 +66,21 @@ export default async function SettingsPage() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel asChild>
-                      <Button 
-                        variant="columns"
-                        className="">Cancel</Button>
+                      <Button
+                        variant="columns">
+                        Cancel
+                      </Button>
                     </AlertDialogCancel>
-                    <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                      Delete Account
-                    </AlertDialogAction>
+                    <form action={deleteAccountAction.bind(null, user.id)}>
+                      <AlertDialogAction asChild>
+                        <Button
+                          type="submit"
+                          variant="destructive"
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Delete Account
+                        </Button>
+                      </AlertDialogAction>
+                    </form>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

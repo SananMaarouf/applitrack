@@ -23,7 +23,7 @@ export default async function Signup(props: {
         <h1 className="text-2xl font-medium">Sign up</h1>
         <p className="text-sm text text-foreground">
           Already have an account?{" "}
-          <Link className="text-primary font-medium underline" href="/sign-in">
+          <Link className="text-foreground font-medium underline" href="/sign-in">
             Sign in
           </Link>
         </p>
