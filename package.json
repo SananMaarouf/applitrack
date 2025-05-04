@@ -1,5 +1,9 @@
 {
   "private": true,
+  "name": "applitrack-v3",
+  "version": "3.0.0",
+  "description": "A job application tracking system built for job seekers.",
+
   "scripts": {
     "dev": "next dev",
     "build": "next build",
