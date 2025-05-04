@@ -7,7 +7,16 @@ import { useState, useEffect } from "react";
 import { useJobsStore } from "@/store/jobsStore";
 import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "./ui/table";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "./ui/dropdown-menu";
-import { flexRender, SortingState, useReactTable, getCoreRowModel, VisibilityState, getSortedRowModel, getFilteredRowModel, getPaginationRowModel } from "@tanstack/react-table";
+import { 
+  flexRender, 
+  SortingState, 
+  useReactTable, 
+  getCoreRowModel, 
+  VisibilityState, 
+  getSortedRowModel, 
+  getFilteredRowModel, 
+  getPaginationRowModel 
+} from "@tanstack/react-table";
 
 const LOCAL_STORAGE_KEY = "tableVisibilityState";
 
