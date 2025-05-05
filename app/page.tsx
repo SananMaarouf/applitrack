@@ -3,9 +3,9 @@ import BusyMan from "../components/busyMan";
 
 export default async function Home() {
   const paragraphs = [
-    "Keep losing track of who or what you've applied to ?",
+    "Keep losing track of what you've applied to ?",
     "Want to know how much you're getting ghosted ?",
-    "Organize your job search with Applitrack",
+    "Organize your job search with Applitrack!",
   ];
 
   const features = [
@@ -25,20 +25,12 @@ export default async function Home() {
   ];
 
   return (
-    <div className="
-      flex flex-col items-center 
-      w-full max-w-7xl px-4 
-      sm:px-6 lg:px-8 mx-auto overflow-hidden">
+    <div className="flex flex-col items-center w-full mx-auto overflow-hidden ">
       {/* Landing Section */}
-      <section className="
-        w-full rounded-md justify-center 
-        flex flex-col my-4 py-6
-        md:py-12 md:my-8  
-        lg:flex-row lg:rounded-xl lg:py-16"
-      >
+      <section className="w-full rounded-md justify-center flex flex-col  lg:flex-row" >
         <div className="w-full lg:w-1/2 flex flex-col">
           {/* The headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-left font-bold mb-6 lg:mb-8 px-1">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left  font-bold mb-6 lg:mb-8 px-1">
             From{" "}
             <span className="underline text-pretty break-words">application</span>{" "}
             to offer, <span className="underline">track</span> every step
@@ -49,10 +41,7 @@ export default async function Home() {
           </div>
           {/* the sub-text aka selling points*/}
           {paragraphs.map((text, index) => (
-            <p
-              key={index}
-              className="text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left"
-            >
+            <p key={index} className="text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left">
               {text}
             </p>
           ))}
@@ -67,11 +56,11 @@ export default async function Home() {
       {/* Features Section */}
       <section className="
         flex flex-col w-full items-center 
-        rounded-lg my-8 py-12 sm:py-16 lg:py-20">
+        rounded-lg py-12 sm:py-16 lg:py-20">
         <h2 className="text-3xl sm:text-4xl font-bold mb-8">
           Features
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-2 md:px-0">
           {features.map((feature, index) => (
             <div
               key={index}
@@ -88,7 +77,7 @@ export default async function Home() {
       </section>
 
       {/* Try It Now Section */}
-      <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 lg:py-20 px-4">
+      <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 px-4">
         <h2 className="text-3xl sm:text-4xl font-bold mb-6">What are you waiting for?</h2>
         <p className="text-lg sm:text-xl mb-8 font-bold">Stay on track with Applitrack</p>
         <Link href="/sign-up">

@@ -1,9 +1,9 @@
-import HeaderAuth from "@/components/header-auth";
+import "./globals.css";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import Link from "next/link";
-import "./globals.css";
+import HeaderAuth from "@/components/header-auth";
 import { Toaster } from "@/components/ui/toaster";
+import { HomeButton } from "@/components/homeButton"
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -26,29 +26,29 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="bg-background text-foreground min-h-screen flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <main className="flex flex-col items-center grow">
-            <div className="flex-1 w-full flex flex-col gap-20 items-center">
+            <section className="flex-1 w-full flex flex-col gap-2 items-center">
               <nav className="w-full flex justify-center h-16">
-                <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-                  <div className="flex gap-5 items-center font-semibold">
-                    <Link href={"/"}>Applitrack</Link>
-                  </div>
+                <section className="
+                  w-full max-w-5xl flex justify-between items-center 
+                  px-1 md:px-0 text-sm py-2">
+                  <HomeButton />
                   <HeaderAuth />
-                </div>
+                </section>
               </nav>
               
-              <div className="flex flex-col gap-20 w-full p-5">
+              <section className="flex flex-col gap-20 my-auto w-full max-w-5xl">
                 {children}
-              </div>
+              </section>
               
               <footer className="
-                w-full flex bg-card
-                text-card-foreground 
-                justify-center mx-auto mt-auto
-                gap-8 py-6">
+                w-full flex flex-col md:flex-row 
+                bg-card text-card-foreground text-sm
+                justify-center gap-2 md:gap-6 py-6
+                text-center mt-auto">
                 <p>Applitrack © 2025</p>
                 <p>Created by <a href="https://www.sanan.no" target="_blank" rel="noopener noreferrer" className="underline">Sanan Maarouf</a></p>
               </footer>
-            </div>
+            </section>
           </main>
         </ThemeProvider>
         <Toaster />
