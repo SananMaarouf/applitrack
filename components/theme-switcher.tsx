@@ -12,6 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 const ThemeSwitcher = () => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -27,74 +35,39 @@ const ThemeSwitcher = () => {
   const ICON_SIZE = 16;
 
   return (
-    <section>
-        {/* desktop view */}
-      <div className="hidden md:flex gap-2 items-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild className="">
-            <Button variant="switch" size={"fill"}>
+    <div className="w-full h-full">
+      <Select value={theme} onValueChange={(value) => setTheme(value)}>
+        <SelectTrigger className="w-full h-full border-2 bg-card text-card-foreground border-foreground">
+          <SelectValue placeholder="Select theme">
+            <div className="flex items-center gap-2">
               {theme === "light" ? (
-                <Sun key="light" size={ICON_SIZE} className={""} />
+                <Sun size={ICON_SIZE} />
               ) : theme === "dark" ? (
-                <Moon key="dark" size={ICON_SIZE} className={""} />
-              ) : (
-                <Laptop key="system" size={ICON_SIZE} className={""} />
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="bg-card text-card-foreground"
-          >
-            <DropdownMenuRadioGroup
-              value={theme}
-              onValueChange={(e) => setTheme(e)}
-            >
-              <DropdownMenuRadioItem className="flex gap-2" value="light">
-                <Sun size={ICON_SIZE} /> <span>Light</span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem className="flex gap-2" value="dark">
-                <Moon size={ICON_SIZE} /> <span>Dark</span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem className="flex gap-2" value="system">
-                <Laptop size={ICON_SIZE} /> <span>System</span>
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      {/* mobile view */}
-      <div className="md:hidden flex gap-2 items-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild className="p-2 border-2 border-foreground">
-            <Button variant="switch" size={"fill"}>
-              <Sun key="light" size={ICON_SIZE} className="mx-2" />
-              /
-              <Moon key="dark" size={ICON_SIZE} className="mx-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            
-            className="w-full bg-card text-card-foreground"
-          >
-            <DropdownMenuRadioGroup
-              value={theme}
-              onValueChange={(e) => setTheme(e)}
-            >
-              <DropdownMenuRadioItem className="flex gap-2" value="light">
-                <Sun size={ICON_SIZE} /> <span>Light</span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem className="flex gap-2" value="dark">
-                <Moon size={ICON_SIZE} /> <span>Dark</span>
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem className="flex gap-2" value="system">
-                <Laptop size={ICON_SIZE} /> <span>System</span>
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </section>
+                <Moon size={ICON_SIZE} />)
+                : (<Laptop size={ICON_SIZE} />
+                )}
+            </div>
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="bg-card text-card-foreground">
+          <SelectItem value="light">
+            <div className="flex items-center gap-2">
+              <Sun size={ICON_SIZE} /> <span>Light</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="dark">
+            <div className="flex items-center gap-2">
+              <Moon size={ICON_SIZE} /> <span>Dark</span>
+            </div>
+          </SelectItem>
+          <SelectItem value="system">
+            <div className="flex items-center gap-2">
+              <Laptop size={ICON_SIZE} /> <span>System</span>
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 

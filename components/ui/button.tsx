@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         switch:
-          "bg-background border border-background hover:text-card-foreground hover:bg-hover hover:border-background ",
+          "bg-background border border-background hover:text-card-foreground hover:bg-hover hover:border-background transition-colors duration-300",
         datepicker:
         "bg-primary  hover:text-card-foreground hover:bg-hover focus:ring-3 focus:ring-primary-foreground focus:border-primary-foreground text-primary-foreground border-2 border-input transition-colors duration-300 focus:outline-none",
         add:
