@@ -93,7 +93,7 @@ export default async function AuthButton() {
     <section className="flex h-full gap-2">
         <ThemeSwitcher />
         <Button asChild variant={"default"} size={"fill"}>
-          <Link href="/sign-in">Get started</Link>
+          <Link href="/auth">Get started</Link>
         </Button>
     </section>
   );

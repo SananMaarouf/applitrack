@@ -15,7 +15,7 @@ export const signUpAction = async (formData: FormData) => {
   if (!email || !password) {
     return encodedRedirect(
       "error",
-      "/sign-up",
+      "/auth",
       "Email and password are required",
     );
   }
@@ -30,11 +30,11 @@ export const signUpAction = async (formData: FormData) => {
 
   if (error) {
     console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/sign-up", error.message);
+    return encodedRedirect("error", "/auth", error.message);
   } else {
     return encodedRedirect(
       "success",
-      "/sign-up",
+      "/auth",
       "Thanks for signing up! Please check your email for a verification link. If you don't see it, check your spam folder.",
     );
   }
@@ -55,7 +55,7 @@ export const signInAction = async (formData: FormData) => {
   });
 
   if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    return encodedRedirect("error", "/auth", error.message);
   }
 
   return redirect("/dashboard");
