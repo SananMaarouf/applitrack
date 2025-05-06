@@ -1,6 +1,4 @@
 import Link from "next/link";
-import Loading from "../loading";
-import { Suspense } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
@@ -22,7 +20,6 @@ export default async function SettingsPage() {
 
 
   return (
-    <Suspense fallback={<Loading />}>
       <section className="flex flex-col max-w-3xl mx-auto gap-6">
 
         <nav className="w-full mx-auto">
@@ -108,6 +105,5 @@ export default async function SettingsPage() {
         </Card>
       </section>
 
-    </Suspense>
   );
 }
