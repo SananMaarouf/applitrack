@@ -1,9 +1,8 @@
 import * as z from "zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams, useRouter } from "next/navigation";
-import { signInAction, signUpAction } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import { signInAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 
 import {

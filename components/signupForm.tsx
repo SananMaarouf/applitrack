@@ -1,29 +1,24 @@
 import * as z from "zod";
-import { useState } from "react";
+import Link from "next/link";
+import { Checkbox } from "./ui/checkbox";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams, useRouter } from "next/navigation";
-import { signInAction, signUpAction } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import { signUpAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+// Remove FormMessage since we won't be using it
 
 // Registration form schema with password confirmation
 const registerSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   confirmPassword: z.string().min(6, { message: "Please confirm your password" }),
+  termsAccepted: z.boolean().refine(val => val === true, {
+    message: "You must accept the terms and conditions"
+  })
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -40,17 +35,19 @@ export function SignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
+      termsAccepted: false
     },
   });
 
-  // Handle registration submission
+  // Handle registration submission with validation toast messages
   async function onRegisterSubmit(values: z.infer<typeof registerSchema>) {
-    const formData = new FormData();
-    formData.append("email", values.email);
-    formData.append("password", values.password);
-    formData.append("confirmPassword", values.confirmPassword);
-
     try {
+      const formData = new FormData();
+      formData.append("email", values.email);
+      formData.append("password", values.password);
+      formData.append("confirmPassword", values.confirmPassword);
+      formData.append("termsAccepted", values.termsAccepted.toString());
+
       const result = await signUpAction(formData);
       if (result?.error) {
         toast({
@@ -73,9 +70,38 @@ export function SignupForm() {
     }
   }
 
+    // Show validation errors in toast instead of in form
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    
+    // Get form data and validate before submission
+    const isValid = await registerForm.trigger();
+    
+    if (!isValid) {
+      // Get the first error message after validation
+      const errors = registerForm.formState.errors;
+      const errorFields = Object.entries(errors);
+      
+      if (errorFields.length > 0) {
+        const [field, error] = errorFields[0];
+        const message = error.message?.toString() || `${field} is invalid`;
+        
+        toast({
+          title: "Validation Error",
+          description: message,
+          variant: "destructive",
+        });
+      }
+      return; // Stop form submission if invalid
+    }
+    
+    // If validation passes, proceed with submission
+    registerForm.handleSubmit(onRegisterSubmit)(e);
+  }
+
   return (
     <Form {...registerForm}>
-      <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="
+      <form onSubmit={handleSubmit} className="
         flex flex-col justify-between
         min-w-64 h-[400px]
         animate-fade-down text-card-foreground
@@ -90,7 +116,7 @@ export function SignupForm() {
                 <FormControl>
                   <Input className="text-foreground" placeholder="you@example.com" {...field} />
                 </FormControl>
-                <FormMessage/>
+                {/* Remove FormMessage */}
               </FormItem>
             )}
           />
@@ -103,7 +129,7 @@ export function SignupForm() {
                 <FormControl>
                   <Input className="text-foreground" type="password" placeholder="Secret password" {...field} />
                 </FormControl>
-                <FormMessage />
+                {/* Remove FormMessage */}
               </FormItem>
             )}
           />
@@ -116,7 +142,38 @@ export function SignupForm() {
                 <FormControl>
                   <Input className="text-foreground" type="password" placeholder="Secret password again" {...field} />
                 </FormControl>
-                <FormMessage />
+                {/* Remove FormMessage */}
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={registerForm.control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md py-2">
+                <FormControl>
+                  <Checkbox
+                    className="h-6 w-6" 
+                    checked={field.value} 
+                    onCheckedChange={field.onChange} 
+                    id="terms"
+                  />
+                </FormControl  >
+                <div className="space-y-1 leading-none">
+                  <FormLabel htmlFor="terms" className="">
+                    I agree to the{" "}
+                    <Link 
+                      href="/terms-of-service" 
+                      className="text-primary underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Terms & Conditions
+                    </Link>
+                  </FormLabel>
+                  {/* Remove FormMessage */}
+                </div>
               </FormItem>
             )}
           />
