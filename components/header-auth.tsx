@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { signOutAction } from "@/app/actions";
 import { createClient } from "@/utils/supabase/server";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 
 export default async function AuthButton() {
   const supabase = await createClient();
@@ -33,7 +33,7 @@ export default async function AuthButton() {
           </SheetHeader>
           <section className="flex flex-col justify-between w-full h-full">
             {/* Top section with settings and theme */}
-            <section className="flex flex-col gap-2 w-full mt-6">
+            <section className="flex flex-col gap-2 w-full mt-10">
               <Link href="/dashboard/settings" className="
                   w-full px-2 py-3 
                   text-sm rounded-md
