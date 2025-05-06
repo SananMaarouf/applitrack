@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { format } from "date-fns"
 import { Button } from "./ui/button";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { useJobsStore } from "@/store/jobsStore";
@@ -34,6 +35,10 @@ const formSchema = z.object({
 });
 
 export function JobApplicationForm({ user_id }: { user_id: string }) {
+
+  const [appliedDateOpen, setAppliedDateOpen] = useState(false);
+  const [expiresDateOpen, setExpiresDateOpen] = useState(false);
+
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -48,37 +53,37 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
     },
   });
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
+  function onSubmit(data: z.infer<typeof formSchema>) {
     const formattedData = {
       ...data,
       user_id, // Include the userId in the submitted data
       applied_at: format(new Date(data.applied_at), "yyyy-MM-dd"), // Format applied_at to keep only the date
       expires_at: data.expires_at ? format(new Date(data.expires_at), "yyyy-MM-dd") : undefined, // Format expires_at to keep only the date
     };
-  
+
     const formData = new FormData();
-    
+
     Object.entries(formattedData).forEach(([key, value]) => {
       if (value !== undefined) { formData.append(key, value.toString()) }
     });
-  
+
     saveJobApplicationAction(formData)
       .then((response) => {
         if (response.success) {
-  
+
           // Update Zustand store with the new application from the response
           const jobsStore = useJobsStore.getState();
-          jobsStore.setJobs([...response.data as JobApplication[], ...jobsStore.jobApplications ]);
-  
+          jobsStore.setJobs([...response.data as JobApplication[], ...jobsStore.jobApplications]);
+
           toast({
             title: "Success",
             description: "Job application saved successfully",
             variant: "default",
           });
-  
+
           // Reset the form after successful submission
           form.reset();
-  
+
         } else {
           toast({
             title: "Error",
@@ -123,7 +128,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           <FormField control={form.control} name="applied_at" render={({ field }) => (
             <FormItem>
               <FormLabel>Date Applied*</FormLabel>
-              <Popover>
+              <Popover open={appliedDateOpen} onOpenChange={setAppliedDateOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="datepicker" className="w-full text-left">
                     {field.value ? format(field.value, "PP") : "Select a date"}
@@ -131,18 +136,31 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={field.value} onSelect={(date) => {
-                    field.onChange(date!);
-                  }} initialFocus />
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(date) => {
+                      field.onChange(date);
+                      // Add timeout before closing popover
+                      setTimeout(() => {
+                        setAppliedDateOpen(false);
+                      }, 500); // 0.4 seconds
+                    }}
+                    disabled={(date) =>
+                      date > new Date() // Disable dates in the future
+                    }
+                    initialFocus
+                  />
                 </PopoverContent>
               </Popover>
               <FormMessage />
             </FormItem>
           )} />
+
           <FormField control={form.control} name="expires_at" render={({ field }) => (
             <FormItem>
               <FormLabel>Date Expires (optional)</FormLabel>
-              <Popover>
+              <Popover open={expiresDateOpen} onOpenChange={setExpiresDateOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="datepicker" className="w-full text-left">
                     {field.value ? format(field.value, "PPP") : "Select a date"}
@@ -150,9 +168,18 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={field.value} onSelect={(date) => {
-                    field.onChange(date!);
-                  }} initialFocus />
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(date) => {
+                      field.onChange(date);
+                      // Add timeout before closing popover
+                      setTimeout(() => {
+                        setExpiresDateOpen(false);
+                      }, 500); // 0.4 seconds
+                    }}
+                    initialFocus
+                  />
                 </PopoverContent>
               </Popover>
               <FormMessage />
@@ -168,11 +195,11 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             </FormItem>
           )} />
           <div className="flex justify-end">
-            <Button 
-              type="submit" 
-              variant={"add"} 
+            <Button
+              type="submit"
+              variant={"add"}
               className="mt-2 w-1/3 md:w-36">
-                <Plus className="h-5 w-5" />
+              <Plus className="h-5 w-5" />
             </Button>
           </div>
         </form>
