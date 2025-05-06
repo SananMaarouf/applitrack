@@ -12,7 +12,7 @@ export default async function DasboardPage() {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return redirect("/sign-in");
+    return redirect("/auth");
   }
   // Fetch applications from the database sorted by created_at in descending order
   const { data: applications } = await supabase.from("applications").select().order("created_at", { ascending: false });
