@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 import HeaderAuth from "@/components/header-auth";
 import { Toaster } from "@/components/ui/toaster";
 import { HomeButton } from "@/components/homeButton"
+import { Footer } from "@/components/footer";
+  
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -40,14 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 {children}
               </section>
               
-              <footer className="
-                w-full flex flex-col md:flex-row 
-                bg-card text-card-foreground text-sm
-                justify-center gap-2 md:gap-6 py-6
-                text-center mt-auto">
-                <p>Applitrack © 2025</p>
-                <p>Created by <a href="https://www.sanan.no" target="_blank" rel="noopener noreferrer" className="underline">Sanan Maarouf</a></p>
-              </footer>
+              <Footer />
             </section>
           </main>
         </ThemeProvider>
