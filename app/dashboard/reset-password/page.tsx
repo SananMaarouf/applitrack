@@ -11,7 +11,7 @@ export default async function ResetPassword(props: {
   return (
     <form className="flex flex-col w-full max-w-md mx-auto p-4 gap-2 [&>input]:mb-4">
       <h1 className="text-2xl font-medium">Reset password</h1>
-      <p className="text-sm text-foreground/60">
+      <p className="text-sm text-foreground">
         Please enter your new password below.
       </p>
       <Label htmlFor="password">New password</Label>
