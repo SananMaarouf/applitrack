@@ -1,5 +1,4 @@
 "use client";
-import { motion } from "framer-motion";
 import { JobApplication } from "../types/jobApplication";
 import { useJobsStore } from "@/store/jobsStore";
 import { Label, Pie, PieChart } from "recharts";
