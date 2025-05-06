@@ -101,7 +101,7 @@ export function SignupForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input className="text-foreground" type="password" placeholder="Your password" {...field} />
+                  <Input className="text-foreground" type="password" placeholder="Secret password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -114,7 +114,7 @@ export function SignupForm() {
               <FormItem>
                 <FormLabel>Confirm password</FormLabel>
                 <FormControl>
-                  <Input className="text-foreground" type="password" placeholder="Confirm password" {...field} />
+                  <Input className="text-foreground" type="password" placeholder="Secret password again" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

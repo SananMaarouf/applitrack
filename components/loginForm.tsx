@@ -101,7 +101,7 @@ export function LoginForm() {
                   </Link>
                 </div>
                 <FormControl>
-                  <Input className="text-foreground" type="password" placeholder="Your password" {...field} />
+                  <Input className="text-foreground" type="password" placeholder="super secret password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
