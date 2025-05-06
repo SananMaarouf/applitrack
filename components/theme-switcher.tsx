@@ -2,16 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Laptop, Moon, Sun } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 import {
   Select,
   SelectContent,
@@ -35,17 +26,32 @@ const ThemeSwitcher = () => {
   const ICON_SIZE = 16;
 
   return (
-    <div className="w-full h-full">
       <Select value={theme} onValueChange={(value) => setTheme(value)}>
-        <SelectTrigger className="w-full h-full border-2 bg-card text-card-foreground border-foreground">
+        <SelectTrigger className="
+          w-full border-2 h-full 
+          bg-card text-card-foreground border-foreground
+          transition-colors duration-300
+          hover:text-card-foreground hover:bg-hover
+          
+          ">
           <SelectValue placeholder="Select theme">
             <div className="flex items-center gap-2">
               {theme === "light" ? (
-                <Sun size={ICON_SIZE} />
+                <>
+                  <Sun size={ICON_SIZE} /> 
+                  <span>Light</span>
+                </>
               ) : theme === "dark" ? (
-                <Moon size={ICON_SIZE} />)
-                : (<Laptop size={ICON_SIZE} />
-                )}
+                <>
+                  <Moon size={ICON_SIZE} /> 
+                  <span>Dark</span>
+                </>
+              ) : (
+                <>
+                  <Laptop size={ICON_SIZE} /> 
+                  <span>System</span>
+                </>
+              )}
             </div>
           </SelectValue>
         </SelectTrigger>
@@ -67,7 +73,6 @@ const ThemeSwitcher = () => {
           </SelectItem>
         </SelectContent>
       </Select>
-    </div>
   );
 };
 

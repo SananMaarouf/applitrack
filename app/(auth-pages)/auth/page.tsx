@@ -1,78 +1,69 @@
-import { signInAction, signUpAction } from "@/app/actions";
-import { FormMessage, Message } from "@/components/form-message";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+"use client";
+
 import Link from "next/link";
+import * as z from "zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams, useRouter } from "next/navigation";
+import { signInAction, signUpAction } from "@/app/actions";
+import { useToast } from "@/hooks/use-toast"; 
+import { LoginForm } from "@/components/loginForm";
+import { SignupForm } from "@/components/signupForm";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default async function Auth(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
-  if ("message" in searchParams) {
-    return (
-      <div className="w-full flex-1 flex items-center h-screen sm:max-w-md justify-center gap-2 p-4">
-        <FormMessage message={searchParams} />
-      </div>
-    );
+
+
+export default function Auth() {
+  const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState("login");
+  
+  // Extract message from URL if present
+  const messageType = searchParams.get("type");
+  const message = searchParams.get("message");
+  
+  // Show toast if message exists
+  if (message && messageType) {
+    toast({
+      title: messageType === "error" ? "Error" : "Success",
+      description: message,
+      variant: messageType === "error" ? "destructive" : "default",
+    });
   }
 
+
   return (
-    <Tabs defaultValue="login" className="w-96 px-10 flex flex-col gap-4">
-      <TabsList className="">
-        <TabsTrigger className="w-1/2" value="login">Sign in</TabsTrigger>
-        <TabsTrigger className="w-1/2" value="register">Register</TabsTrigger>
+    <Tabs 
+      value={activeTab} 
+      onValueChange={setActiveTab}
+      className="flex flex-col bg-card p-4 rounded-lg text-card-foreground w-full max-w-md mx-auto transition-all duration-300"
+    >
+      <TabsList className="flex justify-around px-2 mb-4">
+        <TabsTrigger className="w-[49%] my-2" value="login">Sign in</TabsTrigger>
+        <TabsTrigger className="w-[49%] my-2" value="register">Register</TabsTrigger>
       </TabsList>
-      <TabsContent className="w-full" value="login">
-        <form className="flex-1 flex flex-col min-w-64">
-          <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-            <Label htmlFor="email">Email</Label>
-            <Input name="email" placeholder="you@example.com" required />
-            <div className="flex justify-between items-center">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                className="text-xs text-foreground underline"
-                href="/forgot-password"
-              >
-                Forgot Password?
-              </Link>
-            </div>
-            <Input
-              type="password"
-              name="password"
-              placeholder="Your password"
-              required
-            />
-            <SubmitButton pendingText="Signing In..." formAction={signInAction}>
-              Sign in
-            </SubmitButton>
-            <FormMessage message={searchParams} />
-          </div>
-        </form>
-      </TabsContent>
-      <TabsContent className="w-full" value="register">
-        <form className="flex-1 flex flex-col min-w-64">
-          <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-            <Label htmlFor="email">Email</Label>
-            <Input name="email" placeholder="you@example.com" required />
-            <Label htmlFor="password">Password</Label>
-            <Input
-              type="password"
-              name="password"
-              placeholder="Your password"
-              minLength={6}
-              required
-            />
-            <SubmitButton formAction={signUpAction} pendingText="Registering...">
-              Register
-            </SubmitButton>
-            <FormMessage message={searchParams} />
-          </div>
-        </form>
-      </TabsContent>
+      
+      <div className="relative transition-all duration-300 h-[400px]">
+        <TabsContent className="absolute h-full w-full" value="login">
+          <LoginForm />
+        </TabsContent>
+        
+        <TabsContent className="absolute h-full w-full" value="register">
+          <SignupForm />
+        </TabsContent>
+      </div>
     </Tabs>
-
-
   );
 }

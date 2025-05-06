@@ -6,18 +6,34 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
+  const confirmPassword = formData.get("confirmPassword")?.toString();
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
-  if (!email || !password) {
-    return encodedRedirect(
-      "error",
-      "/auth",
-      "Email and password are required",
-    );
+  if (!email || !password || !confirmPassword) {
+    return {
+      success: false,
+      error: "Email, password, and password confirmation are required"
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return {
+      success: false,
+      error: "Passwords do not match"
+    };
+  }
+
+  // Check password strength requirements
+  if (password.length < 6) {
+    return {
+      success: false,
+      error: "Password must be at least 8 characters long"
+    };
   }
 
   const { error } = await supabase.auth.signUp({
@@ -30,13 +46,15 @@ export const signUpAction = async (formData: FormData) => {
 
   if (error) {
     console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/auth", error.message);
+    return {
+      success: false,
+      error: error.message
+    };
   } else {
-    return encodedRedirect(
-      "success",
-      "/auth",
-      "Thanks for signing up! Please check your email for a verification link. If you don't see it, check your spam folder.",
-    );
+    return {
+      success: true,
+      message: "Thanks for signing up! Please check your email for a verification link. If you don't see it, check your spam folder."
+    };
   }
 };
 
@@ -45,20 +63,37 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
+  if (!email || !password) {
+    return {
+      success: false,
+      error: "Email and password are required"
+    };
+  }
+
   /* 
-    signInWithPassword, if successfull, returns a JWT session token and user object.
+    signInWithPassword, if successful, returns a JWT session token and user object.
     session is stored in a cookie in the browser and user is available in the client.
   */
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
-    return encodedRedirect("error", "/auth", error.message);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 
-  return redirect("/dashboard");
+  return {
+    success: true,
+    message: "Signed in successfully",
+    data: {
+      user: data.user,
+      redirectUrl: "/dashboard"
+    }
+  };
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {
