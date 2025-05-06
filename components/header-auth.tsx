@@ -34,16 +34,19 @@ export default async function AuthButton() {
           <section className="flex flex-col justify-between w-full h-full">
             {/* Top section with settings and theme */}
             <section className="flex flex-col gap-2 w-full mt-10">
-              <Link href="/dashboard/settings" className="
+
+              <SheetClose asChild>
+                <Link href="/dashboard/settings" className="
                   w-full px-2 py-3 
                   text-sm rounded-md
                   bg-foreground text-card-foreground
                   transition-colors duration-300 
                   text-center hover:bg-hover
                   border-foreground border
-                ">
-                Settings
-              </Link>
+                  ">
+                  Settings
+                </Link>
+              </SheetClose>
               <section className="mt-10">
                 <SheetDescription className="text-left text-foreground mb-2">
                   Change theme:
@@ -77,10 +80,10 @@ export default async function AuthButton() {
   ) : (
     // non-authenticated users...
     <section className="flex h-full gap-2">
-        <ThemeSwitcher variant="icon-only" />
-        <Button asChild variant={"default"} size={"fill"}>
-          <Link href="/auth">Get started</Link>
-        </Button>
+      <ThemeSwitcher variant="icon-only" />
+      <Button asChild variant={"default"} size={"fill"}>
+        <Link href="/auth">Get started</Link>
+      </Button>
     </section>
   );
 }
