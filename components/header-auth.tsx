@@ -77,7 +77,7 @@ export default async function AuthButton() {
   ) : (
     // non-authenticated users...
     <section className="flex h-full gap-2">
-        <ThemeSwitcher />
+        <ThemeSwitcher variant="icon-only" />
         <Button asChild variant={"default"} size={"fill"}>
           <Link href="/auth">Get started</Link>
         </Button>

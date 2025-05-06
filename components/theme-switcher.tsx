@@ -9,9 +9,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-const ThemeSwitcher = () => {
+interface ThemeSwitcherProps {
+  variant?: "full" | "icon-only";
+}
+
+const ThemeSwitcher = ({ variant = "full" }: ThemeSwitcherProps) => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -23,56 +27,56 @@ const ThemeSwitcher = () => {
     return null;
   }
 
-  const ICON_SIZE = 16;
+  const ICON_SIZE = variant === "icon-only" ? 20 : 16;
+
+  // Get the current theme icon
+  const ThemeIcon = () => {
+    if (theme === "light") return <Sun size={ICON_SIZE} />;
+    if (theme === "dark") return <Moon size={ICON_SIZE} />;
+    return <Laptop size={ICON_SIZE} />;
+  };
 
   return (
-      <Select value={theme} onValueChange={(value) => setTheme(value)}>
-        <SelectTrigger className="
-          w-full border-2 h-full 
-          bg-card text-card-foreground border-foreground
-          transition-colors duration-300
-          hover:text-card-foreground hover:bg-hover
-          
-          ">
-          <SelectValue placeholder="Select theme">
+    <Select value={theme} onValueChange={(value) => setTheme(value)}>
+      <SelectTrigger
+        className={`
+          h-full transition-all duration-300
+          ${variant === "icon-only"
+            ? "w-full justify-center text-foreground bg-background border-none hover:bg-card hover:text-card-foreground"
+            : "w-full bg-card text-card-foreground hover:bg-hover"}
+        `}
+      >
+        <SelectValue placeholder="Select theme">
+          {variant === "full" ? (
             <div className="flex items-center gap-2">
-              {theme === "light" ? (
-                <>
-                  <Sun size={ICON_SIZE} /> 
-                  <span>Light</span>
-                </>
-              ) : theme === "dark" ? (
-                <>
-                  <Moon size={ICON_SIZE} /> 
-                  <span>Dark</span>
-                </>
-              ) : (
-                <>
-                  <Laptop size={ICON_SIZE} /> 
-                  <span>System</span>
-                </>
-              )}
+              <ThemeIcon />
+              <span>
+                {theme === "light" ? "Light" : theme === "dark" ? "Dark" : "System"}
+              </span>
             </div>
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent className="bg-card text-card-foreground">
-          <SelectItem value="light">
-            <div className="flex items-center gap-2">
-              <Sun size={ICON_SIZE} /> <span>Light</span>
-            </div>
-          </SelectItem>
-          <SelectItem value="dark">
-            <div className="flex items-center gap-2">
-              <Moon size={ICON_SIZE} /> <span>Dark</span>
-            </div>
-          </SelectItem>
-          <SelectItem value="system">
-            <div className="flex items-center gap-2">
-              <Laptop size={ICON_SIZE} /> <span>System</span>
-            </div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
+          ) : (
+            <ThemeIcon />
+          )}
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent className="bg-card text-card-foreground flex ">
+        <SelectItem value="light">
+          <div className="flex items-center gap-2">
+            <Sun size={ICON_SIZE} /> <span>Light</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="dark">
+          <div className="flex items-center gap-2">
+            <Moon size={ICON_SIZE} /> <span>Dark</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="system">
+          <div className="flex items-center gap-2">
+            <Laptop size={ICON_SIZE} /> <span>System</span>
+          </div>
+        </SelectItem>
+      </SelectContent>
+    </Select>
   );
 };
 
