@@ -1,8 +1,14 @@
 "use client";
-
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 export default function TermsOfService() {
   return (
-    <div className="max-w-4xl mx-auto p-8">
+    <div className="max-w-3xl mx-auto px-8">
+      <nav className="w-full mx-auto mb-4">
+          <Link href="/dashboard/settings" className="flex border border-foreground hover:bg-hover hover:text-card-foreground duration-300 transition-colors items-center w-fit p-2 rounded-md text-sm hover:underline" >
+            <ArrowLeft className="h-6 w-6 mr-1" /> Back to settings
+          </Link>
+        </nav>
       <h1 className="text-4xl font-bold  mb-6">Applitrack - Terms of Service</h1>
       <p className=" mb-6">
         Last updated: May, 2025

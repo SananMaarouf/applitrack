@@ -1,25 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import * as z from "zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams, useRouter } from "next/navigation";
-import { signInAction, signUpAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast"; 
 import { LoginForm } from "@/components/loginForm";
 import { SignupForm } from "@/components/signupForm";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 

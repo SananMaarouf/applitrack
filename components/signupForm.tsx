@@ -104,9 +104,9 @@ export function SignupForm() {
       <form onSubmit={handleSubmit} className="
         flex flex-col justify-between
         min-w-64 h-[400px]
-        animate-fade-down text-card-foreground
+         text-card-foreground
         ">
-        <div className="space-y-4">
+        <div className="space-y-4 animate-fade-down">
           <FormField
             control={registerForm.control}
             name="email"
@@ -182,7 +182,7 @@ export function SignupForm() {
         <Button
           type="submit"
           variant={"add"}
-          className="w-1/3 ml-auto"
+          className="w-1/3 ml-auto animate-fade-in-slow"
           disabled={registerForm.formState.isSubmitting}
         >
           {registerForm.formState.isSubmitting ? "Registering..." : "Register"}

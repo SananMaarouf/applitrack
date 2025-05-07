@@ -72,9 +72,9 @@ export function LoginForm() {
       <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="
         flex flex-col justify-between
         min-w-64 h-[400px]
-        animate-fade-down text-card-foreground
+         text-card-foreground
       ">
-        <div className="space-y-4">
+        <div className="space-y-4 animate-fade-down">
           <FormField
             control={loginForm.control}
             name="email"
@@ -111,7 +111,7 @@ export function LoginForm() {
         <Button
           type="submit"
           variant={"add"}
-          className="w-1/3 ml-auto"
+          className="w-1/3 ml-auto animate-fade-in"
           disabled={loginForm.formState.isSubmitting}
         >
           {loginForm.formState.isSubmitting ? "Signing in..." : "Sign in"}
