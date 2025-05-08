@@ -9,4 +9,14 @@ type JobApplication = {
   user_id: string;
 }
 
-export type { JobApplication };
+type JobApplicationStatusHistory = {
+  id: string;
+  created_at: string;
+  application_id: string;
+  user_id: string;
+  changed_at: string;
+  status: number;
+}
+
+
+export type { JobApplication, JobApplicationStatusHistory };
