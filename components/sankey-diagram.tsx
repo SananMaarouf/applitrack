@@ -172,7 +172,7 @@ export function SankeyDiagram() {
   return (
     <div className="w-full mx-auto">
       <div className="bg-card text-card-foreground p-3 rounded-lg border hover:border-gray-500 transition-all duration-300">
-        <h2 className="text-lg font-medium mb-2">Application Flow</h2>
+        <h2 className="text-lg font-medium mb-2">Job application status flow (Sankey diagram)</h2>
         {jobApplicationStatusHistory.length > 0 ? (
           <Chart
             chartType="Sankey"

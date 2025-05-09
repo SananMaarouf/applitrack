@@ -1,5 +1,5 @@
 type JobApplication = {
-  id: string;
+  id: string | number;
   applied_at: string;
   expires_at?: string;
   company: string;
@@ -18,5 +18,17 @@ type JobApplicationStatusHistory = {
   status: number;
 }
 
+interface JobApplicationRow {
+    id: number;
+    created_at: string;
+    user_id: string;
+    applied_at: string;
+    expires_at?: string | null;
+    position: string;
+    company: string;
+    status: number;
+    link?: string;
+}
 
-export type { JobApplication, JobApplicationStatusHistory };
+
+export type { JobApplication, JobApplicationStatusHistory, JobApplicationRow };
