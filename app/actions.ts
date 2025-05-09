@@ -174,34 +174,34 @@ export const changePasswordAction = async (formData: FormData) => {
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!password || !confirmPassword) {
-    return { 
-      success: false, 
-      message: "Password and confirm password are required" 
+    return {
+      success: false,
+      message: "Password and confirm password are required"
     };
   }
-  
+
   if (password !== confirmPassword) {
-    return { 
-      success: false, 
-      message: "Passwords do not match" 
+    return {
+      success: false,
+      message: "Passwords do not match"
     };
   }
-  
+
   const { error } = await supabase.auth.updateUser({
     password: password,
   });
-  
+
   if (error) {
-    return { 
-      success: false, 
-      message: "Password update failed", 
-      error: error.message 
+    return {
+      success: false,
+      message: "Password update failed",
+      error: error.message
     };
   }
-  
-  return { 
-    success: true, 
-    message: "Password updated successfully" 
+
+  return {
+    success: true,
+    message: "Password updated successfully"
   };
 };
 
@@ -254,7 +254,7 @@ export const deleteApplication = async (id: string, user_id: string) => {
   const supabase = await createClient();
 
   if (!id || !user_id) {
-    return { success: false, message: "Job application ID and user ID are required"};
+    return { success: false, message: "Job application ID and user ID are required" };
   }
 
   const { data, error } = await supabase
@@ -271,79 +271,95 @@ export const deleteApplication = async (id: string, user_id: string) => {
 };
 
 export const updateApplication = async (jobApplication: JobApplicationRow, newStatus: number) => {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const { id, user_id, status } = jobApplication;
+  const { id, user_id, status } = jobApplication;
 
-    // Validate input
-    if (!id || !user_id || !newStatus) {
-        return { success: false, message: `Missing required fields: ${!id ? "Job Application ID" : ""}${!user_id ? " User ID" : ""}${!newStatus ? " New Status" : ""}`.trim() };
+  // Validate input
+  if (!id || !user_id || !newStatus) {
+    return { success: false, message: `Missing required fields: ${!id ? "Job Application ID" : ""}${!user_id ? " User ID" : ""}${!newStatus ? " New Status" : ""}`.trim() };
+  }
+
+  // Check if the new status is different from the current status
+  if (status === newStatus) {
+    return { success: false, message: `New status (${newStatus}) is the same as the current status (${status})` };
+  }
+
+  try {
+    // Fetch job application status history
+    const { data: historyData, error: historyError } = await supabase
+      .from("application_status_history")
+      .select("*")
+      .eq("application_id", id)
+      .eq("user_id", user_id)
+      .order("created_at", { ascending: false });
+
+    if (historyError) {
+      console.error("Error fetching status history:", historyError);
     }
 
-    // Check if the new status is different from the current status
-    if (status === newStatus) {
-        return { success: false, message: `New status (${newStatus}) is the same as the current status (${status})` };
+    // Check if the transition is valid
+    const isValidTransition = validateStatusTransition(status, newStatus);
+
+    // If newStatus is 1, delete all history records for this application
+    if (newStatus === 1 && historyData && historyData.length > 0) {
+      const { error: deleteAllError } = await supabase
+        .from("application_status_history")
+        .delete()
+        .eq("application_id", id)
+        .eq("user_id", user_id);
+
+      if (deleteAllError) {
+        console.error("Error deleting all history records:", deleteAllError);
+        return { success: false, message: "Could not reset status history" };
+      }
+
+      console.log(`Deleted all status history for application ${id} (reset to Applied)`);
+    }
+    // If transition is invalid, delete the last history record
+    else if (!isValidTransition && historyData && historyData.length > 0) {
+      const latestHistory = historyData[0];
+
+      // Delete the most recent history entry
+      const { error: deleteError } = await supabase
+        .from("application_status_history")
+        .delete()
+        .eq("id", latestHistory.id);
+
+      if (deleteError) {
+        console.error("Error deleting history record:", deleteError);
+        return { success: false, message: "Could not update status history" };
+      }
+
+      console.log(`Deleted invalid status history for application ${id}`);
     }
 
-    try {
-        // Fetch job application status history
-        const { data: historyData, error: historyError } = await supabase
-            .from("application_status_history")
-            .select("*")
-            .eq("application_id", id)
-            .eq("user_id", user_id)
-            .order("created_at", { ascending: false })
-            .limit(1);
+    // Update the job application status regardless of validation result
+    // This will trigger the database function to create a new history entry
+    const { error: updateError } = await supabase
+      .from("applications")
+      .update({ status: newStatus })
+      .eq("id", id)
+      .eq("user_id", user_id);
 
-        if (historyError) {
-            console.error("Error fetching status history:", historyError);
-        }
-
-        // Check if the transition is valid
-        const isValidTransition = validateStatusTransition(status, newStatus);
-        
-        // If transition is invalid, delete the last history record
-        if (!isValidTransition && historyData && historyData.length > 0) {
-            const latestHistory = historyData[0];
-            
-            // Delete the most recent history entry
-            const { error: deleteError } = await supabase
-                .from("application_status_history")
-                .delete()
-                .eq("id", latestHistory.id);
-                
-            if (deleteError) {
-                console.error("Error deleting history record:", deleteError);
-                return { success: false, message: "Could not update status history" };
-            }
-            
-            console.log(`Deleted invalid status history for application ${id}`);
-        }
-        
-        // Update the job application status regardless of validation result
-        // This will trigger the database function to create a new history entry
-        const { error: updateError } = await supabase
-            .from("applications")
-            .update({ status: newStatus })
-            .eq("id", id)
-            .eq("user_id", user_id);
-            
-        if (updateError) {
-            return { success: false, message: "Could not update job application status" };
-        }
-        
-        // Return success with appropriate message
-        return { 
-            success: true, 
-            message: isValidTransition 
-                ? "Job application status updated successfully" 
-                : "Job application status updated (history corrected)"
-        };
-        
-    } catch (error) {
-        console.error("Error updating application status:", error);
-        return { success: false, message: "An unexpected error occurred while updating the status" };
+    if (updateError) {
+      return { success: false, message: "Could not update job application status" };
     }
+
+    // Return success with appropriate message
+    return {
+      success: true,
+      message: isValidTransition
+        ? "Job application status updated successfully"
+        : (newStatus === 1
+          ? "Job application status reset to Applied (history cleared)"
+          : "Job application status updated (history corrected)")
+    };
+
+  } catch (error) {
+    console.error("Error updating application status:", error);
+    return { success: false, message: "An unexpected error occurred while updating the status" };
+  }
 };
 
 /**
@@ -354,35 +370,35 @@ export const updateApplication = async (jobApplication: JobApplicationRow, newSt
  * @returns boolean - Whether the transition is valid
  */
 function validateStatusTransition(currentStatus: number, newStatus: number): boolean {
-    // No change or invalid status
-    if (currentStatus === newStatus || newStatus < 1 || newStatus > 7) {
-        return false;
-    }
-    
-    // Final states cannot be updated (Offer, Rejected, Ghosted)
-    if (currentStatus === 5 || currentStatus === 6 || currentStatus === 7) {
-        return false;
-    }
-    
-    // For statuses 1-4, ensure the new status is higher
-    if (currentStatus >= 1 && currentStatus <= 4) {
-        // If trying to move backward in the process
-        if (newStatus < currentStatus) {
-            return false;
-        }
-        
-        // All forward transitions are valid
-        return true;
-    }
-    
-    // Default case (should not happen with proper input validation)
+  // No change or invalid status
+  if (currentStatus === newStatus || newStatus < 1 || newStatus > 7) {
     return false;
+  }
+
+  // Final states cannot be updated (Offer, Rejected, Ghosted)
+  if (currentStatus === 5 || currentStatus === 6 || currentStatus === 7) {
+    return false;
+  }
+
+  // For statuses 1-4, ensure the new status is higher
+  if (currentStatus >= 1 && currentStatus <= 4) {
+    // If trying to move backward in the process
+    if (newStatus < currentStatus) {
+      return false;
+    }
+
+    // All forward transitions are valid
+    return true;
+  }
+
+  // Default case (should not happen with proper input validation)
+  return false;
 }
 
 export const deleteAccountAction = async (user_id: string) => {
   // Regular client for user operations
   const supabase = await createAdminClient();
-  
+
   if (!user_id) {
     return encodedRedirect("error", "/dashboard/settings", "User ID is required");
   }
@@ -394,10 +410,10 @@ export const deleteAccountAction = async (user_id: string) => {
     console.error("Error deleting auth user:", authError);
     return encodedRedirect("error", "/dashboard/settings", "Could not delete account");
   }
-  
+
   // Sign the user out
   await supabase.auth.signOut();
-  
+
   // Redirect to home page with success message
   return encodedRedirect("success", "/", "Account deleted successfully");
 };
