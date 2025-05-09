@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { JobApplicationRow } from "@/types/jobApplication";
 
 
 export const signUpAction = async (formData: FormData) => {
@@ -269,25 +270,113 @@ export const deleteApplication = async (id: string, user_id: string) => {
   return { success: true, message: "Job application deleted successfully", data };
 };
 
-export const updateApplication = async (id: string, user_id: string, status: number) => {
-  const supabase = await createClient();
+export const updateApplication = async (jobApplication: JobApplicationRow, newStatus: number) => {
+    const supabase = await createClient();
 
-  if (!id || !user_id) {
-    return { success: false, message: "Job application ID and user ID are required"};
-  }
+    const { id, user_id, status } = jobApplication;
 
-  const { data, error } = await supabase
-    .from("applications")
-    .update({ status })
-    .eq("id", id)
-    .eq("user_id", user_id);
+    // Validate input
+    if (!id || !user_id || !newStatus) {
+        return { success: false, message: `Missing required fields: ${!id ? "Job Application ID" : ""}${!user_id ? " User ID" : ""}${!newStatus ? " New Status" : ""}`.trim() };
+    }
 
-  if (error) {
-    return { success: false, message: "Could not fetch job application" };
-  }
-  console.log(data);
+    // Check if the new status is different from the current status
+    if (status === newStatus) {
+        return { success: false, message: `New status (${newStatus}) is the same as the current status (${status})` };
+    }
 
-  return { success: true, message: "Job application updated successfully", data };
+    try {
+        // Fetch job application status history
+        const { data: historyData, error: historyError } = await supabase
+            .from("application_status_history")
+            .select("*")
+            .eq("application_id", id)
+            .eq("user_id", user_id)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+        if (historyError) {
+            console.error("Error fetching status history:", historyError);
+        }
+
+        // Check if the transition is valid
+        const isValidTransition = validateStatusTransition(status, newStatus);
+        
+        // If transition is invalid, delete the last history record
+        if (!isValidTransition && historyData && historyData.length > 0) {
+            const latestHistory = historyData[0];
+            
+            // Delete the most recent history entry
+            const { error: deleteError } = await supabase
+                .from("application_status_history")
+                .delete()
+                .eq("id", latestHistory.id);
+                
+            if (deleteError) {
+                console.error("Error deleting history record:", deleteError);
+                return { success: false, message: "Could not update status history" };
+            }
+            
+            console.log(`Deleted invalid status history for application ${id}`);
+        }
+        
+        // Update the job application status regardless of validation result
+        // This will trigger the database function to create a new history entry
+        const { error: updateError } = await supabase
+            .from("applications")
+            .update({ status: newStatus })
+            .eq("id", id)
+            .eq("user_id", user_id);
+            
+        if (updateError) {
+            return { success: false, message: "Could not update job application status" };
+        }
+        
+        // Return success with appropriate message
+        return { 
+            success: true, 
+            message: isValidTransition 
+                ? "Job application status updated successfully" 
+                : "Job application status updated (history corrected)"
+        };
+        
+    } catch (error) {
+        console.error("Error updating application status:", error);
+        return { success: false, message: "An unexpected error occurred while updating the status" };
+    }
+};
+
+/**
+ * Validates if a status transition is valid based on application flow rules.
+ * 
+ * @param currentStatus - The current status of the job application
+ * @param newStatus - The proposed new status
+ * @returns boolean - Whether the transition is valid
+ */
+function validateStatusTransition(currentStatus: number, newStatus: number): boolean {
+    // No change or invalid status
+    if (currentStatus === newStatus || newStatus < 1 || newStatus > 7) {
+        return false;
+    }
+    
+    // Final states cannot be updated (Offer, Rejected, Ghosted)
+    if (currentStatus === 5 || currentStatus === 6 || currentStatus === 7) {
+        return false;
+    }
+    
+    // For statuses 1-4, ensure the new status is higher
+    if (currentStatus >= 1 && currentStatus <= 4) {
+        // If trying to move backward in the process
+        if (newStatus < currentStatus) {
+            return false;
+        }
+        
+        // All forward transitions are valid
+        return true;
+    }
+    
+    // Default case (should not happen with proper input validation)
+    return false;
 }
 
 export const deleteAccountAction = async (user_id: string) => {
@@ -296,20 +385,6 @@ export const deleteAccountAction = async (user_id: string) => {
   
   if (!user_id) {
     return encodedRedirect("error", "/dashboard/settings", "User ID is required");
-  }
-
-  console.log("Deleting account for user ID:", user_id);
-
-  // The delete cascade should handle deleting applications
-  // but we'll keep the explicit delete for clarity
-  const { error: applicationsError } = await supabase
-    .from("applications")
-    .delete()
-    .eq("user_id", user_id);
-
-  if (applicationsError) {
-    console.error("Error deleting applications:", applicationsError);
-    return encodedRedirect("error", "/dashboard/settings", "Could not delete account data");
   }
 
   // Use the admin client to delete the user with service role permissions
