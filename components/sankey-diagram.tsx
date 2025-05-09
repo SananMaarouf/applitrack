@@ -45,7 +45,6 @@ export function SankeyDiagram() {
   useEffect(() => {
     if (!jobApplicationStatusHistory || jobApplicationStatusHistory.length === 0) return;
     
-    console.log("Status history data:", jobApplicationStatusHistory);
     
     // Group status entries by application ID to track status transitions
     const applicationStatusMap = new Map();
