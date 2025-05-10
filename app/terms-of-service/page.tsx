@@ -14,7 +14,7 @@ export default function TermsOfService() {
         Last updated: May, 2025
       </p>
       <p className=" mb-6">
-        Welcome to Applitrack! These Terms of Service ("Terms") govern your use of our web application, Applitrack ("the Service"). By accessing or using the Service, you agree to these Terms. If you do not agree to these Terms, please do not use the Service.
+        Welcome to Applitrack! These Terms of Service (&quot;Terms&quot;) govern your use of our web application, Applitrack (&quot;the Service&quot;). By accessing or using the Service, you agree to these Terms. If you do not agree to these Terms, please do not use the Service.
       </p>
 
       <h2 className="text-2xl font-semibold  mb-4">1. Acceptance of Terms</h2>
@@ -53,7 +53,7 @@ export default function TermsOfService() {
       <h2 className="text-2xl font-semibold  mb-4">6. Privacy</h2>
       <p className=" mb-6">
         Your privacy is important to us.
-        We don't share, sell, or rent your personal information to third parties without your consent.
+        We don&quot;t share, sell, or rent your personal information to third parties without your consent.
         When you delete your account, we will delete your personal data, including any associated job applications.
         No using your data for nefarious purposes or training AI mumbo jumbo.
         Aggregated and anonymized data (which cannot be traced back to you) may be retained to help us improve the Service.
@@ -77,7 +77,7 @@ export default function TermsOfService() {
 
       <h2 className="text-2xl font-semibold  mb-4">10. Disclaimer of Warranties</h2>
       <p className=" mb-6">
-        The Service is provided "as is" and "as available." We make no warranties, whether express or implied, about the Service, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement.
+        The Service is provided &quot;as is&quot; and &quot;as available.&quot; We make no warranties, whether express or implied, about the Service, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement.
       </p>
 
       <h2 className="text-2xl font-semibold  mb-4">11. Changes to the Terms</h2>

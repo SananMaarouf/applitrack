@@ -2,7 +2,6 @@ import * as z from "zod";
 import Link from "next/link";
 import { Checkbox } from "./ui/checkbox";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { signUpAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -26,7 +25,6 @@ const registerSchema = z.object({
 
 export function SignupForm() {
   const { toast } = useToast();
-  const router = useRouter();
 
   // Register form
   const registerForm = useForm<z.infer<typeof registerSchema>>({
@@ -62,11 +60,13 @@ export function SignupForm() {
         });
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      if (error instanceof Error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   }
 

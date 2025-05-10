@@ -71,7 +71,7 @@ export function Chart() {
     if (jobApplications.length > 0 || loading) {
       setLoading(false); // Set loading to false once data is available
     }
-  }, [jobApplications]);
+  }, [jobApplications, loading]);
 
   // Group job applications by status and count them
   const statusCounts: { [key: number]: number } = jobApplications.reduce((acc, job) => {

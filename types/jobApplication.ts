@@ -20,7 +20,7 @@ type JobApplicationStatusHistory = {
 
 interface JobApplicationRow {
     id: number;
-    created_at: string;
+    created_at?: string;
     user_id: string;
     applied_at: string;
     expires_at?: string | null;

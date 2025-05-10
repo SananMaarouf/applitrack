@@ -3,11 +3,11 @@
 import { ReactNode, useEffect } from "react";
 import { useJobsStore } from "@/store/jobsStore";
 import { useStatusHistoryStore } from "@/store/jobsStatusHistoryStore";
-import { set } from "date-fns";
+import { JobApplication, JobApplicationStatusHistory } from "@/types/jobApplication";
 
 interface ApplicationsClientProps {
-  applications: any[];
-  application_status_history: any[]; // Define the type according to your data structure
+  applications: JobApplication[];
+  application_status_history: JobApplicationStatusHistory[]; // Define the type according to your data structure
   children: ReactNode; // Allow rendering children inside this component
 }
 

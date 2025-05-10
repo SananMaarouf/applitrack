@@ -23,7 +23,7 @@ const LOCAL_STORAGE_KEY = "tableVisibilityState";
 export function DataTable() {
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState<any>([]);
+  const [globalFilter, setGlobalFilter] = useState([]);
   const jobApplications = useJobsStore((state) => state.jobApplications);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
@@ -31,7 +31,7 @@ export function DataTable() {
     if (jobApplications.length > 0 || loading) {
       setLoading(false); // Set loading to false once data is available
     }
-  }, [jobApplications]);
+  }, [jobApplications, loading]);
 
   const table = useReactTable({
     data: jobApplications,

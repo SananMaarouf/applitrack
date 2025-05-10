@@ -2,18 +2,10 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { changePasswordAction } from "@/app/actions";
 import { createClient } from "@/utils/supabase/server";
-import { FormMessage, Message } from "@/components/form-message";
 import { UpdatePasswordForm } from "@/components/updatePasswordForm";
 
-export default async function ChangePasswordPage(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
+export default async function ChangePasswordPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
