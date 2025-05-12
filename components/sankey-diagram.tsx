@@ -1,6 +1,7 @@
 "use client";
 import { Chart } from "react-google-charts";
 import { useEffect, useState } from "react";
+import { JobApplicationStatusHistory } from "@/types/jobApplication";
 import { useStatusHistoryStore } from "@/store/jobsStatusHistoryStore";
 
 // Define an enum for job application statuses
@@ -34,14 +35,18 @@ export const options = {
         bold: true
       }
     },
-    link: { colorMode: "gradient" },
+    link: {
+      colorMode: "target",
+      colors: ["#36a2eb", "#ff6384", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40", "#4caf50"],
+    },
   },
 };
 
 export function SankeyDiagram() {
-  const { jobApplicationStatusHistory } = useStatusHistoryStore();
+  const jobApplicationStatusHistory: JobApplicationStatusHistory[] = useStatusHistoryStore((state) => state.jobApplicationStatusHistory );
   const [chartData, setChartData] = useState([["From", "To", "Weight"]]);
 
+  console.log("jobApplicationStatusHistory", jobApplicationStatusHistory);
   useEffect(() => {
     if (!jobApplicationStatusHistory || jobApplicationStatusHistory.length === 0) return;
     
@@ -66,11 +71,11 @@ export function SankeyDiagram() {
     });
     
     // Count transitions between statuses
-    const transitions = {};
+    const transitions: Record<string, number> = {};
     
     // Create separate aggregations for "normal flow" and "corrections"
-    const normalTransitions = {};
-    const correctionTransitions = {};
+    const normalTransitions: Record<string, number> = {};
+    const correctionTransitions: Record<string, number> = {};
     
     // Define expected progression path
     const expectedProgressionOrder = [
@@ -136,14 +141,14 @@ export function SankeyDiagram() {
     Object.entries(allTransitions).forEach(([transitionKey, count]) => {
       const [fromStatus, toStatus] = transitionKey.split('-').map(Number);
       sankeyData.push([
-        statusNames[fromStatus] || `Status ${fromStatus}`,
-        statusNames[toStatus] || `Status ${toStatus}`,
-        count
+        statusNames[fromStatus as keyof typeof statusNames] || `Status ${fromStatus}`,
+        statusNames[toStatus as JobStatus] || `Status ${toStatus}`,
+        count as any
       ]);
     });
     
     // Handle single-status applications
-    const singleStatusApplications = {};
+    const singleStatusApplications: Record<number, number> = {};
     applicationStatusMap.forEach(statusHistory => {
       if (statusHistory.length === 1) {
         const status = statusHistory[0].status;
@@ -158,8 +163,8 @@ export function SankeyDiagram() {
       if (statusNum !== JobStatus.APPLIED) {
         sankeyData.push([
           statusNames[JobStatus.APPLIED],
-          statusNames[statusNum] || `Status ${statusNum}`,
-          count
+          statusNames[statusNum as JobStatus] || `Status ${statusNum}`,
+          count as any
         ]);
       }
     });
