@@ -313,8 +313,6 @@ export const updateApplication = async (jobApplication: JobApplicationRow, newSt
         console.error("Error deleting all history records:", deleteAllError);
         return { success: false, message: "Could not reset status history" };
       }
-
-      console.log(`Deleted all status history for application ${id} (reset to Applied)`);
     }
     // If transition is invalid, delete the last history record
     else if (!isValidTransition && historyData && historyData.length > 0) {
@@ -330,8 +328,6 @@ export const updateApplication = async (jobApplication: JobApplicationRow, newSt
         console.error("Error deleting history record:", deleteError);
         return { success: false, message: "Could not update status history" };
       }
-
-      console.log(`Deleted invalid status history for application ${id}`);
     }
 
     // Update the job application status regardless of validation result
