@@ -19,7 +19,7 @@ export enum JobStatus {
 const statusNames = {
   [JobStatus.APPLIED]: "Applied",
   [JobStatus.INTERVIEW]: "First Interview",
-  [JobStatus.SECOND_INTERVIEW]: "Second Interview", 
+  [JobStatus.SECOND_INTERVIEW]: "Second Interview",
   [JobStatus.THIRD_INTERVIEW]: "Third Interview",
   [JobStatus.OFFER]: "Offer",
   [JobStatus.REJECTED]: "Rejected",
@@ -30,9 +30,10 @@ export const options = {
   sankey: {
     node: {
       colors: ["#36a2eb", "#ff6384", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40", "#4caf50"],
-      label: { 
+      label: {
         fontSize: 14,
-        bold: true
+        bold: true,
+        color: "white",
       }
     },
     link: {
@@ -43,22 +44,22 @@ export const options = {
 };
 
 export function SankeyDiagram() {
-  const jobApplicationStatusHistory: JobApplicationStatusHistory[] = useStatusHistoryStore((state) => state.jobApplicationStatusHistory );
+  const jobApplicationStatusHistory: JobApplicationStatusHistory[] = useStatusHistoryStore((state) => state.jobApplicationStatusHistory);
   const [chartData, setChartData] = useState([["From", "To", "Weight"]]);
+  const [onlySingleApplied, setOnlySingleApplied] = useState(false);
 
-  console.log("jobApplicationStatusHistory", jobApplicationStatusHistory);
   useEffect(() => {
     if (!jobApplicationStatusHistory || jobApplicationStatusHistory.length === 0) return;
-    
-    
+
+
     // Group status entries by application ID to track status transitions
     const applicationStatusMap = new Map();
-    
+
     // Sort entries by date to ensure correct sequence
-    const sortedEntries = [...jobApplicationStatusHistory].sort((a, b) => 
+    const sortedEntries = [...jobApplicationStatusHistory].sort((a, b) =>
       new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime()
     );
-    
+
     // Create a map of application IDs to their status history
     sortedEntries.forEach(entry => {
       if (!applicationStatusMap.has(entry.application_id)) {
@@ -69,14 +70,21 @@ export function SankeyDiagram() {
         changed_at: entry.changed_at
       });
     });
-    
+
+    // Check if all applications have only a single status and that status is "Applied"
+    const allSingleApplied = Array.from(applicationStatusMap.values()).every(
+      (statusHistory) =>
+        statusHistory.length === 1 && statusHistory[0].status === JobStatus.APPLIED
+    );
+    setOnlySingleApplied(allSingleApplied);
+
     // Count transitions between statuses
     const transitions: Record<string, number> = {};
-    
+
     // Create separate aggregations for "normal flow" and "corrections"
     const normalTransitions: Record<string, number> = {};
     const correctionTransitions: Record<string, number> = {};
-    
+
     // Define expected progression path
     const expectedProgressionOrder = [
       JobStatus.APPLIED,
@@ -85,23 +93,23 @@ export function SankeyDiagram() {
       JobStatus.THIRD_INTERVIEW,
       JobStatus.OFFER
     ];
-    
+
     // Process each application's status history
     applicationStatusMap.forEach(statusHistory => {
       // Skip applications with only one status entry (no transitions)
       if (statusHistory.length <= 1) return;
-      
+
       // Analyze transitions
       for (let i = 0; i < statusHistory.length - 1; i++) {
         const fromStatus = statusHistory[i].status;
         const toStatus = statusHistory[i + 1].status;
-        
+
         const transitionKey = `${fromStatus}-${toStatus}`;
-        
+
         // Check if this is a forward progression or a correction
         const fromIndex = expectedProgressionOrder.indexOf(fromStatus);
         const toIndex = expectedProgressionOrder.indexOf(toStatus);
-        
+
         // If both statuses are in the progression path
         if (fromIndex !== -1 && toIndex !== -1) {
           if (toIndex > fromIndex) {
@@ -130,13 +138,13 @@ export function SankeyDiagram() {
         }
       }
     });
-    
+
     // Merge all transitions, prioritizing normal ones
     const allTransitions = { ...transitions, ...correctionTransitions, ...normalTransitions };
-    
+
     // Create data for the Sankey diagram
     const sankeyData = [["From", "To", "Weight"]];
-    
+
     // Add each transition to the chart data
     Object.entries(allTransitions).forEach(([transitionKey, count]) => {
       const [fromStatus, toStatus] = transitionKey.split('-').map(Number);
@@ -146,7 +154,7 @@ export function SankeyDiagram() {
         count as any
       ]);
     });
-    
+
     // Handle single-status applications
     const singleStatusApplications: Record<number, number> = {};
     applicationStatusMap.forEach(statusHistory => {
@@ -155,29 +163,17 @@ export function SankeyDiagram() {
         singleStatusApplications[status] = (singleStatusApplications[status] || 0) + 1;
       }
     });
-    
-    // Add single-status applications to chart
-    Object.entries(singleStatusApplications).forEach(([status, count]) => {
-      const statusNum = Number(status);
-      // Always assume these came from "Applied" even if that wasn't recorded
-      if (statusNum !== JobStatus.APPLIED) {
-        sankeyData.push([
-          statusNames[JobStatus.APPLIED],
-          statusNames[statusNum as JobStatus] || `Status ${statusNum}`,
-          count as any
-        ]);
-      }
-    });
-    
+
+
+
     setChartData(sankeyData);
-    
+
   }, [jobApplicationStatusHistory]);
 
   return (
     <div className="w-full mx-auto">
       <div className="bg-card text-card-foreground p-3 rounded-lg border hover:border-gray-500 transition-all duration-300">
-        <h2 className="text-lg font-medium mb-2">Job application status flow (Sankey diagram)</h2>
-        {jobApplicationStatusHistory.length > 0 ? (
+        {jobApplicationStatusHistory.length > 0 && !onlySingleApplied ? (
           <Chart
             chartType="Sankey"
             width="100%"
