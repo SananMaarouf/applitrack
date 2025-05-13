@@ -7,6 +7,13 @@ import { DataTable } from "@/components/data-table";
 import { Chart } from "@/components/pieChart";
 import { JobApplicationForm } from "@/components/jobApplicationForm"
 import { SankeyDiagram } from "@/components/sankey-diagram";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 export default async function DasboardPage() {
   const supabase = await createClient();
 
@@ -31,7 +38,14 @@ export default async function DasboardPage() {
             <JobApplicationForm user_id={user?.id} />
           </section>
         </section>
-        <SankeyDiagram />
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger>Application Status History</AccordionTrigger>
+            <AccordionContent>
+              <SankeyDiagram />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
         <DataTable />
       </ApplicationsClient>
     </Suspense>
