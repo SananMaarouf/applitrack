@@ -7,8 +7,8 @@ import { JobApplication, JobApplicationStatusHistory } from "@/types/jobApplicat
 
 interface ApplicationsClientProps {
   applications: JobApplication[];
-  application_status_history: JobApplicationStatusHistory[]; // Define the type according to your data structure
-  children: ReactNode; // Allow rendering children inside this component
+  application_status_history: JobApplicationStatusHistory[];
+  children: ReactNode;
 }
 
 export default function ApplicationsClient({ applications, application_status_history, children }: ApplicationsClientProps) {
@@ -20,6 +20,10 @@ export default function ApplicationsClient({ applications, application_status_hi
     setApplications(applications);
     setHistory(application_status_history);
   }, [applications, setApplications, application_status_history, setHistory]);
-  
-  return <>{children}</>;
+
+  return (
+    <>  
+      { children }
+    </>
+  )
 }

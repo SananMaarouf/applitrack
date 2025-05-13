@@ -7,10 +7,10 @@ import StatusSelect from "../components/statusSelect";
 import { useEffect, useState } from "react";
 import { Progress } from "./ui/progress";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { JobApplication, JobApplicationRow } from "../types/jobApplication";
+import { JobApplication } from "../types/jobApplication";
 import { ArrowUpDown, Trash2, ExternalLink, Link2Off } from "lucide-react";
 
-const handleDelete = (row: Row<JobApplicationRow>, toast: (options: Record<string, unknown>) => { dismiss: () => void }, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[]) => {
+const handleDelete = (row: Row<JobApplication>, toast: (options: Record<string, unknown>) => { dismiss: () => void }, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[]) => {
 	/* destructure the row */
 	const { id, user_id } = row.original;
 
@@ -124,7 +124,7 @@ const handleDelete = (row: Row<JobApplicationRow>, toast: (options: Record<strin
 	}, 5000);
 }
 
-function ActionsCell({ row }: { row: Row<JobApplicationRow> }) {
+function ActionsCell({ row }: { row: Row<JobApplication> }) {
 	const { toast } = useToast();
 	const setJobApplications = useJobsStore((state) => state.setJobs);
 	const jobApplications = useJobsStore((state) => state.jobApplications);
@@ -139,7 +139,7 @@ function ActionsCell({ row }: { row: Row<JobApplicationRow> }) {
 	);
 }
 
-export const columns: ColumnDef<JobApplicationRow>[] = [
+export const columns: ColumnDef<JobApplication>[] = [
 	{
 		accessorKey: "position",
 		enableHiding: true,

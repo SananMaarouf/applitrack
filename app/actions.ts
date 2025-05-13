@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { JobApplicationRow } from "@/types/jobApplication";
+import { JobApplication } from "@/types/jobApplication";
 
 
 export const signUpAction = async (formData: FormData) => {
@@ -270,7 +270,7 @@ export const deleteApplication = async (id: string, user_id: string) => {
   return { success: true, message: "Job application deleted successfully", data };
 };
 
-export const updateApplication = async (jobApplication: JobApplicationRow, newStatus: number) => {
+export const updateApplication = async (jobApplication: JobApplication, newStatus: number) => {
   const supabase = await createClient();
 
   const { id, user_id, status } = jobApplication;

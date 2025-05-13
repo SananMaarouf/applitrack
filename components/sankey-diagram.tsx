@@ -151,7 +151,7 @@ export function SankeyDiagram() {
       sankeyData.push([
         statusNames[fromStatus as keyof typeof statusNames] || `Status ${fromStatus}`,
         statusNames[toStatus as JobStatus] || `Status ${toStatus}`,
-        count as any
+        count
       ]);
     });
 
