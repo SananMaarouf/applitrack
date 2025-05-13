@@ -3,7 +3,6 @@ import { Chart } from "react-google-charts";
 import { useEffect, useState } from "react";
 import { JobApplicationStatusHistory } from "@/types/jobApplication";
 import { useStatusHistoryStore } from "@/store/jobsStatusHistoryStore";
-import { color } from "motion";
 
 // Define an enum for job application statuses
 export enum JobStatus {
