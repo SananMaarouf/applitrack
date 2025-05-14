@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useJobsStore } from "@/store/jobsStore";
 import { updateApplication } from "../app/actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { JobApplicationRow } from "@/types/jobApplication";
+import { JobApplication } from "@/types/jobApplication";
 // Define an enum for job application statuses
 export enum JobStatus {
     APPLIED = 1,
@@ -18,7 +18,7 @@ export enum JobStatus {
 
 // Define the type for the "row" object
 interface Row {
-    original: JobApplicationRow;
+    original: JobApplication;
 }
 
 export default function StatusSelect({ row }: { row: Row }) {
@@ -35,10 +35,10 @@ export default function StatusSelect({ row }: { row: Row }) {
     /**
      * Updates the status of a job application in the database and the local state.
      *
-     * @param {JobApplicationRow} jobApplication - The job application object to update.
+     * @param {JobApplication} jobApplication - The job application object to update.
      * @param {number} newStatus - The new status to be set for the job application.
      */
-    const updateJobStatus = async (jobApplication: JobApplicationRow, newStatus: number) => {
+    const updateJobStatus = async (jobApplication: JobApplication, newStatus: number) => {
         updateApplication(jobApplication, newStatus)
             .then((res) => {
                 if (res?.success) {
