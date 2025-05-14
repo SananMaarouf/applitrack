@@ -10,20 +10,10 @@ type JobApplication = {
   link?: string;
 }
 
-
-type JobApplicationStatusHistory = {
-  id: number;
-  created_at: string;
-  application_id: string;
-  user_id: string;
-  changed_at: string;
-  status: number;
-}
-
 type AggregatedStatusHistory = {
   From: string;
   To: string;
   Weight: number;
 }
 
-export type { JobApplication, JobApplicationStatusHistory, AggregatedStatusHistory };
+export type { JobApplication, AggregatedStatusHistory };
