@@ -20,4 +20,10 @@ type JobApplicationStatusHistory = {
   status: number;
 }
 
-export type { JobApplication, JobApplicationStatusHistory };
+type AggregatedStatusHistory = {
+  From: string;
+  To: string;
+  Weight: number;
+}
+
+export type { JobApplication, JobApplicationStatusHistory, AggregatedStatusHistory };
