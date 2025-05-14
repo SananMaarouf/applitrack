@@ -33,9 +33,9 @@ export default async function DasboardPage() {
   const applicationStatusHistory = (statusHistoryData ?? []) as JobApplicationStatusHistory[];
 
   // Fetch aggregated status history and assert the type
-  const { data: aggregatedStatusHistoryData } = await supabase.from("application_status_flow").select("*");
+  const { data: aggregatedStatusHistoryData } = await supabase.from("application_status_flow").select("*").eq("user_id", user.id);
   const aggregatedStatusHistory = (aggregatedStatusHistoryData ?? []) as AggregatedStatusHistory[];
-  
+
   return (
     <Suspense fallback={<Loading />}>
       {/* pass in data from server to client components */}
