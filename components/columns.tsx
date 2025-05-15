@@ -1,16 +1,22 @@
 "use client"
 import { Button } from "./ui/button";
+import { Progress } from "./ui/progress";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useJobsStore } from "@/store/jobsStore";
 import { deleteApplication } from "@/app/actions";
-import StatusSelect from "../components/statusSelect";
-import { useEffect, useState } from "react";
-import { Progress } from "./ui/progress";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { JobApplication } from "../types/jobApplication";
+import { JobApplication, AggregatedStatusHistory } from "../types/jobApplication";
+import { StatusSelect } from "../components/statusSelect";
 import { ArrowUpDown, Trash2, ExternalLink, Link2Off } from "lucide-react";
+import { useAggregatedStatusHistoryStore,  } from "@/store/aggregatedStatusHistoryStore";
 
-const handleDelete = (row: Row<JobApplication>, toast: (options: Record<string, unknown>) => { dismiss: () => void }, setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[]) => {
+const handleDelete = (
+	row: Row<JobApplication>, 
+	toast: (options: Record<string, unknown>) => { dismiss: () => void }, 
+	setJobApplications: (jobs: JobApplication[]) => void, jobApplications: JobApplication[],
+	setAggregatedStatusHistory: (statusChanges: AggregatedStatusHistory[]) => void
+) => {
 	/* destructure the row */
 	const { id, user_id } = row.original;
 
@@ -84,6 +90,10 @@ const handleDelete = (row: Row<JobApplication>, toast: (options: Record<string, 
 			deleteApplication(id.toString(), user_id)
 				.then((res) => {
 					if (res.success) {
+
+						// Update the aggregated status history in the aggregatedStatusHistoryStore
+						setAggregatedStatusHistory(res.aggregatedStatusHistory as AggregatedStatusHistory[]);
+
 						toast({
 							title: "Success",
 							description: "Job application deleted successfully",
@@ -125,18 +135,25 @@ const handleDelete = (row: Row<JobApplication>, toast: (options: Record<string, 
 }
 
 function ActionsCell({ row }: { row: Row<JobApplication> }) {
-	const { toast } = useToast();
-	const setJobApplications = useJobsStore((state) => state.setJobs);
-	const jobApplications = useJobsStore((state) => state.jobApplications);
+    const { toast } = useToast();
+    const setJobApplications = useJobsStore((state) => state.setJobs);
+    const jobApplications = useJobsStore((state) => state.jobApplications);
+    const setAggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.setAggregatedStatusHistory);
 
-	return (
-		<Button
-			variant="destructive"
-			onClick={() => handleDelete(row, toast, setJobApplications, jobApplications)}
-		>
-			<Trash2 className="h-6 w-6" />
-		</Button>
-	);
+    return (
+        <Button
+            variant="destructive"
+            onClick={() => handleDelete(
+                row,
+                toast,
+                setJobApplications,
+                jobApplications,
+                setAggregatedStatusHistory
+            )}
+        >
+            <Trash2 className="h-6 w-6" />
+        </Button>
+    );
 }
 
 export const columns: ColumnDef<JobApplication>[] = [

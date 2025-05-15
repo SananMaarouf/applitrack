@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { JobApplication } from "@/types/jobApplication";
+import { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 
 
 export const signUpAction = async (formData: FormData) => {
@@ -264,10 +264,28 @@ export const deleteApplication = async (id: string, user_id: string) => {
     .eq("user_id", user_id);
 
   if (error) {
-    return { success: false, message: "Could not fetch job application" };
+    return { success: false, message: "Could not delete job application" };
   }
 
-  return { success: true, message: "Job application deleted successfully", data };
+  // After deleting the application, fetch the updated status history
+  // to ensure the Sankey Digram on dashboard page reflects the latest data
+  const { data: aggregatedStatusHistoryData, error: aggError } = await supabase
+    .from("application_status_flow")
+    .select("*")
+    .eq("user_id", user_id);
+
+  if (aggError) {
+    return { success: false, message: "Deleted application, but failed to fetch updated status history." };
+  }
+
+  const aggregatedStatusHistory = (aggregatedStatusHistoryData ?? []) as AggregatedStatusHistory[];
+
+  return {
+    success: true,
+    message: "Job application deleted successfully",
+    data,
+    aggregatedStatusHistory
+  };
 };
 
 export const updateApplication = async (jobApplication: JobApplication, newStatus: number) => {
@@ -342,14 +360,35 @@ export const updateApplication = async (jobApplication: JobApplication, newStatu
       return { success: false, message: "Could not update job application status" };
     }
 
-    // Return success with appropriate message
+    // Fetch the updated aggregated status history
+    const { data: aggregatedStatusHistoryData, error: aggError } = await supabase
+      .from("application_status_flow")
+      .select("*")
+      .eq("user_id", user_id);
+
+    if (aggError) {
+      return {
+        success: true,
+        message: isValidTransition
+          ? "Job application status updated, but failed to fetch updated status history."
+          : (newStatus === 1
+            ? "Job application status reset to Applied (history cleared), but failed to fetch updated status history."
+            : "Job application status updated (history corrected), but failed to fetch updated status history."),
+        aggregatedStatusHistory: []
+      };
+    }
+
+    const aggregatedStatusHistory = (aggregatedStatusHistoryData ?? []) as AggregatedStatusHistory[];
+
+    // Return success with updated aggregated status history
     return {
       success: true,
       message: isValidTransition
         ? "Job application status updated successfully"
         : (newStatus === 1
           ? "Job application status reset to Applied (history cleared)"
-          : "Job application status updated (history corrected)")
+          : "Job application status updated (history corrected)"),
+      aggregatedStatusHistory
     };
 
   } catch (error) {
