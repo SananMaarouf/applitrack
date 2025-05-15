@@ -5,15 +5,13 @@ import { useJobsStore } from "@/store/jobsStore";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 
-
-
 interface ApplicationsClientProps {
   applications: JobApplication[];
   aggregated_status_history: AggregatedStatusHistory[];
   children: ReactNode;
 }
 
-export default function ApplicationsClient({ applications, aggregated_status_history, children }: ApplicationsClientProps) {
+export function ApplicationsClient({ applications, aggregated_status_history, children }: ApplicationsClientProps) {
   const setApplications = useJobsStore((state) => state.setJobs);
   const setAggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.setAggregatedStatusHistory);
 
