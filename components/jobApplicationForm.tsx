@@ -104,7 +104,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
 
   return (
     <div className="bg-card h-full text-card-foreground p-4 rounded-md border hover:border-gray-500 transition-all duration-700">
-      <h2 className="text-lg font-semibold text-center">Job Application</h2>
+      <h2 className="text-lg font-bold text-center">Register application</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField control={form.control} name="position" render={({ field }) => (

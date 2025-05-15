@@ -98,7 +98,7 @@ export function Chart() {
         ) : (
           <>
             <CardHeader className="items-center">
-              <CardTitle className="font-bold text-2xl text-btn">Your stats</CardTitle>
+              <CardTitle className="font-bold text-lg text-btn">Applications</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 pb-0">
               {jobApplications.length === 0 ? (
@@ -137,13 +137,6 @@ export function Chart() {
                                   className="fill-current text-3xl font-bold"
                                 >
                                   {jobApplications.length}
-                                </tspan>
-                                <tspan
-                                  x={viewBox.cx}
-                                  y={(viewBox.cy || 0) + 24}
-                                  className="fill-current"
-                                >
-                                  Applications
                                 </tspan>
                               </text>
                             );
