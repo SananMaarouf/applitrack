@@ -34,17 +34,13 @@ export function SankeyDiagram() {
 	}));
 
 	const sankeyData = { nodes, links };
-	console.log("Sankey Data", sankeyData);
-
 	return (
 		<div className="w-full mx-auto">
-			<div className="bg-card text-card-foreground p-3 rounded-lg border hover:border-gray-500 transition-all duration-300">
+			<div className="bg-card text-card-foreground p-3 min-h-96 rounded-lg border hover:border-gray-500 transition-all duration-300">
 				{links.length > 1 ? (
-					<Sankey
+					<ResponsiveSankey 
 						data={sankeyData}
-						height={500}
-						width={800}
-						margin={{ top: 40, right: 160, bottom: 40, left: 50 }}
+						margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
 						nodeOpacity={1}
@@ -54,7 +50,7 @@ export function SankeyDiagram() {
 						nodeBorderWidth={0}
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
 						nodeBorderRadius={3}
-						linkOpacity={0.5}
+						linkOpacity={0.7}
 						linkHoverOthersOpacity={0.1}
 						linkContract={3}
 						enableLinkGradient={true}
