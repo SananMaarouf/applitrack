@@ -37,11 +37,11 @@ export function SankeyDiagram() {
 				},
 				labelPadding: 1,
 				nodePadding: 50,
-				width: 5,
+				width: 10,
 				interactivity: true,
 			},
 			link: {
-				colorMode: "gradient",
+				colorMode: "target",
 				colors: [
 					"#36a2eb", "#ff9f40", "#4bc0c0","#9966ff", "#9966ff", "#4caf50", "#ff6384","#bdbdbd",
 				],
@@ -64,7 +64,7 @@ export function SankeyDiagram() {
 			<div className="bg-card text-card-foreground p-3 rounded-lg border hover:border-gray-500 transition-all duration-300">
 				{sankeyData.length > 1 ? (
 					<Chart
-						className="w-full h-[350px] lg:h-[500px]"
+						className="w-full h-[450px] lg:h-[600px]"
 						chartType="Sankey"
 						loader={<div>Loading Chart</div>}
 						data={sankeyData}
