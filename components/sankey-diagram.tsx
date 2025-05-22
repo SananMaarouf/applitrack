@@ -1,7 +1,6 @@
 "use client";
-import { Chart } from "react-google-charts";
+import { Sankey, ResponsiveSankey } from "@nivo/sankey"
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
-import { useEffect, useState } from "react";
 
 // Define an enum for job application statuses
 export enum JobStatus {
@@ -14,61 +13,55 @@ export enum JobStatus {
 	GHOSTED = 7
 }
 export function SankeyDiagram() {
-	const [fontSize, setFontSize] = useState(0);
-
-	useEffect(() => {
-		const handleResize = () => {
-			// Tailwind's md breakpoint is 768px
-			setFontSize(window.innerWidth < 768 ? 11 : 18);
-		};
-		handleResize();
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
-	}, []);
-
-	const options = {
-		sankey: {
-			iterations:60,
-			node: {
-				label: {
-					fontSize,
-					color: "#201d1f",
-					bold: true,
-				},
-				labelPadding: 1,
-				nodePadding: 50,
-				width: 10,
-				interactivity: true,
-			},
-			link: {
-				colorMode: "target",
-				colors: [
-					"#36a2eb", "#ff9f40", "#4bc0c0","#9966ff", "#9966ff", "#4caf50", "#ff6384","#bdbdbd",
-				],
-			},
-		},
-	};
-
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
-	const sankeyData = [
-		["From", "To", "Amount"],
-		...aggregatedStatusHistory.map(item => [
-			item.From,
-			item.To,
-			Number(item.Weight)
-		])
+
+	// Map JobStatus enum to status names and chart variable numbers
+	const nodes = [
+		{ id: "Applied", nodeColor: "hsl(224, 100%, 58%)" },
+		{ id: "Interview", nodeColor: "hsl(33, 100%, 50%)" },
+		{ id: "2nd Interview", nodeColor: "hsl(191, 100%, 52%)" },
+		{ id: "3rd Interview", nodeColor: "hsl(275, 100%, 50%)" },
+		{ id: "Offer", nodeColor: "hsl(73, 100%, 45%)" },
+		{ id: "Rejected", nodeColor: "hsl(339, 100%, 50%)" },
+		{ id: "Ghosted", nodeColor: "hsl(195, 49%, 84%)" }
 	];
-	console.log("sankeyData", sankeyData);
+
+	// Build links from aggregatedStatusHistory
+	const links = aggregatedStatusHistory.map(item => ({
+		source: String(item.From),
+		target: String(item.To),
+		value: Number(item.Weight)
+	}));
+
+	const sankeyData = { nodes, links };
+	console.log("Sankey Data", sankeyData);
+
 	return (
 		<div className="w-full mx-auto">
 			<div className="bg-card text-card-foreground p-3 rounded-lg border hover:border-gray-500 transition-all duration-300">
-				{sankeyData.length > 1 ? (
-					<Chart
-						className="w-full h-[450px] lg:h-[600px]"
-						chartType="Sankey"
-						loader={<div>Loading Chart</div>}
+				{links.length > 1 ? (
+					<Sankey
 						data={sankeyData}
-						options={options}
+						height={500}
+						width={800}
+						margin={{ top: 40, right: 160, bottom: 40, left: 50 }}
+						align="justify"
+						colors={{ datum: 'nodeColor' }}
+						nodeOpacity={1}
+						nodeHoverOthersOpacity={0.35}
+						nodeThickness={18}
+						nodeSpacing={24}
+						nodeBorderWidth={0}
+						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
+						nodeBorderRadius={3}
+						linkOpacity={0.5}
+						linkHoverOthersOpacity={0.1}
+						linkContract={3}
+						enableLinkGradient={true}
+						labelPosition="outside"
+						labelOrientation="vertical"
+						labelPadding={16}
+						labelTextColor={{ from: 'color', modifiers: [['darker', 3]] }}
 					/>
 				) : (
 					<p className="text-center py-10 text-muted-foreground">No application history data available</p>
