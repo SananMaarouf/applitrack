@@ -1,5 +1,5 @@
 "use client";
-import { Sankey, ResponsiveSankey } from "@nivo/sankey"
+import { ResponsiveSankey } from "@nivo/sankey"
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 
 // Define an enum for job application statuses
