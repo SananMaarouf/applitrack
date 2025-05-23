@@ -78,21 +78,26 @@ export function SankeyDiagram() {
 						margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
-						nodeOpacity={1}
-						nodeHoverOthersOpacity={0.35}
 						nodeThickness={18}
 						nodeSpacing={24}
-						nodeBorderWidth={0}
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
-						nodeBorderRadius={3}
-						linkOpacity={0.7}
-						linkHoverOthersOpacity={0.1}
-						linkContract={3}
+						linkBlendMode="multiply"
 						enableLinkGradient={true}
 						labelPosition="outside"
 						labelOrientation="vertical"
 						labelPadding={16}
 						labelTextColor={{ from: 'color', modifiers: [['darker', 3]] }}
+						theme={{
+							tooltip: {
+								container: {
+									background: '#333',
+									color: '#fff',
+									fontSize: '12px',
+									padding: '5px',
+									borderRadius: '4px',
+								},
+							},
+						}}
 					/>
 				) : (
 					<p className="text-center py-10 text-muted-foreground">No application history data available</p>
