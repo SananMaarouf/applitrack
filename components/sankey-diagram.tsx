@@ -1,6 +1,7 @@
 "use client";
 import { ResponsiveSankey } from "@nivo/sankey"
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
+import { useTheme } from "next-themes";
 
 // Define an enum for job application statuses
 export enum JobStatus {
@@ -14,6 +15,7 @@ export enum JobStatus {
 }
 export function SankeyDiagram() {
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
+    const { theme } = useTheme();
 
 	// Create nodes from the aggregatedStatusHistory
 	const rawNodes = aggregatedStatusHistory.map(item => ({
@@ -80,13 +82,14 @@ export function SankeyDiagram() {
 						colors={{ datum: 'nodeColor' }}
 						nodeThickness={18}
 						nodeSpacing={24}
+						linkOpacity={1}
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
-						linkBlendMode="multiply"
 						enableLinkGradient={true}
+						linkBlendMode="normal"
 						labelPosition="outside"
 						labelOrientation="vertical"
-						labelPadding={16}
-						labelTextColor={{ from: 'color', modifiers: [['darker', 3]] }}
+						labelPadding={10}
+						labelTextColor={theme === "light" ? "#fff" : "#222"}
 						theme={{
 							tooltip: {
 								container: {
