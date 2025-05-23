@@ -15,16 +15,51 @@ export enum JobStatus {
 export function SankeyDiagram() {
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
 
-	// Map JobStatus enum to status names and chart variable numbers
-	const nodes = [
-		{ id: "Applied", nodeColor: "hsl(224, 100%, 58%)" },
-		{ id: "Interview", nodeColor: "hsl(33, 100%, 50%)" },
-		{ id: "2nd Interview", nodeColor: "hsl(191, 100%, 52%)" },
-		{ id: "3rd Interview", nodeColor: "hsl(275, 100%, 50%)" },
-		{ id: "Offer", nodeColor: "hsl(73, 100%, 45%)" },
-		{ id: "Rejected", nodeColor: "hsl(339, 100%, 50%)" },
-		{ id: "Ghosted", nodeColor: "hsl(195, 49%, 84%)" }
-	];
+	// Create nodes from the aggregatedStatusHistory
+	const rawNodes = aggregatedStatusHistory.map(item => ({
+		source: String(item.From),
+		target: String(item.To),
+	}));
+
+	const allNodeIds = rawNodes.reduce((acc, curr) => {
+		acc.push(curr.source);
+		acc.push(curr.target);
+		return acc;
+	}, [] as string[]);
+
+	const uniqueNodeIds = Array.from(new Set(allNodeIds));
+
+	const nodes = uniqueNodeIds.map(id => {
+		let nodeColor = "";
+		switch (id) {
+			case "Applied":
+				nodeColor = "hsl(224, 100%, 58%)";
+				break;
+			case "Interview":
+				nodeColor = "hsl(33, 100%, 50%)";
+				break;
+			case "2nd Interview":
+				nodeColor = "hsl(191, 100%, 52%)";
+				break;
+			case "3rd Interview":
+				nodeColor = "hsl(275, 100%, 50%)";
+				break;
+			case "Offer":
+				nodeColor = "hsl(73, 100%, 45%)";
+				break;
+			case "Rejected":
+				nodeColor = "hsl(339, 100%, 50%)";
+				break;
+			case "Ghosted":
+				nodeColor = "hsl(195, 49%, 84%)";
+				break;
+			default:
+				nodeColor = "hsl(0, 0%, 70%)";
+				break;
+		}
+		return { id, nodeColor };
+	});
+
 
 	// Build links from aggregatedStatusHistory
 	const links = aggregatedStatusHistory.map(item => ({
@@ -38,7 +73,7 @@ export function SankeyDiagram() {
 		<div className="w-full mx-auto">
 			<div className="bg-card text-card-foreground p-3 min-h-96 rounded-lg border hover:border-gray-500 transition-all duration-300">
 				{links.length > 1 ? (
-					<ResponsiveSankey 
+					<ResponsiveSankey
 						data={sankeyData}
 						margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
 						align="justify"
