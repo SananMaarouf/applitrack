@@ -123,7 +123,7 @@ export function LoginForm() {
       </form>
       <div className="flex items-center my-4">
         <div className="flex-grow border-t border-muted-foreground" />
-        <span className="mx-2 text-muted-foreground text-xs">- or -</span>
+        <span className="mx-2 text-muted-foreground text-xs">OR</span>
         <div className="flex-grow border-t border-muted-foreground" />
       </div>
       <GoogleAuth type="signIn" />
