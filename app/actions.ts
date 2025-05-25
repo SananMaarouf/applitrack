@@ -97,6 +97,23 @@ export const signInAction = async (formData: FormData) => {
   };
 };
 
+export const signInWithGoogle = async () => {
+  const origin = (await headers()).get("origin");
+  const supabase = await createClient();
+  const { data } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+    },
+  });
+
+
+  if (data.url) {
+    console.log("Redirecting to:", data);
+    redirect(data.url);
+  }
+};
+
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const supabase = await createClient();

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { signInAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
+import { GoogleAuth } from "./googleAuth";
 
 import {
   Form,
@@ -73,7 +74,7 @@ export function LoginForm() {
     <Form {...loginForm}>
       <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="
         flex flex-col justify-between
-        min-w-64 h-[400px]
+        min-w-64 h-3/4
          text-card-foreground
       ">
         <div className="space-y-4 animate-fade-down">
@@ -109,6 +110,7 @@ export function LoginForm() {
             )}
           />
         </div>
+
         
         <Button
           type="submit"
@@ -119,6 +121,12 @@ export function LoginForm() {
           {loginForm.formState.isSubmitting ? "Signing in..." : "Sign in"}
         </Button>
       </form>
+      <div className="flex items-center my-4">
+        <div className="flex-grow border-t border-muted-foreground" />
+        <span className="mx-2 text-muted-foreground text-xs">- or -</span>
+        <div className="flex-grow border-t border-muted-foreground" />
+      </div>
+      <GoogleAuth />
     </Form>
   );
 }
