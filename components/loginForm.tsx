@@ -74,7 +74,7 @@ export function LoginForm() {
     <Form {...loginForm}>
       <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="
         flex flex-col justify-between
-        min-w-64 h-3/4
+        min-w-64 h-[350px]
          text-card-foreground
       ">
         <div className="space-y-4 animate-fade-down">
@@ -126,7 +126,7 @@ export function LoginForm() {
         <span className="mx-2 text-muted-foreground text-xs">- or -</span>
         <div className="flex-grow border-t border-muted-foreground" />
       </div>
-      <GoogleAuth />
+      <GoogleAuth type="signIn" />
     </Form>
   );
 }

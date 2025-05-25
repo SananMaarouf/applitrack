@@ -39,7 +39,7 @@ export default function Auth() {
         <TabsTrigger className="w-[49%] my-2" value="register">Register</TabsTrigger>
       </TabsList>
       
-      <div className="relative transition-all duration-300 h-[400px]">
+      <div className="relative transition-all duration-300 h-[450px]">
         <TabsContent className="absolute h-full w-full" value="login">
           <LoginForm />
         </TabsContent>

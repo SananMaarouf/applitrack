@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { GoogleAuth } from "./googleAuth";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 // Remove FormMessage since we won't be using it
 
@@ -103,7 +104,7 @@ export function SignupForm() {
     <Form {...registerForm}>
       <form onSubmit={handleSubmit} className="
         flex flex-col justify-between
-        min-w-64 h-[400px]
+        min-w-64 h-[350px]
          text-card-foreground
         ">
         <div className="space-y-4 animate-fade-down">
@@ -188,6 +189,12 @@ export function SignupForm() {
           {registerForm.formState.isSubmitting ? "Registering..." : "Register"}
         </Button>
       </form>
-    </Form>
+          <div className="flex items-center my-4">
+            <div className="flex-grow border-t border-muted-foreground" />
+            <span className="mx-2 text-muted-foreground text-xs">- or -</span>
+            <div className="flex-grow border-t border-muted-foreground" />
+          </div>
+          <GoogleAuth type="signUp" />
+        </Form>
   );
 }
