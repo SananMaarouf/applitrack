@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow /terms-of-service
+
+
+Disallow: /_not-found
+Disallow: /auth
+Disallow: /auth/callback
+Disallow: /dashboard
+Disallow: /dashboard/reset-password
+Disallow: /dashboard/settings
+Disallow: /dashboard/settings/change-password
+Disallow: /forgot-password
+
+Sitemap: https://applitrack.no/sitemap.xml
