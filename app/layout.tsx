@@ -5,7 +5,7 @@ import HeaderAuth from "@/components/header-auth";
 import { Toaster } from "@/components/ui/toaster";
 import { HomeButton } from "@/components/homeButton"
 import { Footer } from "@/components/footer";
-  
+
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -14,7 +14,7 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Applitrack",
-  description: "",
+  description: "A job application tracker to help you organize your job search.",
 };
 
 const geistSans = Geist({
@@ -25,6 +25,9 @@ const geistSans = Geist({
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
+      <head>
+        <meta name="google-site-verification" content="-TzfPaAsZvr4tsndZwCHrgHcPz6MAeflFIfCwP8rg3w" />
+      </head>
       <body className="bg-background text-foreground min-h-screen flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <main className="flex flex-col items-center grow">
@@ -37,11 +40,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   <HeaderAuth />
                 </section>
               </nav>
-              
+
               <section className="flex flex-col gap-6 my-auto w-full max-w-5xl">
                 {children}
               </section>
-              
+
               <Footer />
             </section>
           </main>
