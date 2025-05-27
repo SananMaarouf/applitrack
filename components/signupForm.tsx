@@ -165,7 +165,7 @@ export function SignupForm() {
                   <FormLabel htmlFor="terms" className="">
                     I agree to the{" "}
                     <Link 
-                      href="/terms-of-service" 
+                      href="/terms-of-service?from=auth"
                       className="text-primary underline"
                       target="_blank"
                       rel="noopener noreferrer"

@@ -1,14 +1,29 @@
 "use client";
-import { ArrowLeft } from "lucide-react";
+
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+
 export default function TermsOfService() {
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+
+  let backHref = "/dashboard/settings";
+  let backText = "Back";
+  if (from === "auth") {
+    backHref = "/auth";
+    backText = "Back to register form";
+  } else if (from === "settings") {
+    backHref = "/dashboard/settings";
+    backText = "Back to settings";
+  }
   return (
     <div className="max-w-3xl mx-auto px-8">
       <nav className="w-full mx-auto mb-4">
-          <Link href="/dashboard/settings" className="flex border border-foreground hover:bg-hover hover:text-card-foreground duration-300 transition-colors items-center w-fit p-2 rounded-md text-sm hover:underline" >
-            <ArrowLeft className="h-6 w-6 mr-1" /> Back
-          </Link>
-        </nav>
+        <Link href={backHref} className="flex border border-foreground hover:bg-hover hover:text-card-foreground duration-300 transition-colors items-center w-fit p-2 rounded-md text-sm hover:underline" >
+          <ArrowLeft className="h-6 w-6 mr-1" /> {backText}
+        </Link>
+      </nav>
       <h1 className="text-4xl font-bold  mb-6">Applitrack - Terms of Service</h1>
       <p className=" mb-6">
         Last updated: May 2025
@@ -46,7 +61,7 @@ export default function TermsOfService() {
       <p className=" mb-6">
         Any data you submit to the Service, such as job application information, is stored in our database solely for your use within the Service.
         We do not claim any ownership over your data and will not use it for any purposes outside of providing the Service.
-        However, we may analyze anonymized and aggregated data to identify trends, such as which companies are hiring or rejecting applications at high rates. 
+        However, we may analyze anonymized and aggregated data to identify trends, such as which companies are hiring or rejecting applications at high rates.
         This helps us improve the Service and provide insights to users of Applitrack without compromising user privacy.
       </p>
 

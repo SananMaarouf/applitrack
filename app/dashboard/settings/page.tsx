@@ -49,7 +49,7 @@ export default async function SettingsPage() {
               <section className="space-y-2 pt-4">
                 <h3>Want to re-read the terms of service?</h3>
                 <Button variant="columns" className="mt-2" asChild >
-                  <Link href="/terms-of-service">
+                  <Link href="/terms-of-service?from=settings">
                     Click here 
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Link>
