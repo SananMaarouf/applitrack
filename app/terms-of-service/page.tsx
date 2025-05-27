@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function TermsOfService() {
+function TermsOfServiceContent() {
   const searchParams = useSearchParams();
   const from = searchParams.get("from");
 
@@ -17,6 +18,7 @@ export default function TermsOfService() {
     backHref = "/dashboard/settings";
     backText = "Back to settings";
   }
+
   return (
     <div className="max-w-3xl mx-auto px-8">
       <nav className="w-full mx-auto mb-4">
@@ -112,3 +114,11 @@ export default function TermsOfService() {
     </div>
   );
 };
+
+export default function TermsOfService() {
+  return (
+    <Suspense>
+      <TermsOfServiceContent />
+    </Suspense>
+  );
+}
