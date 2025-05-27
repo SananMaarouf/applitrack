@@ -6,12 +6,12 @@ export default function TermsOfService() {
     <div className="max-w-3xl mx-auto px-8">
       <nav className="w-full mx-auto mb-4">
           <Link href="/dashboard/settings" className="flex border border-foreground hover:bg-hover hover:text-card-foreground duration-300 transition-colors items-center w-fit p-2 rounded-md text-sm hover:underline" >
-            <ArrowLeft className="h-6 w-6 mr-1" /> Back to settings
+            <ArrowLeft className="h-6 w-6 mr-1" /> Back
           </Link>
         </nav>
       <h1 className="text-4xl font-bold  mb-6">Applitrack - Terms of Service</h1>
       <p className=" mb-6">
-        Last updated: May, 2025
+        Last updated: May 2025
       </p>
       <p className=" mb-6">
         Welcome to Applitrack! These Terms of Service (&quot;Terms&quot;) govern your use of our web application, Applitrack (&quot;the Service&quot;). By accessing or using the Service, you agree to these Terms. If you do not agree to these Terms, please do not use the Service.
