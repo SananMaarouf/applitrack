@@ -109,7 +109,6 @@ export const signInWithGoogle = async () => {
 
 
   if (data.url) {
-    console.log("Redirecting to:", data);
     redirect(data.url);
   }
 };
