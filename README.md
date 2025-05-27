@@ -1,8 +1,11 @@
 # Applitrack
 
-Applitrack is a job application tracker designed to help you stay organized during your job search. It keeps a record of the positions you've applied to, the companies, and your progress through each application process.
+A job application tracker designed to help you stay organized during your job search. It keeps a record of the positions you've applied to, the companies, and your progress through each application process.
 
 In addition to tracking, Applitrack provides insightful statistics about your job hunt, visualized through an informative Sankey diagram.
+
+![Applitrack UI](https://raw.githubusercontent.com/SananMaarouf/applitrack/master/applitrack.png)
+
 
 # Stack
 - [Next.js 15 (App Router)](https://nextjs.org/)
@@ -12,6 +15,7 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 - [Zustand](https://zustand-demo.pmnd.rs/)
 - [Supabase](https://supabase.com/)
 - [Resend](https://resend.com/)
+
 
 # Features
 - **Track Job Applications:** Easily add, update, and manage all your job applications in one place.
