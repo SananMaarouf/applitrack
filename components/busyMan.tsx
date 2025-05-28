@@ -1,7 +1,52 @@
+"use client";
+import { gsap } from "gsap";
+import { DrawSVGPlugin } from "gsap/all";
+import { useEffect, useRef } from "react";
+gsap.registerPlugin(DrawSVGPlugin);
+
 const BusyMan = () => {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    // Get all SVG paths (excluding any you don't want to animate)
+    const paths = svgRef.current!.querySelectorAll("path");
+    
+    // Create a timeline for the animation sequence
+    const tl = gsap.timeline();
+    
+    // Initial state - all paths are invisible
+    gsap.set(paths, { 
+      drawSVG: "0%",
+      stroke: "var(--svg-fill)",
+      strokeWidth: 1,
+      fill: "transparent" // Start with no fill
+    });
+    
+    // Animate each path with a staggered drawing effect
+    tl.to(paths, {
+      duration: 1,
+      drawSVG: "100%",
+      stagger: 0.05, // Stagger the start time for each path
+      ease: "power1.inOut"
+    });
+    
+    // After drawing is complete, fill the paths
+    tl.to(paths, {
+      duration: 0.5,
+      fill: "var(--svg-fill)",
+      stagger: 0.02,
+      ease: "power1.inOut"
+    });
+    
+    // Return a cleanup function
+    return () => {
+      tl.kill();
+    };
+  }, []);
   return (
     <div>
       <svg
+        ref={svgRef}
         width="401"
         height="401"
         viewBox="0 0 401 401"
