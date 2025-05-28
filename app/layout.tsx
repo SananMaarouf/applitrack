@@ -15,6 +15,9 @@ export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Applitrack",
   description: "A job application tracker to help you organize your job search.",
+  other: {
+    "google-site-verification": "-TzfPaAsZvr4tsndZwCHrgHcPz6MAeflFIfCwP8rg3w",
+  },
 };
 
 const geistSans = Geist({
@@ -25,9 +28,6 @@ const geistSans = Geist({
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
-      <head>
-        <meta name="google-site-verification" content="-TzfPaAsZvr4tsndZwCHrgHcPz6MAeflFIfCwP8rg3w" />
-      </head>
       <body className="bg-background text-foreground min-h-screen flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <main className="flex flex-col items-center grow">
