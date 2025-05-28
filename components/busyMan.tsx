@@ -24,17 +24,16 @@ const BusyMan = () => {
     
     // Animate each path with a staggered drawing effect
     tl.to(paths, {
-      duration: 1,
+      duration: 0.7,
       drawSVG: "100%",
-      stagger: 0.05, // Stagger the start time for each path
+      stagger: 0.02,
       ease: "power1.inOut"
     });
     
     // After drawing is complete, fill the paths
     tl.to(paths, {
-      duration: 0.5,
+      duration: 0.7,
       fill: "var(--svg-fill)",
-      stagger: 0.02,
       ease: "power1.inOut"
     });
     
