@@ -39,7 +39,7 @@
     --color-offer: hsl(var(--chart-5));
     --color-rejected: hsl(var(--chart-6));
     --color-ghosted: hsl(var(--chart-7));
-    --svg-fill: HSL(330, 6%, 12%)
+    --svg-fill: #231f20;  
   }
 
   .dark {
@@ -77,8 +77,8 @@
     --color-offer: hsl(var(--chart-5));
     --color-rejected: hsl(var(--chart-6));
     --color-ghosted: hsl(var(--chart-7));
-    --svg-fill: HSL(28, 12%, 85%);
-  }
+    --svg-fill: #ede7e0; 
+   }
 }
 
 @layer base {
