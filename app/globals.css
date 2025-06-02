@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 28 12% 75%;
-    --foreground: 330 6% 12%;;
+    --foreground: 330 6% 12%;
     --card: 330 6% 12%;
     --card-foreground: 0 0% 100%;
     --hover: 35 100% 47%;
@@ -27,11 +27,11 @@
     --radius: 0.5rem;
     --chart-1: 224 100% 58%; /* Applied */
     --chart-2: 33 100% 50%; /* Interview */
-    --chart-3: 191 100% 52%;  /* Second interview  */
+    --chart-3: 191 100% 52%; /* Second interview  */
     --chart-4: 275 100% 50%; /* Third interview  */
     --chart-5: 73 100% 45%; /* Offer -  */
     --chart-6: 339 100% 50%; /* Rejection  */
-    --chart-7: 195 49% 84%;  /* Ghosted  */
+    --chart-7: 195 49% 84%; /* Ghosted  */
     --color-applied: hsl(var(--chart-1));
     --color-interview: hsl(var(--chart-2));
     --color-second-interview: hsl(var(--chart-3));
@@ -39,7 +39,7 @@
     --color-offer: hsl(var(--chart-5));
     --color-rejected: hsl(var(--chart-6));
     --color-ghosted: hsl(var(--chart-7));
-    --svg-fill: #231f20;  
+    --svg-fill: #231f20;
   }
 
   .dark {
@@ -65,11 +65,11 @@
     --ring: 0 0% 83.1%;
     --chart-1: 224 100% 58%; /* Applied */
     --chart-2: 33 100% 50%; /* Interview */
-    --chart-3: 191 100% 52%;  /* Second interview  */
+    --chart-3: 191 100% 52%; /* Second interview  */
     --chart-4: 275 100% 50%; /* Third interview  */
     --chart-5: 73 100% 45%; /* Offer -  */
     --chart-6: 339 100% 50%; /* Rejection  */
-    --chart-7: 195 49% 84%;  /* Ghosted  */
+    --chart-7: 195 49% 84%; /* Ghosted  */
     --color-applied: hsl(var(--chart-1));
     --color-interview: hsl(var(--chart-2));
     --color-second-interview: hsl(var(--chart-3));
@@ -77,8 +77,8 @@
     --color-offer: hsl(var(--chart-5));
     --color-rejected: hsl(var(--chart-6));
     --color-ghosted: hsl(var(--chart-7));
-    --svg-fill: #ede7e0; 
-   }
+    --svg-fill: #ede7e0;
+  }
 }
 
 @layer base {
@@ -96,4 +96,11 @@
   input::-ms-clear {
     display: none;
   }
+}
+
+#gradient-canvas {
+  --gradient-color-1: #c7bfb8;
+  --gradient-color-2: #626262;
+  --gradient-color-3: #5a5a5a;
+  --gradient-color-4: #201d1f;
 }

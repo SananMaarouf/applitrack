@@ -7,7 +7,7 @@ export function HomeButton() {
       className="
 			h-full flex items-center rounded-xl no-underline text-foreground
 			text-2xl font-bold italic transition-colors duration-500 
-			hover:bg-card hover:text-card-foreground"
+			hover:bg-card hover:text-card-foreground z-50"
     >
       <p className="flex px-3">
         AT

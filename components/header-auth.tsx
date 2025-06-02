@@ -14,7 +14,7 @@ export default async function AuthButton() {
   } = await supabase.auth.getUser();
 
   return user ? (
-    <section className="flex h-full gap-2">
+    <section className="flex h-full gap-2 z-50">
       <Sheet>
         <SheetTrigger asChild>
           <Menu className="
@@ -79,7 +79,7 @@ export default async function AuthButton() {
     </section>
   ) : (
     // non-authenticated users...
-    <section className="flex h-full gap-2">
+    <section className="flex h-full gap-2 z-50">
       <ThemeSwitcher variant="icon-only" />
       <Button asChild variant={"default"} size={"fill"}>
         <Link href="/auth">Get started</Link>

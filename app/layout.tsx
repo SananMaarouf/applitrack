@@ -32,10 +32,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <main className="flex flex-col items-center grow">
             <section className="flex-1 w-full flex flex-col gap-6 items-center">
-              <nav className="w-full flex justify-center h-16">
+              <nav className="w-full flex justify-center h-16 z-50">
                 <section className="
                   w-full max-w-5xl flex justify-between items-center 
-                  px-1 md:px-0 text-sm py-2">
+                  px-1 md:px-0 text-sm py-2 z-50">
                   <HomeButton />
                   <HeaderAuth />
                 </section>
