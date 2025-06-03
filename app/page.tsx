@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Landing } from "@/components/landing";
+import { Features } from "@/components/features";
 
 export default async function Home() {
   const paragraphs = [
@@ -30,27 +31,7 @@ export default async function Home() {
       <Landing paragraphs={paragraphs} />
 
       {/* Features Section */}
-      <section className="
-        flex flex-col w-full items-center 
-        rounded-lg py-12 sm:py-16 lg:py-20">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-8">
-          Features
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-2 md:px-0">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="
-                flex flex-col items-center p-6 
-                bg-card text-card-foreground rounded-lg
-                shadow-md h-full hover:scale-95 transition-transform duration-300
-              ">
-              <h3 className="text-xl sm:text-2xl font-semibold mb-4">{feature.title}</h3>
-              <p>{feature.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Features features={features} />
 
       {/* Try It Now Section */}
       <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 px-4">
