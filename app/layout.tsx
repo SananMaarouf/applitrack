@@ -41,7 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </section>
               </nav>
 
-              <section className="flex flex-col gap-6 my-auto w-full max-w-5xl">
+              <section className="flex flex-col gap-6 my-auto w-full max-w-5xl min-h-screen">
                 {children}
               </section>
 

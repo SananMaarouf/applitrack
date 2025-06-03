@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { useRef } from 'react';
 import { BusyMan } from "./busyMan";
 import { useGSAP } from '@gsap/react';
+import { SplitText } from 'gsap/SplitText';
 import { LandingProps } from '@/types/landingProps';
 
 gsap.registerPlugin(useGSAP, SplitText);
@@ -64,7 +65,7 @@ export function Landing({ paragraphs }: LandingProps) {
 	}, { scope: headlineRef });
 
 	return (
-		<section className="w-full rounded-md justify-center flex flex-col  lg:flex-row" >
+		<section className="w-full h-screen grow rounded-md justify-center flex flex-col lg:flex-row" >
 			<div className="w-full lg:w-1/2 flex flex-col">
 				{/* The headline */}
 				<h1 ref={headlineRef}
