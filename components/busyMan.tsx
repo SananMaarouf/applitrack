@@ -100,4 +100,4 @@ const BusyMan = () => {
   )
 }
 
-export default BusyMan;
+export { BusyMan };
