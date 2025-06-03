@@ -43,14 +43,11 @@ export function Landing({ paragraphs }: LandingProps) {
 
 			// Animate sub-text paragraphs in after headline
 			gsap.set(subTextRefs.current, {
-				x: -100,
 				opacity: 0
 			});
 			gsap.to(subTextRefs.current, {
-				x: 0,
 				opacity: 1,
 				duration: 0.7,
-				stagger: 0.15,
 				ease: "power2.out",
 				delay: 1.6 // matches headline animation end
 			});
