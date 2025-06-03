@@ -1,13 +1,9 @@
 "use client";
-import { useRef } from 'react';
 import gsap from 'gsap';
+import { useRef } from 'react';
+import { BusyMan } from "./busyMan";
 import { useGSAP } from '@gsap/react';
-import { SplitText } from 'gsap/SplitText';
-import BusyMan from "./busyMan";
-
-interface LandingProps {
-	paragraphs: string[];
-}
+import { LandingProps } from '@/types/landingProps';
 
 gsap.registerPlugin(useGSAP, SplitText);
 
@@ -71,8 +67,7 @@ export function Landing({ paragraphs }: LandingProps) {
 		<section className="w-full rounded-md justify-center flex flex-col  lg:flex-row" >
 			<div className="w-full lg:w-1/2 flex flex-col">
 				{/* The headline */}
-				<h1
-					ref={headlineRef}
+				<h1 ref={headlineRef}
 					className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left  font-bold mb-6 lg:mb-8 px-1"
 				>
 					From{" "}
@@ -85,9 +80,7 @@ export function Landing({ paragraphs }: LandingProps) {
 				</div>
 				{/* the sub-text aka selling points*/}
 				{paragraphs.map((text, index) => (
-					<p
-						key={index}
-						ref={el => { subTextRefs.current[index] = el; }}
+					<p key={index} ref={el => { subTextRefs.current[index] = el; }}
 						className="text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left"
 					>
 						{text}
