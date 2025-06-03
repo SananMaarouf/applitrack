@@ -1,5 +1,5 @@
 import Link from "next/link";
-import BusyMan from "../components/busyMan";
+import { Landing } from "@/components/landing";
 
 export default async function Home() {
   const paragraphs = [
@@ -27,31 +27,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col items-center w-full mx-auto overflow-hidden ">
       {/* Landing Section */}
-      <section className="w-full rounded-md justify-center flex flex-col  lg:flex-row" >
-        <div className="w-full lg:w-1/2 flex flex-col">
-          {/* The headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left  font-bold mb-6 lg:mb-8 px-1">
-            From{" "}
-            <span className="underline text-pretty break-words">application</span>{" "}
-            to offer, <span className="underline">track</span> every step
-          </h1>
-          {/* the illustration */}
-          <div className="lg:hidden mx-auto">
-            <BusyMan />
-          </div>
-          {/* the sub-text aka selling points*/}
-          {paragraphs.map((text, index) => (
-            <p key={index} className="text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left">
-              {text}
-            </p>
-          ))}
-        </div>
-        <div className="hidden lg:flex lg:w-1/2 justify-center items-center mt-8 lg:mt-0">
-          <div className="w-3/4 max-w-md">
-            <BusyMan />
-          </div>
-        </div>
-      </section>
+      <Landing paragraphs={paragraphs} />
 
       {/* Features Section */}
       <section className="
