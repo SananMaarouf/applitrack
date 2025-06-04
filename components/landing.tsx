@@ -14,10 +14,9 @@ export function Landing({ paragraphs }: LandingProps) {
 
 	useGSAP(() => {
 		if (headlineRef.current) {
-			let split: SplitText;
 
 			// Split the text into lines
-			split = new SplitText(headlineRef.current!, {
+			const split = new SplitText(headlineRef.current!, {
 				type: "lines",
 				linesClass: "split-line"
 			});
