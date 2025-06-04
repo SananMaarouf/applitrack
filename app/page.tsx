@@ -26,7 +26,7 @@ export default async function Home() {
   ];
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen grow mx-auto overflow-hidden ">
+    <div className="flex flex-col items-center w-full grow mx-auto overflow-hidden ">
       {/* Landing Section */}
       <Landing paragraphs={paragraphs} />
 

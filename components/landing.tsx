@@ -64,11 +64,11 @@ export function Landing({ paragraphs }: LandingProps) {
 	}, { scope: headlineRef });
 
 	return (
-		<section className="w-full h-screen grow rounded-md justify-center flex flex-col lg:flex-row" >
+		<section className="w-full rounded-md justify-center flex flex-col lg:flex-row lg:pt-32" >
 			<div className="w-full lg:w-1/2 flex flex-col">
 				{/* The headline */}
 				<h1 ref={headlineRef}
-					className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left  font-bold mb-6 lg:mb-8 px-1"
+					className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left font-bold mb-3 lg:mb-8 px-1"
 				>
 					From{" "}
 					<span className="underline text-pretty break-words">application</span>{" "}
@@ -87,7 +87,7 @@ export function Landing({ paragraphs }: LandingProps) {
 					</p>
 				))}
 			</div>
-			<div className="hidden lg:flex lg:w-1/2 justify-center items-center mt-8 lg:mt-0">
+			<div className="hidden lg:flex lg:w-1/2 justify-center mt-8 lg:mt-0">
 				<div className="w-3/4 max-w-md">
 					<BusyMan />
 				</div>
