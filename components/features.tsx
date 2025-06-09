@@ -34,7 +34,7 @@ export function Features({ features }: FeaturesProps) {
 	return (
 		<section
 			ref={featuresRef}
-			className="flex flex-col w-full items-center rounded-lg py-12 sm:py-16 lg:py-20"
+			className="opacity-0 flex flex-col w-full items-center rounded-lg py-12 sm:py-16 lg:py-20"
 		>
 			<h2 className="text-3xl sm:text-4xl font-bold mb-8">Features</h2>
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-2 md:px-0">
