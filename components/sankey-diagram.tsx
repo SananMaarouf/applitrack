@@ -77,7 +77,7 @@ export function SankeyDiagram() {
 				{links.length > 1 ? (
 					<ResponsiveSankey
 						data={sankeyData}
-						margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+						margin={{ top: 42, right: 30, bottom: 42, left: 30 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
 						nodeThickness={18}
@@ -91,6 +91,12 @@ export function SankeyDiagram() {
 						labelPadding={10}
 						labelTextColor={theme === "light" ? "#fff" : "#222"}
 						theme={{
+							labels: {
+								text: {
+									fontSize: '13px',
+									fontWeight: "bolder",
+								},
+							},
 							tooltip: {
 								container: {
 									background: '#333',
