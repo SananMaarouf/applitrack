@@ -2,6 +2,7 @@
 import { ResponsiveSankey } from "@nivo/sankey"
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 // Define an enum for job application statuses
 export enum JobStatus {
@@ -15,7 +16,7 @@ export enum JobStatus {
 }
 export function SankeyDiagram() {
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
-    const { theme } = useTheme();
+	const { theme } = useTheme();
 
 	// Create nodes from the aggregatedStatusHistory
 	const rawNodes = aggregatedStatusHistory.map(item => ({
@@ -62,6 +63,19 @@ export function SankeyDiagram() {
 		return { id, nodeColor };
 	});
 
+	// If the device is mobile, limit the number of nodes to 5
+	const [labelPosition, setLabelPosition] = useState('outside');
+
+	useEffect(() => {
+		const updatePosition = () => {
+			setLabelPosition(window.innerWidth < 768 ? 'inside' : 'outside');
+		};
+
+		updatePosition();
+		window.addEventListener('resize', updatePosition);
+		return () => window.removeEventListener('resize', updatePosition);
+	}, []);
+
 
 	// Build links from aggregatedStatusHistory
 	const links = aggregatedStatusHistory.map(item => ({
@@ -77,7 +91,9 @@ export function SankeyDiagram() {
 				{links.length > 1 ? (
 					<ResponsiveSankey
 						data={sankeyData}
-						margin={{ top: 42, right: 30, bottom: 42, left: 30 }}
+						margin={labelPosition === 'inside'
+							? { top: 42, right: 0, bottom: 42, left: 0 }
+							: { top: 42, right: 64, bottom: 42, left: 64 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
 						nodeThickness={18}
@@ -86,14 +102,14 @@ export function SankeyDiagram() {
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
 						enableLinkGradient={true}
 						linkBlendMode="normal"
-						labelPosition="outside"
-						labelOrientation="vertical"
+						labelPosition={labelPosition === 'inside' ? 'inside' : 'outside'}
+						labelOrientation={labelPosition === 'inside' ? 'vertical' : 'horizontal'}
 						labelPadding={10}
 						labelTextColor={theme === "light" ? "#fff" : "#222"}
 						theme={{
 							labels: {
 								text: {
-									fontSize: '13px',
+									fontSize: '0.8rem',
 									fontWeight: "bolder",
 								},
 							},
