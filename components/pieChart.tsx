@@ -5,17 +5,7 @@ import { Label, Pie, PieChart } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useState, useEffect } from "react";
-
-// Define an enum for job application statuses
-export enum JobStatus {
-  APPLIED = 1,
-  INTERVIEW = 2,
-  SECOND_INTERVIEW = 3,
-  THIRD_INTERVIEW = 4,
-  OFFER = 5,
-  REJECTED = 6,
-  GHOSTED = 7,
-}
+import { JobStatus } from "@/types/jobStatus";
 
 // Define colors for each job status
 const statusColors: { [key in JobStatus]: string } = {

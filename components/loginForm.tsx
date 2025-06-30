@@ -1,22 +1,14 @@
 import * as z from "zod";
+import Link from "next/link";
+import { GoogleAuth } from "./googleAuth";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { signInAction } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
-import { GoogleAuth } from "./googleAuth";
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 // Login form schema
 const loginSchema = z.object({

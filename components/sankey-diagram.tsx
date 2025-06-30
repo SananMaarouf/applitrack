@@ -4,16 +4,7 @@ import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistory
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-// Define an enum for job application statuses
-export enum JobStatus {
-	APPLIED = 1,
-	INTERVIEW = 2,
-	SECOND_INTERVIEW = 3,
-	THIRD_INTERVIEW = 4,
-	OFFER = 5,
-	REJECTED = 6,
-	GHOSTED = 7
-}
+
 export function SankeyDiagram() {
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
 	const { theme } = useTheme();

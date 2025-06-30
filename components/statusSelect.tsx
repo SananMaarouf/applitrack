@@ -1,21 +1,11 @@
 "use client";
 import { useToast } from "@/hooks/use-toast";
 import { useJobsStore } from "@/store/jobsStore";
-import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { updateApplication } from "../app/actions";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
-// Define an enum for job application statuses
-export enum JobStatus {
-	APPLIED = 1,
-	INTERVIEW = 2,
-	SECOND_INTERVIEW = 3,
-	THIRD_INTERVIEW = 4,
-	OFFER = 5,
-	REJECTED = 6,
-	GHOSTED = 7
-}
-
+import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { JobStatus } from "@/types/jobStatus";
 
 // Define the type for the "row" object
 interface Row {
