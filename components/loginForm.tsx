@@ -46,8 +46,9 @@ export function LoginForm() {
         });
       } else {
         toast({
-          title: "Success",
+          title: "Success ✅",
           description: "Signed in successfully!",
+          variant: "success",
         });
         router.push("/dashboard");
       }

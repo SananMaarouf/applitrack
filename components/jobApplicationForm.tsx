@@ -76,9 +76,9 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           jobsStore.setJobs([...response.data as JobApplication[], ...jobsStore.jobApplications]);
 
           toast({
-            title: "Success",
+            title: "Success ✅",
             description: "Job application saved successfully",
-            variant: "default",
+            variant: "success",
           });
 
           // Reset the form after successful submission

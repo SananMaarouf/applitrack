@@ -45,7 +45,7 @@ export function StatusSelect({ row }: { row: Row }) {
 					// Update the aggregated status history in the aggregatedStatusHistoryStore
 					setAggregatedStatusHistory(res.aggregatedStatusHistory as AggregatedStatusHistory[]);
 
-					toast({ title: "Success", description: "Job application status updated successfully" });
+					toast({ title: "Success ✅", description: "Job application status updated successfully", variant: "success" });
 				} else {
 					toast({ title: "Error", description: res?.message, variant: "destructive" });
 				}

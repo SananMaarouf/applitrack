@@ -59,6 +59,7 @@ const handleDelete = (
 		title: "Job application will be deleted",
 		description: <ToastContent />,
 		duration: 5000, // 5 seconds
+		variant: "success",
 		action: (
 			<Button
 				variant="outline"
@@ -95,9 +96,10 @@ const handleDelete = (
 						setAggregatedStatusHistory(res.aggregatedStatusHistory as AggregatedStatusHistory[]);
 
 						toast({
-							title: "Success",
-							description: "Job application deleted successfully",
+							title: "Success ✅",
+							description: "Job application deleted successfully 🗑️",
 							duration: 3000,
+							variant: "success",
 						});
 					} else {
 						// If deletion fails, restore the job in the UI

@@ -44,9 +44,9 @@ export function UpdatePasswordForm() {
     changePasswordAction(formData).then((response) => {
       if (response.success) {
         toast({
-          title: "Success",
+          title: "Success ✅",
           description: response.message,
-          variant: "default",
+          variant: "success",
         });
         form.reset();
       } else {

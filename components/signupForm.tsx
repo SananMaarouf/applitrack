@@ -56,7 +56,7 @@ export function SignupForm() {
         });
       } else {
         toast({
-          title: "Success",
+          title: "Success ✅",
           description: "Registration successful! Please check your email to verify your account.",
         });
       }
