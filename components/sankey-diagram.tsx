@@ -55,11 +55,11 @@ export function SankeyDiagram() {
 	});
 
 	// If the device is mobile, limit the number of nodes to 5
-	const [labelPosition, setLabelPosition] = useState('outside');
+	const [isNarrow, setIsNarrow] = useState(false);
 
 	useEffect(() => {
 		const updatePosition = () => {
-			setLabelPosition(window.innerWidth < 768 ? 'inside' : 'outside');
+			setIsNarrow(window.innerWidth < 768);
 		};
 
 		updatePosition();
@@ -82,8 +82,8 @@ export function SankeyDiagram() {
 				{links.length > 1 ? (
 					<ResponsiveSankey
 						data={sankeyData}
-						margin={labelPosition === 'inside'
-							? { top: 42, right: 0, bottom: 42, left: 0 }
+						margin={isNarrow
+							? { top: 10, right: 0, bottom: 10, left: 0 }
 							: { top: 42, right: 72, bottom: 42, left: 64 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
@@ -93,11 +93,11 @@ export function SankeyDiagram() {
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
 						enableLinkGradient={true}
 						linkBlendMode="normal"
-						labelPosition={labelPosition === 'inside' ? 'inside' : 'outside'}
+						labelPosition="inside"
 						labelOrientation="horizontal"
 						labelPadding={10}
-						labelTextColor={theme === "light" ? "#fff" : "#222"}
-						layout={labelPosition === 'inside' ? 'vertical' : 'horizontal'}
+						labelTextColor="#fff"
+						layout={isNarrow ? 'vertical' : 'horizontal'}
 						theme={{
 							labels: {
 								text: {
