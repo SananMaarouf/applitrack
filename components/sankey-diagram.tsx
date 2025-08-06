@@ -84,7 +84,7 @@ export function SankeyDiagram() {
 						data={sankeyData}
 						margin={labelPosition === 'inside'
 							? { top: 42, right: 0, bottom: 42, left: 0 }
-							: { top: 42, right: 64, bottom: 42, left: 64 }}
+							: { top: 42, right: 72, bottom: 42, left: 64 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
 						nodeThickness={18}
