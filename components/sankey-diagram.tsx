@@ -78,7 +78,7 @@ export function SankeyDiagram() {
 	const sankeyData = { nodes, links };
 	return (
 		<div className="w-full mx-auto">
-			<div className="bg-card text-card-foreground p-3 min-h-96 rounded-lg border hover:border-gray-500 transition-all duration-300">
+			<div className="bg-card text-card-foreground p-3 min-h-[30rem] md:min-h-96 rounded-lg border hover:border-gray-500 transition-all duration-300">
 				{links.length > 1 ? (
 					<ResponsiveSankey
 						data={sankeyData}
@@ -94,9 +94,10 @@ export function SankeyDiagram() {
 						enableLinkGradient={true}
 						linkBlendMode="normal"
 						labelPosition={labelPosition === 'inside' ? 'inside' : 'outside'}
-						labelOrientation={labelPosition === 'inside' ? 'vertical' : 'horizontal'}
+						labelOrientation="horizontal"
 						labelPadding={10}
 						labelTextColor={theme === "light" ? "#fff" : "#222"}
+						layout={labelPosition === 'inside' ? 'vertical' : 'horizontal'}
 						theme={{
 							labels: {
 								text: {
