@@ -52,7 +52,8 @@ export function SankeyDiagram() {
 		return { id, nodeColor };
 	});
 
-	// If the device is mobile, limit the number of nodes to 5
+	// Determine if the viewport is narrow
+	// (e.g., mobile or small tablet)
 	const [isNarrow, setIsNarrow] = useState(false);
 
 	useEffect(() => {
@@ -91,7 +92,7 @@ export function SankeyDiagram() {
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
 						enableLinkGradient={true}
 						linkBlendMode="normal"
-						labelPosition="inside"
+						labelPosition={isNarrow ? 'inside' : 'outside'}
 						labelOrientation="horizontal"
 						labelPadding={10}
 						labelTextColor="#fff"
