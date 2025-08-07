@@ -2,11 +2,12 @@
 import { ResponsiveSankey } from "@nivo/sankey"
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 
 
 export function SankeyDiagram() {
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
-
+	const { theme } = useTheme();
 	// Create nodes from the aggregatedStatusHistory
 	const rawNodes = aggregatedStatusHistory.map(item => ({
 		source: String(item.From),
@@ -37,13 +38,13 @@ export function SankeyDiagram() {
 				nodeColor = "hsl(275, 100%, 50%)";
 				break;
 			case "Offer":
-				nodeColor = "hsl(73, 100%, 45%)";
+				nodeColor = "hsl(83, 90%, 40%)";
 				break;
 			case "Rejected":
 				nodeColor = "hsl(339, 100%, 50%)";
 				break;
 			case "Ghosted":
-				nodeColor = "hsl(195, 49%, 84%)";
+				nodeColor = "hsl(195, 9%, 64%)";
 				break;
 			default:
 				nodeColor = "hsl(0, 0%, 70%)";
@@ -82,8 +83,8 @@ export function SankeyDiagram() {
 					<ResponsiveSankey
 						data={sankeyData}
 						margin={isNarrow
-							? { top: 10, right: 30, bottom: 10, left: 10 }
-							: { top: 42, right: 72, bottom: 42, left: 64 }}
+							? { top: 20, right: 30, bottom: 20, left: 10 }
+							: { top: 42, right: 20, bottom: 42, left: 20 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
 						nodeThickness={18}
@@ -92,10 +93,10 @@ export function SankeyDiagram() {
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
 						enableLinkGradient={true}
 						linkBlendMode="normal"
-						labelPosition={isNarrow ? 'inside' : 'outside'}
+						labelPosition={isNarrow ? 'outside' : 'inside'}
 						labelOrientation="horizontal"
 						labelPadding={10}
-						labelTextColor="#fff"
+						labelTextColor={theme === 'light' ? '#ede7e0' : (isNarrow ? '#231f20' : '#ede7e0')}
 						layout={isNarrow ? 'vertical' : 'horizontal'}
 						theme={{
 							labels: {
