@@ -84,7 +84,7 @@ export function SankeyDiagram() {
 						data={sankeyData}
 						margin={isNarrow
 							? { top: 20, right: 30, bottom: 20, left: 10 }
-							: { top: 42, right: 20, bottom: 42, left: 20 }}
+							: { top: 42, right: 84, bottom: 42, left: 70 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
 						nodeThickness={18}
@@ -93,10 +93,10 @@ export function SankeyDiagram() {
 						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
 						enableLinkGradient={true}
 						linkBlendMode="normal"
-						labelPosition={isNarrow ? 'outside' : 'inside'}
+						labelPosition='outside'
 						labelOrientation="horizontal"
 						labelPadding={10}
-						labelTextColor={theme === 'light' ? '#ede7e0' : (isNarrow ? '#231f20' : '#ede7e0')}
+						labelTextColor={theme === 'light' ? '#ede7e0' : '#231f20'}
 						layout={isNarrow ? 'vertical' : 'horizontal'}
 						theme={{
 							labels: {
