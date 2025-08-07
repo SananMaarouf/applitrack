@@ -81,7 +81,7 @@ export function SankeyDiagram() {
 					<ResponsiveSankey
 						data={sankeyData}
 						margin={isNarrow
-							? { top: 10, right: 0, bottom: 10, left: 0 }
+							? { top: 10, right: 30, bottom: 10, left: 10 }
 							: { top: 42, right: 72, bottom: 42, left: 64 }}
 						align="justify"
 						colors={{ datum: 'nodeColor' }}
