@@ -1,13 +1,11 @@
 "use client";
 import { ResponsiveSankey } from "@nivo/sankey"
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 
 export function SankeyDiagram() {
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
-	const { theme } = useTheme();
 
 	// Create nodes from the aggregatedStatusHistory
 	const rawNodes = aggregatedStatusHistory.map(item => ({
