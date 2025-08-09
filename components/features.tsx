@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ExampleSankeyDiagram } from './exampleSanketDiagram';
 import { ExampleChart} from './exampleChart';
+import { ExampleDataTable } from './exampleDataTable';
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 export function Features() {
@@ -40,6 +41,7 @@ export function Features() {
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-2 md:px-0">
 				<ExampleSankeyDiagram />
 				<ExampleChart />
+				<ExampleDataTable />
 			</div>
 		</section>
 	);
