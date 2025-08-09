@@ -9,29 +9,13 @@ export default async function Home() {
     "Organize your job search with Applitrack!",
   ];
 
-  const features = [
-    {
-      title: "User friendly UI",
-      description: "Ditch the spreadsheet, embrace the form",
-    },
-    {
-      title: "Status tracking",
-      description: "See where you have applied and who you have interviews with",
-    },
-    {
-      title: "Application History",
-      description:
-        "Quickly access details of past applications, interviews, and offers.",
-    },
-  ];
-
   return (
     <div className="flex flex-col items-center w-full grow mx-auto overflow-hidden ">
       {/* Landing Section */}
       <Landing paragraphs={paragraphs} />
 
       {/* Features Section */}
-      <Features features={features} />
+      <Features />
 
       {/* Try It Now Section */}
       <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 px-4">
