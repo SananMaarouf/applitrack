@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ExampleSankeyDiagram } from './example-sankey-diagram';
+import { ExampleSankeyDiagram } from './exampleSanketDiagram';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
