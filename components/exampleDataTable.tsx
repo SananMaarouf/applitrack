@@ -1,32 +1,15 @@
 "use client";
 
 import { Input } from "./ui/input";
+import { columns } from "./columns";
+import type { JobApplication } from '../types/jobApplication';
+
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "./ui/table";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "./ui/dropdown-menu";
-import {
-  flexRender,
-  SortingState,
-  useReactTable,
-  getCoreRowModel,
-  VisibilityState,
-  getSortedRowModel,
-  getFilteredRowModel,
-  ColumnDef
-} from "@tanstack/react-table";
+import { flexRender, SortingState, useReactTable, getCoreRowModel, VisibilityState, getSortedRowModel, getFilteredRowModel, getPaginationRowModel } from "@tanstack/react-table";
 
-interface JobApplication {
-  id: number;
-  user_id: string;
-  created_at: string;
-  applied_at: string;
-  expires_at: string | null;
-  position: string;
-  company: string;
-  status: number;
-  link: string;
-}
 
 const exampleData: JobApplication[] = [
   {
@@ -34,7 +17,7 @@ const exampleData: JobApplication[] = [
     user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
     created_at: "2025-08-06T23:47:13.981503+00:00",
     applied_at: "2025-08-07",
-    expires_at: null,
+    expires_at: undefined,
     position: "test 4",
     company: "test 4",
     status: 6,
@@ -45,7 +28,7 @@ const exampleData: JobApplication[] = [
     user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
     created_at: "2025-08-06T23:44:07.972831+00:00",
     applied_at: "2025-08-07",
-    expires_at: null,
+    expires_at: undefined,
     position: "test 2",
     company: "test 3",
     status: 7,
@@ -56,7 +39,7 @@ const exampleData: JobApplication[] = [
     user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
     created_at: "2025-08-06T23:05:50.116898+00:00",
     applied_at: "2025-08-07",
-    expires_at: null,
+    expires_at: undefined,
     position: "test 2",
     company: "test 2",
     status: 6,
@@ -67,7 +50,7 @@ const exampleData: JobApplication[] = [
     user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
     created_at: "2025-08-06T22:57:54.05042+00:00",
     applied_at: "2025-08-06",
-    expires_at: null,
+    expires_at: undefined,
     position: "test",
     company: "test",
     status: 5,
@@ -75,92 +58,27 @@ const exampleData: JobApplication[] = [
   }
 ];
 
-const columns: ColumnDef<JobApplication>[] = [
-  {
-    accessorKey: "position",
-    header: "Position",
-  },
-  {
-    accessorKey: "company",
-    header: "Company",
-  },
-  {
-    accessorKey: "applied_at",
-    header: "Applied Date",
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
-    accessorKey: "created_at",
-    header: "Created",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at"));
-      return date.toLocaleDateString();
-    },
-  },
-];
-
 export function ExampleDataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
     data: exampleData,
-    columns,
+    columns: columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       globalFilter,
-      columnVisibility,
     },
     onGlobalFilterChange: setGlobalFilter,
   });
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-card text-card-foreground px-3 rounded-lg border hover:border-gray-500 transition-all duration-1000">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="search..."
-            value={table.getState().globalFilter ?? ""}
-            onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-            className="max-w-sm text-primary-foreground"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="columns" className="ml-auto border">
-                Columns
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-card-foreground text-card" align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize focus:bg-hover focus:text-card-foreground"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
+      <div className="bg-card text-card-foreground px-3 rounded-lg transition-all duration-1000">
         <Table>
           <TableHeader className="">
             {table.getHeaderGroups().map((headerGroup) => (
