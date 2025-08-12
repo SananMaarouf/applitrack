@@ -94,7 +94,7 @@ export function ExampleChart() {
     }));
 
   return (
-    <Card className="flex flex-col border-2 border-card-foreground bg-card h-11/12 w-full transition-all duration-700">
+    <Card className="flex flex-col border-2 border-card-foreground bg-card h-fit w-full transition-all duration-700">
       <CardHeader className="items-center">
         <CardTitle className="font-bold text-lg text-btn">Applications</CardTitle>
       </CardHeader>

@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ExampleSankeyDiagram } from './exampleSankeyDiagram';
 import { ExampleChart } from './exampleChart';
 import { ExampleDataTable } from './exampleDataTable';
+import { Progress } from './ui/progress';
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 export function Features() {
@@ -41,7 +42,7 @@ export function Features() {
 				{
 					opacity: 1,
 					y: 0,
-					duration: 0.8,
+					duration: 0.2,
 					ease: "power2.out",
 					scrollTrigger: {
 						trigger: featuresRef.current,
@@ -63,8 +64,7 @@ export function Features() {
 			gsap.to(componentRef.current, {
 				opacity: 0,
 				x: -50,
-				duration: 0.3,
-				ease: "power2.in",
+				duration: 0.2,
 				onComplete: () => {
 					// Change to next feature
 					setCurrentFeature((prev) => (prev + 1) % features.length);
@@ -75,8 +75,7 @@ export function Features() {
 						{
 							opacity: 1,
 							x: 0,
-							duration: 0.3,
-							ease: "power2.out",
+							duration: 0.2,
 							onComplete: () => {
 								setIsTransitioning(false);
 							}
@@ -87,28 +86,40 @@ export function Features() {
 		}
 	}, [isTransitioning, features.length]);
 
+	// timer to update progress bar
 	useEffect(() => {
+		// If a transition animation is running, do not update progress
+		if (isTransitioning) return;
+
+		// Reset progress to 0 at the start of each cycle
+		setProgress(0);
+
+		// Record the start time for accurate progress calculation
+		const startTime = Date.now();
+
+		// Start an interval to update progress every 10ms
 		const progressInterval = setInterval(() => {
-			if (!isTransitioning) {
-				setProgress(prev => {
-					if (prev >= 100) {
-						return 0;
-					}
-					return prev + 0.1; // Increment by 0.1% every 10ms (10ms * 1000 = 10s)
-				});
+			// Calculate elapsed time since start
+			const elapsed = Date.now() - startTime;
+			// Calculate new progress value (0 to 100 over 10 seconds)
+			const newProgress = Math.min((elapsed / 10000) * 100, 100);
+
+			// Update the progress state
+			setProgress(newProgress);
+
+			// When progress reaches 100%
+			if (newProgress >= 100) {
+				// Stop the interval
+				clearInterval(progressInterval);
+				// Wait 0.5 seconds, then trigger the feature transition animation
+				setTimeout(() => {
+					animateTransition();
+				}, 500);
 			}
 		}, 10);
 
-		const mainInterval = setInterval(() => {
-			if (!isTransitioning) {
-				animateTransition();
-			}
-		}, 10000); // Changed back to 10 seconds
-
-		return () => {
-			clearInterval(mainInterval);
-			clearInterval(progressInterval);
-		};
+		// Cleanup: clear the interval if the effect is re-run or component unmounts
+		return () => clearInterval(progressInterval);
 	}, [features.length, isTransitioning, animateTransition]);
 
 	const handleFeatureClick = (index: number) => {
@@ -143,6 +154,7 @@ export function Features() {
 			});
 		}
 	};
+
 	return (
 		<section ref={featuresRef} className="opacity-0 flex flex-col w-full items-center rounded-lg py-12 sm:py-16 lg:py-20">
 			<h2 className="text-3xl sm:text-4xl font-bold mb-8">
@@ -152,24 +164,14 @@ export function Features() {
 			<div className="w-full max-w-6xl px-4">
 				<div className="flex flex-col lg:flex-row">
 					{/* Feature indicators */}
-					<div className="
-						flex flex-row
-						lg:flex-col lg:h-[670px]
-						justify-between items-center gap-2
-						lg:space-x-0
-						">
+					<div className="flex flex-row lg:flex-col lg:h-[670px] justify-between items-center gap-2 lg:space-x-0">
 						{features.map((_, index) => (
 							<button
 								key={index}
 								onClick={() => handleFeatureClick(index)}
 								className={`
-									py-3 h-full flex
-									font-semibold transition-colors
-									items-center justify-center text-sm
-									duration-300 rounded-t-xl border-b-2
-									lg:py-0 w-full lg:w-16
-									lg:border-b-0 lg:rounded-t-none lg:rounded-tl-xl lg:rounded-l-xl lg:border-r-2
-
+									py-3 h-full flex font-semibold transition-colors items-center justify-center text-sm duration-300 rounded-t-xl border-b-2
+									lg:py-0 w-full lg:w-16 lg:border-b-0 lg:rounded-t-none lg:rounded-tl-xl lg:rounded-l-xl lg:border-r-2
 									${index === currentFeature
 										? 'bg-hover text-card-foreground hover:bg-hover'
 										: 'bg-card text-card-foreground hover:bg-hover'
@@ -181,15 +183,11 @@ export function Features() {
 					</div>
 
 					{/* Main content container */}
-					<div className="
-						bg-card shadow-lg p-6
-						h-[670px] flex flex-col
-						rounded-b-xl lg:rounded-b-none
-						lg:rounded-r-xl
-						">
+					<div className="bg-card shadow-lg p-6 min-h-[550px] flex flex-col rounded-b-xl lg:rounded-b-none lg:rounded-r-xl">
 						{/* Feature content */}
-						<div className="flex flex-col lg:flex-row justify-center  gap-6 flex-1">
-							<div className="lg:w-1/3 flex flex-col justify-center space-y-4">
+						<div className="flex flex-col gap-2 lg:flex-row justify-center flex-1">
+							{/* the feature title and description */}
+							<div className="lg:w-1/3 flex flex-col justify-center space-y-2">
 								<h3 className="text-2xl font-semibold text-card-foreground">
 									{features[currentFeature].title}
 								</h3>
@@ -198,18 +196,14 @@ export function Features() {
 								</p>
 							</div>
 
-							<div className="lg:w-2/3 flex-1 flex items-center justify-center overflow-hidden" ref={componentRef}>
+							{/* the feature component */}
+							<div className="lg:w-2/3 flex-1 flex overflow-hidden lg:items-center" ref={componentRef}>
 								{features[currentFeature].component}
 							</div>
 						</div>
 
 						{/* Progress bar */}
-						<div className="w-full bg-gray-200 rounded-full h-1">
-							<div
-								className="bg-hover h-1 rounded-full transition-all duration-100 ease-linear"
-								style={{ width: `${progress}%` }}
-							/>
-						</div>
+						<Progress value={progress} className="bg-card rounded-full"/>
 					</div>
 				</div>
 			</div>

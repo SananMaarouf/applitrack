@@ -8,17 +8,7 @@ import { flexRender, SortingState, useReactTable, getCoreRowModel, getSortedRowM
 
 
 const exampleData: JobApplication[] = [
-	{
-		"id": 7,
-		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
-		"created_at": "2025-08-06T23:47:13.981503+00:00",
-		"applied_at": "2025-03-07",
-		"expires_at": undefined,
-		"position": "Software Engineer",
-		"company": "Startup Inc.",
-		"status": 6,
-		"link": ""
-	},
+
 	{
 		"id": 6,
 		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
