@@ -11,8 +11,8 @@ const mockJobApplications = [
 		"created_at": "2025-08-06T23:47:13.981503+00:00",
 		"applied_at": "2025-08-07",
 		"expires_at": null,
-		"position": "test 4",
-		"company": "test 4",
+		"position": "Software Engineer",
+		"company": "Startup Inc.",
 		"status": 6,
 		"link": ""
 	},
@@ -20,10 +20,10 @@ const mockJobApplications = [
 		"id": 6,
 		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
 		"created_at": "2025-08-06T23:44:07.972831+00:00",
-		"applied_at": "2025-08-07",
+		"applied_at": "2025-03-07",
 		"expires_at": null,
-		"position": "test 2",
-		"company": "test 3",
+		"position": "Web developer",
+		"company": "Big Tech Co",
 		"status": 7,
 		"link": ""
 	},
@@ -33,8 +33,8 @@ const mockJobApplications = [
 		"created_at": "2025-08-06T23:05:50.116898+00:00",
 		"applied_at": "2025-08-07",
 		"expires_at": null,
-		"position": "test 2",
-		"company": "test 2",
+		"position": "Data analyst",
+		"company": "Evil corp",
 		"status": 6,
 		"link": ""
 	},
@@ -44,8 +44,8 @@ const mockJobApplications = [
 		"created_at": "2025-08-06T22:57:54.05042+00:00",
 		"applied_at": "2025-08-06",
 		"expires_at": null,
-		"position": "test",
-		"company": "test",
+		"position": "Janitor",
+		"company": "Local school",
 		"status": 5,
 		"link": ""
 	}

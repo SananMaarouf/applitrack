@@ -1,61 +1,57 @@
 "use client";
 
-import { Input } from "./ui/input";
+import { useState } from "react";
 import { columns } from "./columns";
 import type { JobApplication } from '../types/jobApplication';
-
-import { Button } from "./ui/button";
-import { useState, useEffect } from "react";
 import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "./ui/table";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "./ui/dropdown-menu";
-import { flexRender, SortingState, useReactTable, getCoreRowModel, VisibilityState, getSortedRowModel, getFilteredRowModel, getPaginationRowModel } from "@tanstack/react-table";
+import { flexRender, SortingState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel } from "@tanstack/react-table";
 
 
 const exampleData: JobApplication[] = [
-  {
-    id: 7,
-    user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
-    created_at: "2025-08-06T23:47:13.981503+00:00",
-    applied_at: "2025-08-07",
-    expires_at: undefined,
-    position: "test 4",
-    company: "test 4",
-    status: 6,
-    link: ""
-  },
-  {
-    id: 6,
-    user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
-    created_at: "2025-08-06T23:44:07.972831+00:00",
-    applied_at: "2025-08-07",
-    expires_at: undefined,
-    position: "test 2",
-    company: "test 3",
-    status: 7,
-    link: ""
-  },
-  {
-    id: 5,
-    user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
-    created_at: "2025-08-06T23:05:50.116898+00:00",
-    applied_at: "2025-08-07",
-    expires_at: undefined,
-    position: "test 2",
-    company: "test 2",
-    status: 6,
-    link: ""
-  },
-  {
-    id: 4,
-    user_id: "0e756a42-675b-484d-81e8-e4113d27b6e2",
-    created_at: "2025-08-06T22:57:54.05042+00:00",
-    applied_at: "2025-08-06",
-    expires_at: undefined,
-    position: "test",
-    company: "test",
-    status: 5,
-    link: ""
-  }
+	{
+		"id": 7,
+		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
+		"created_at": "2025-08-06T23:47:13.981503+00:00",
+		"applied_at": "2025-03-07",
+		"expires_at": undefined,
+		"position": "Software Engineer",
+		"company": "Startup Inc.",
+		"status": 6,
+		"link": ""
+	},
+	{
+		"id": 6,
+		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
+		"created_at": "2025-08-06T23:44:07.972831+00:00",
+		"applied_at": "2025-04-07",
+		"expires_at": undefined,
+		"position": "Web developer",
+		"company": "Big Tech Co",
+		"status": 7,
+		"link": ""
+	},
+	{
+		"id": 5,
+		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
+		"created_at": "2025-08-06T23:05:50.116898+00:00",
+		"applied_at": "2025-05-07",
+		"expires_at": undefined,
+		"position": "Data analyst",
+		"company": "Evil corp",
+		"status": 6,
+		"link": ""
+	},
+	{
+		"id": 4,
+		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
+		"created_at": "2025-08-06T22:57:54.05042+00:00",
+		"applied_at": "2025-06-06",
+		"expires_at": undefined,
+		"position": "Groundskeeper",
+		"company": "Springfield elementary",
+		"status": 5,
+		"link": ""
+	}
 ];
 
 export function ExampleDataTable() {
@@ -72,13 +68,18 @@ export function ExampleDataTable() {
     state: {
       sorting,
       globalFilter,
+      columnVisibility: {
+        link: false,
+        actions: false,
+        expires: false,
+      }
     },
     onGlobalFilterChange: setGlobalFilter,
   });
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-card text-card-foreground px-3 rounded-lg transition-all duration-1000">
+    <div className="w-full mb-1 max-w-xl mx-auto">
+      <div className="bg-card text-card-foreground rounded-lg transition-all duration-1000">
         <Table>
           <TableHeader className="">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -87,7 +88,7 @@ export function ExampleDataTable() {
                   return (
                     <TableHead key={header.id} className="bg-card text-card-foreground">
                       {header.isPlaceholder
-                        ? null
+                        ? undefined
                         : flexRender(
                           header.column.columnDef.header,
                           header.getContext()

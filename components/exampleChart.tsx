@@ -3,7 +3,6 @@ import { JobApplication } from "../types/jobApplication";
 import { Label, Pie, PieChart } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { useState, useEffect } from "react";
 import { JobStatus } from "@/types/jobStatus";
 
 // Mock data
@@ -77,17 +76,7 @@ const chartConfig: ChartConfig = {
 }
 
 export function ExampleChart() {
-  const [loading, setLoading] = useState(true);
   const jobApplications = mockJobApplications;
-
-  useEffect(() => {
-    // Simulate loading delay for demo purposes
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   // Group job applications by status and count them
   const statusCounts: { [key: number]: number } = jobApplications.reduce((acc, job) => {

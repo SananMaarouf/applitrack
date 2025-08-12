@@ -1,6 +1,6 @@
 "use client";
 import gsap from 'gsap';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ExampleSankeyDiagram } from './exampleSankeyDiagram';
@@ -19,17 +19,17 @@ export function Features() {
 		{
 			component: <ExampleSankeyDiagram />,
 			title: "Application Flow Visualization",
-			description: "Track your job applications through the entire pipeline with interactive Sankey diagrams. Visualize how applications move from submission to final decision."
+			description: "Track your job applications through the entire pipeline with interactive Sankey diagrams. Visualize how many of your applications move from submission to final decision."
 		},
 		{
 			component: <ExampleChart />,
 			title: "Analytics & Insights",
-			description: "Get detailed analytics on your job search performance. Track application rates, response times, and success patterns to optimize your strategy."
+			description: "Get detailed analytics on your job search performance"
 		},
 		{
 			component: <ExampleDataTable />,
 			title: "Comprehensive Data Management",
-			description: "Organize all your job applications in one place. Sort, filter, and search through your applications with powerful data management tools."
+			description: "Organize all your job applications in one place. Sort, search and update your applications using a simple data table."
 		}
 	];
 
@@ -54,33 +54,7 @@ export function Features() {
 		}
 	}, []);
 
-	useEffect(() => {
-		let progressInterval: NodeJS.Timeout;
-		const mainInterval = setInterval(() => {
-			if (!isTransitioning) {
-				animateTransition();
-			}
-		}, 10000); // Changed back to 10 seconds
-
-		// Progress tracking interval
-		progressInterval = setInterval(() => {
-			if (!isTransitioning) {
-				setProgress(prev => {
-					if (prev >= 100) {
-						return 0;
-					}
-					return prev + 0.1; // Increment by 0.1% every 10ms (10ms * 1000 = 10s)
-				});
-			}
-		}, 10);
-
-		return () => {
-			clearInterval(mainInterval);
-			clearInterval(progressInterval);
-		};
-	}, [features.length, isTransitioning]);
-
-	const animateTransition = () => {
+	const animateTransition = useCallback(() => {
 		if (componentRef.current && !isTransitioning) {
 			setIsTransitioning(true);
 			setProgress(0); // Reset progress
@@ -111,7 +85,31 @@ export function Features() {
 				}
 			});
 		}
-	};
+	}, [isTransitioning, features.length]);
+
+	useEffect(() => {
+		const progressInterval = setInterval(() => {
+			if (!isTransitioning) {
+				setProgress(prev => {
+					if (prev >= 100) {
+						return 0;
+					}
+					return prev + 0.1; // Increment by 0.1% every 10ms (10ms * 1000 = 10s)
+				});
+			}
+		}, 10);
+
+		const mainInterval = setInterval(() => {
+			if (!isTransitioning) {
+				animateTransition();
+			}
+		}, 10000); // Changed back to 10 seconds
+
+		return () => {
+			clearInterval(mainInterval);
+			clearInterval(progressInterval);
+		};
+	}, [features.length, isTransitioning, animateTransition]);
 
 	const handleFeatureClick = (index: number) => {
 		if (index !== currentFeature && !isTransitioning && componentRef.current) {
@@ -153,11 +151,10 @@ export function Features() {
 
 			<div className="w-full max-w-6xl px-4">
 				<div className="flex flex-col lg:flex-row">
-
 					{/* Feature indicators */}
 					<div className="
 						flex flex-row
-						lg:flex-col lg:h-[650px]
+						lg:flex-col lg:h-[670px]
 						justify-between items-center gap-2
 						lg:space-x-0
 						">
@@ -185,12 +182,11 @@ export function Features() {
 
 					{/* Main content container */}
 					<div className="
-										bg-card shadow-lg p-6
-										h-[650px] flex flex-col
-										rounded-b-xl lg:rounded-b-none
-										lg:rounded-r-xl
-										">
+						bg-card shadow-lg p-6
+						h-[670px] flex flex-col
 						rounded-b-xl lg:rounded-b-none
+						lg:rounded-r-xl
+						">
 						{/* Feature content */}
 						<div className="flex flex-col lg:flex-row justify-center  gap-6 flex-1">
 							<div className="lg:w-1/3 flex flex-col justify-center space-y-4">
