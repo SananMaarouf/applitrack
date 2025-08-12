@@ -1,5 +1,5 @@
 "use client";
-import { JobApplication } from "../types/jobApplication";
+import { JobApplication } from "../../types/jobApplication";
 import { Label, Pie, PieChart } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";

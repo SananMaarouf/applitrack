@@ -3,9 +3,9 @@ import gsap from 'gsap';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ExampleSankeyDiagram } from './exampleSankeyDiagram';
-import { ExampleChart } from './exampleChart';
-import { ExampleDataTable } from './exampleDataTable';
+import { ExampleSankeyDiagram } from './example/exampleSankeyDiagram';
+import { ExampleChart } from './example/exampleChart';
+import { ExampleDataTable } from './example/exampleDataTable';
 import { Progress } from './ui/progress';
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -20,17 +20,17 @@ export function Features() {
 		{
 			component: <ExampleSankeyDiagram />,
 			title: "Application Flow Visualization",
-			description: "Track your job applications through the entire pipeline with interactive Sankey diagrams. Visualize how many of your applications move from submission to final decision."
+			description: "Understand your progress with a Sankey diagram that maps each application’s journey from submission to final outcome. Whether that’s an offer✅, rejection😥, or being ghosted👻"
 		},
 		{
 			component: <ExampleChart />,
 			title: "Analytics & Insights",
-			description: "Get detailed analytics on your job search performance"
+			description: "Get insight with a pie chart that shows the distribution of your applications across statuses"
 		},
 		{
 			component: <ExampleDataTable />,
 			title: "Comprehensive Data Management",
-			description: "Organize all your job applications in one place. Sort, search and update your applications using a simple data table."
+			description: "Work smarter with a searchable, sortable, and filterable data table. Update statuses or remove applications directly without leaving the table"
 		}
 	];
 
@@ -183,7 +183,7 @@ export function Features() {
 					</div>
 
 					{/* Main content container */}
-					<div className="bg-card shadow-lg p-6 min-h-[550px] flex flex-col rounded-b-xl lg:rounded-b-none lg:rounded-r-xl">
+					<div className="bg-card shadow-lg p-6 h-[600px] lg:w-full lg:h-[670px] flex flex-col rounded-b-xl lg:rounded-b-none lg:rounded-r-xl">
 						{/* Feature content */}
 						<div className="flex flex-col gap-2 lg:flex-row justify-center flex-1">
 							{/* the feature title and description */}
@@ -197,7 +197,7 @@ export function Features() {
 							</div>
 
 							{/* the feature component */}
-							<div className="lg:w-2/3 flex-1 flex overflow-hidden lg:items-center" ref={componentRef}>
+							<div className="lg:w-2/3 flex-1 flex overflow-hidden items-center lg:items-center" ref={componentRef}>
 								{features[currentFeature].component}
 							</div>
 						</div>

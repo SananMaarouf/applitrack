@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { columns } from "./columns";
-import type { JobApplication } from '../types/jobApplication';
-import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "./ui/table";
+import { columns } from "./exampleColumns";
+import type { JobApplication } from '../../types/jobApplication';
+import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "../ui/table";
 import { flexRender, SortingState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel } from "@tanstack/react-table";
 
 
