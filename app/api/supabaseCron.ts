@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/utils/supabase/admin';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     // Create admin client to perform database request
     const supabase = createAdminClient();
