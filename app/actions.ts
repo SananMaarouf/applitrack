@@ -98,7 +98,7 @@ export const signInAction = async (formData: FormData) => {
 };
 
 export const signInWithGoogle = async () => {
-  const origin = (await headers()).get("origin");
+  const origin = process.env.SITE_URL || (await headers()).get("origin");
   const supabase = await createClient();
   const { data } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -107,11 +107,11 @@ export const signInWithGoogle = async () => {
     },
   });
 
-
   if (data.url) {
     redirect(data.url);
   }
 };
+
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
