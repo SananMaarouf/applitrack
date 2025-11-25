@@ -7,8 +7,8 @@ import { HomeButton } from "@/components/homeButton"
 import { Footer } from "@/components/footer";
 
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
+const defaultUrl = process.env.SITE_URL
+  ? process.env.SITE_URL
   : "http://localhost:3000";
 
 export const metadata = {
