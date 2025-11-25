@@ -1,0 +1,31 @@
+name: Trigger Dokploy Deployment
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Image"]
+    types:
+      - completed
+
+jobs:
+  trigger-deployment:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Trigger Dokploy webhook
+        run: |
+          curl -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "ref": "${{ github.ref }}",
+              "repository": "${{ github.repository }}",
+              "commit": "${{ github.sha }}",
+              "triggered_by": "github_actions"
+            }'
+        
+      - name: Deployment triggered
+        run: |
+          echo "✅ Deployment webhook triggered successfully"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
