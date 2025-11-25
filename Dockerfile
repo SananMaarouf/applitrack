@@ -6,9 +6,6 @@ FROM node:20-alpine AS base
 # Set working directory
 WORKDIR /app
 
-# Ensure production parity
-ENV NODE_ENV=production
-
 # -----------------------
 # 2. Dependencies stage
 # -----------------------
@@ -20,22 +17,37 @@ RUN apk add --no-cache libc6-compat
 # Copy package manifests
 COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* .npmrc* ./ 
 
-# Install dependencies (prefer npm since package.json uses npm scripts)
-RUN npm install --legacy-peer-deps --omit=dev
+# Install ALL dependencies (including devDependencies needed for build)
+# Don't set NODE_ENV=production here as it would skip devDependencies
+RUN npm ci --legacy-peer-deps
 
 # -----------------------
 # 3. Build stage
 # -----------------------
 FROM base AS builder
 
+# Set env for Next.js build (can be overridden in Dokploy)
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Copy node_modules from deps
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy all source files
-COPY . .
+# Copy package.json first for better caching
+COPY package.json package-lock.json* ./
 
-# Set env for Next.js build (can be overridden in Dokploy)
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy only necessary config files for build
+COPY next.config.ts tsconfig.json tailwind.config.ts postcss.config.js components.json ./
+
+# Copy source directories
+COPY app ./app
+COPY components ./components
+COPY hooks ./hooks
+COPY lib ./lib
+COPY public ./public
+COPY store ./store
+COPY types ./types
+COPY utils ./utils
+COPY middleware.ts ./
 
 # Build Next.js app
 RUN npm run build
@@ -55,18 +67,14 @@ RUN addgroup -g 1001 -S nodejs \
 
 WORKDIR /app
 
+# Install only production dependencies for runtime
+COPY package.json package-lock.json* ./
+RUN npm ci --legacy-peer-deps --omit=dev && npm cache clean --force
+
 # Copy only necessary files from builder
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./
-
-# Copy .next and required config
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/next.config.ts ./next.config.ts
-COPY --from=builder /app/tailwind.config.ts ./tailwind.config.ts
-COPY --from=builder /app/postcss.config.js ./postcss.config.js
-
-# Copy node_modules from deps for runtime
-COPY --from=deps /app/node_modules ./node_modules
 
 # Ensure correct permissions
 RUN chown -R nextjs:nodejs /app
