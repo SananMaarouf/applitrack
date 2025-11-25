@@ -44,4 +44,4 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack:buildcache,mode=max
 
       - name: Image digest
-        run: echo ${{ steps.meta.outputs.tags }}
+        run: echo "Image tags:" && echo "${{ steps.meta.outputs.tags }}"
