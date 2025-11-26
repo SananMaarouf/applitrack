@@ -41,7 +41,3 @@ coverage
 *.pem
 README.md
 LICENSE
-
-# Vercel
-.vercel
-vercel.json

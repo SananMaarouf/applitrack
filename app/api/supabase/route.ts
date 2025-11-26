@@ -1,7 +1,41 @@
 import { createAdminClient } from '@/utils/supabase/admin';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Simple authentication using a secret token
+    const authHeader = request.headers.get('authorization');
+    const cronSecret = process.env.CRON_SECRET;
+
+    if (!cronSecret) {
+      console.error('CRON_SECRET environment variable is not set');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Server configuration error',
+          timestamp: new Date().toISOString()
+        }), 
+        { 
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      console.warn('Unauthorized cron job attempt');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Unauthorized',
+          timestamp: new Date().toISOString()
+        }), 
+        { 
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     // Create admin client to perform database request
     const supabase = createAdminClient();
     

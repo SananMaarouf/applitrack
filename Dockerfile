@@ -76,6 +76,24 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
+# Copy cron script
+COPY scripts/supabase-cron.sh /usr/local/bin/supabase-cron.sh
+RUN chmod +x /usr/local/bin/supabase-cron.sh
+
+# Install supercronic for cron job management (works with non-root users)
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.29/supercronic-linux-amd64 \
+    SUPERCRONIC=supercronic-linux-amd64 \
+    SUPERCRONIC_SHA1SUM=cd48d45c4b10f3f0bfdd3a57d054cd05ac96812b
+
+RUN apk add --no-cache curl \
+    && curl -fsSLO "$SUPERCRONIC_URL" \
+    && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+    && chmod +x "$SUPERCRONIC" \
+    && mv "$SUPERCRONIC" /usr/local/bin/supercronic
+
+# Create crontab file
+RUN echo "0 5 * * 0 /usr/local/bin/supabase-cron.sh >> /var/log/cron.log 2>&1" > /app/crontab
+
 # Ensure correct permissions
 RUN chown -R nextjs:nodejs /app
 
@@ -84,5 +102,5 @@ USER nextjs
 # Next.js default port
 EXPOSE 3000
 
-# Start Next.js in production mode
-CMD ["npm", "run", "start"]
+# Start both Next.js and supercronic
+CMD supercronic /app/crontab & npm run start
