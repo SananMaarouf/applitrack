@@ -5,27 +5,126 @@ on:
     workflows: ["Build and Push Docker Image"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   trigger-deployment:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    env:
+      CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+      CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      DOKPLOY_DEPLOY_HOOK_URL: ${{ secrets.DOKPLOY_DEPLOY_HOOK_URL }}
+
     steps:
-      - name: Trigger Dokploy webhook
+      - name: Trigger Dokploy deployment
+        if: env.DOKPLOY_DEPLOY_HOOK_URL != ''
+        env:
+          DOKPLOY_DEPLOY_HOOK_URL: ${{ secrets.DOKPLOY_DEPLOY_HOOK_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ env.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ env.CF_ACCESS_CLIENT_SECRET }}
         run: |
-          curl -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}" \
+          echo "Triggering Dokploy deployment..."
+          echo "=================================================="
+          
+          # Make the request and capture both response and HTTP code
+          # Added -A (User-Agent) to avoid WAF blocking 'curl'
+          # Added -L (Location) to follow redirects
+          HTTP_CODE=$(curl -X POST "$DOKPLOY_DEPLOY_HOOK_URL" \
             -H "Content-Type: application/json" \
-            -d '{
-              "ref": "${{ github.ref }}",
-              "repository": "${{ github.repository }}",
-              "commit": "${{ github.sha }}",
-              "triggered_by": "github_actions"
-            }'
-        
-      - name: Deployment triggered
-        run: |
-          echo "✅ Deployment webhook triggered successfully"
-          echo "Repository: ${{ github.repository }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
+            -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
+            -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
+            -A "Applitrack-GitHub-Actions-Deploy-Script" \
+            -d '{}' \
+            -w "%{http_code}" \
+            -o /tmp/response.txt \
+            -v \
+            -L \
+            --max-time 30 \
+            --connect-timeout 10 \
+            2>&1 | tee /tmp/curl_debug.txt | tail -1)
+          
+          RESPONSE_BODY=$(cat /tmp/response.txt 2>/dev/null || echo "No response body")
+          
+          echo ""
+          echo "📊 Response Status: $HTTP_CODE"
+          echo "=================================================="
+          
+          # Try to pretty-print JSON response
+          if echo "$RESPONSE_BODY" | jq . > /dev/null 2>&1; then
+            echo "📄 Response Body (formatted):"
+            echo "$RESPONSE_BODY" | jq .
+            IS_JSON=true
+          elif echo "$RESPONSE_BODY" | grep -q "<html"; then
+            echo "📄 Response Body (HTML - extracted text):"
+            # Extract title and main error message from HTML
+            TITLE=$(echo "$RESPONSE_BODY" | grep -oP '(?<=<title>)[^<]+' || echo "")
+            ERROR_MSG=$(echo "$RESPONSE_BODY" | sed 's/<[^>]*>//g' | grep -v '^[[:space:]]*$' | head -20)
+            if [ -n "$TITLE" ]; then
+              echo "Title: $TITLE"
+              echo ""
+            fi
+            echo "$ERROR_MSG"
+            IS_JSON=false
+          else
+            echo "📄 Response Body:"
+            echo "$RESPONSE_BODY"
+            IS_JSON=false
+          fi
+          echo "=================================================="
+          
+          # Check for success
+          if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 204 ]; then
+            echo "✅ Deployment triggered successfully!"
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Commit: ${{ github.sha }}"
+            exit 0
+          fi
+          
+          # Handle specific error cases
+          if [ "$HTTP_CODE" -eq 403 ]; then
+            echo ""
+            echo "❌ Error: Access Denied (403)"
+            echo "=================================================="
+            if [ "$IS_JSON" = true ]; then
+               echo "👉 This looks like a BACKEND error (from Dokploy), not Cloudflare."
+               echo "   Check if your DOKPLOY_DEPLOY_HOOK_URL is correct."
+            else
+               echo "👉 This looks like a CLOUDFLARE error."
+               echo "   Possible issues:"
+               echo "   1. WAF/Bot Fight Mode is blocking the request (User-Agent added in this attempt)."
+               echo "   2. Service Token is not correctly added to the 'gh_dokploy_deploy' policy."
+               echo "   3. The policy Action is not set to 'Service Auth'."
+            fi
+            echo ""
+            echo "🔍 Cloudflare-related debug info:"
+            grep -i "cloudflare" /tmp/curl_debug.txt || echo "  (none found)"
+            exit 1
+          elif [ "$HTTP_CODE" -eq 0 ] || [ "$HTTP_CODE" -eq 000 ]; then
+            echo ""
+            echo "❌ Error: Connection failed - request did not reach server"
+            echo "=================================================="
+            echo "Possible issues:"
+            echo "  - Network timeout"
+            echo "  - DNS resolution failure"
+            echo "  - Cloudflare blocking at network level"
+            echo ""
+            echo "🔍 Full debug info:"
+            cat /tmp/curl_debug.txt
+            exit 1
+          elif [ "$HTTP_CODE" -ge 500 ]; then
+            echo ""
+            echo "⚠️  Warning: Server error ($HTTP_CODE)"
+            echo "=================================================="
+            echo "The request reached the server but it returned an error"
+            exit 1
+          else
+            echo ""
+            echo "⚠️  Warning: Unexpected response code: $HTTP_CODE"
+            echo "=================================================="
+            echo "🔍 Full debug output:"
+            cat /tmp/curl_debug.txt
+            exit 1
+          fi
