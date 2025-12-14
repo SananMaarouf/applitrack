@@ -23,6 +23,7 @@ dist
 # Docker
 Dockerfile
 docker-compose.yaml
+docker-compose.yml
 .dockerignore
 
 # IDE
