@@ -12,7 +12,7 @@ function TermsOfServiceContent() {
   let backHref = "/dashboard/settings";
   let backText = "Back";
   if (from === "auth") {
-    backHref = "/auth";
+    backHref = "/sign-up";
     backText = "Back to register form";
   } else if (from === "settings") {
     backHref = "/dashboard/settings";

@@ -21,7 +21,7 @@ export default async function Home() {
       <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 px-4">
         <h2 className="text-3xl sm:text-4xl font-bold mb-6">What are you waiting for?</h2>
         <p className="text-lg sm:text-xl mb-8 font-bold">Stay on track with Applitrack</p>
-        <Link href="/auth">
+        <Link href="/sign-in">
           <p className="
             px-6 py-3 bg-card text-card-foreground
             rounded-md font-semibold duration-500

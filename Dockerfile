@@ -29,6 +29,14 @@ FROM base AS builder
 # Set env for Next.js build (can be overridden in Dokploy)
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Accept Clerk keys as build args (required for build-time validation)
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ARG CLERK_SECRET_KEY
+
+# Set them as environment variables for the build
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV CLERK_SECRET_KEY=$CLERK_SECRET_KEY
+
 # Copy node_modules from deps
 COPY --from=deps /app/node_modules ./node_modules
 
@@ -37,6 +45,10 @@ COPY package.json package-lock.json* ./
 
 # Copy only necessary config files for build
 COPY next.config.ts tsconfig.json tailwind.config.ts postcss.config.js components.json ./
+
+# Copy database files (needed for build)
+COPY db ./db
+COPY drizzle.config.ts ./
 
 # Copy source directories
 COPY app ./app
@@ -67,32 +79,24 @@ RUN addgroup -g 1001 -S nodejs \
 
 WORKDIR /app
 
-# Install only production dependencies for runtime
+# Copy package.json first
 COPY package.json package-lock.json* ./
+
+# Install only production dependencies
 RUN npm ci --legacy-peer-deps --omit=dev && npm cache clean --force
+
+# Copy TypeScript and @types/node from builder (needed for next.config.ts at runtime)
+COPY --from=builder /app/node_modules/typescript ./node_modules/typescript
+COPY --from=builder /app/node_modules/@types/node ./node_modules/@types/node
 
 # Copy only necessary files from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
-# Copy cron script
-COPY scripts/supabase-cron.sh /usr/local/bin/supabase-cron.sh
-RUN chmod +x /usr/local/bin/supabase-cron.sh
-
-# Install supercronic for cron job management (works with non-root users)
-ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.29/supercronic-linux-amd64 \
-    SUPERCRONIC=supercronic-linux-amd64 \
-    SUPERCRONIC_SHA1SUM=cd48d45c4b10f3f0bfdd3a57d054cd05ac96812b
-
-RUN apk add --no-cache curl \
-    && curl -fsSLO "$SUPERCRONIC_URL" \
-    && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
-    && chmod +x "$SUPERCRONIC" \
-    && mv "$SUPERCRONIC" /usr/local/bin/supercronic
-
-# Create crontab file
-RUN echo "0 5 * * 0 /usr/local/bin/supabase-cron.sh >> /var/log/cron.log 2>&1" > /app/crontab
+# Copy database-related files
+COPY --from=builder /app/db ./db
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 
 # Ensure correct permissions
 RUN chown -R nextjs:nodejs /app
@@ -102,5 +106,5 @@ USER nextjs
 # Next.js default port
 EXPOSE 3000
 
-# Start both Next.js and supercronic
-CMD supercronic /app/crontab & npm run start
+# Start Next.js
+CMD npm run start

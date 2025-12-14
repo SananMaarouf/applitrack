@@ -5,19 +5,20 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { deleteAccountAction } from "@/app/actions";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export default async function SettingsPage() {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return redirect("/auth");
+  const { userId } = await auth();
+  const user = await currentUser();
+  
+  if (!userId || !user) {
+    return redirect("/sign-in");
   }
 
+  const userEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId)?.emailAddress || '';
 
   return (
       <section className="flex flex-col max-w-3xl mx-auto px-8 lg:px-8 gap-6">
@@ -32,8 +33,8 @@ export default async function SettingsPage() {
             <section className="w-full space-y-4">
               <section className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" value={user.email || ''} disabled className="bg-muted text-muted-foreground" />
-                <p className="text-sm text-muted">Your account email cannot be changed</p>
+                <Input id="email" value={userEmail} disabled className="bg-muted text-muted-foreground" />
+                <p className="text-sm text-muted">Your account email cannot be changed here</p>
               </section>
 
               <section className="space-y-2 pt-4">
@@ -82,7 +83,7 @@ export default async function SettingsPage() {
                               Cancel
                             </Button>
                           </AlertDialogCancel>
-                          <form action={deleteAccountAction.bind(null, user.id)}>
+                          <form action={deleteAccountAction.bind(null, userId)}>
                             <AlertDialogAction asChild>
                               <Button
                                 type="submit"
