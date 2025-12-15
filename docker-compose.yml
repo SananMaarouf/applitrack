@@ -26,12 +26,15 @@ services:
     expose:
       - "3000"
     restart: unless-stopped
+    networks:
+      - dokploy-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.applitrack.rule=Host(`applitrack.no`) || Host(`www.applitrack.no`)"
       - "traefik.http.routers.applitrack.entrypoints=websecure"
       - "traefik.http.routers.applitrack.tls.certresolver=letsencrypt"
       - "traefik.http.services.applitrack.loadbalancer.server.port=3000"
+      - "traefik.docker.network=dokploy-network"
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,3 +48,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  dokploy-network:
+    external: true
