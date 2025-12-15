@@ -6,12 +6,13 @@ services:
       POSTGRES_USER: "${POSTGRES_USER:-applitrack}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_DB: "${POSTGRES_DB:-applitrack}"
-    expose:
-      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-applitrack}"]
+      # Use container env vars, not host-side substitution
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,32 +24,35 @@ services:
       args:
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}"
         CLERK_SECRET_KEY: "${CLERK_SECRET_KEY}"
-    expose:
-      - "3000"
     restart: unless-stopped
     networks:
+      - internal
       - dokploy-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.applitrack.rule=Host(`applitrack.no`) || Host(`www.applitrack.no`)"
-      - "traefik.http.routers.applitrack.entrypoints=websecure"
-      - "traefik.http.routers.applitrack.tls.certresolver=letsencrypt"
-      - "traefik.http.services.applitrack.loadbalancer.server.port=3000"
-      - "traefik.docker.network=dokploy-network"
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       SITE_URL: "${SITE_URL}"
-      # Override DATABASE_URL to use postgres service name instead of localhost
       DATABASE_URL: "postgresql://${POSTGRES_USER:-applitrack}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-applitrack}"
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}"
       CLERK_SECRET_KEY: "${CLERK_SECRET_KEY}"
       CRON_SECRET: "${CRON_SECRET}"
 
+    # If Dokploy uses Swarm/Traefik, prefer deploy.labels
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=dokploy-network"
+        - "traefik.http.routers.applitrack.rule=Host(`applitrack.no`) || Host(`www.applitrack.no`)"
+        - "traefik.http.routers.applitrack.entrypoints=websecure"
+        - "traefik.http.routers.applitrack.tls.certresolver=letsencrypt"
+        - "traefik.http.services.applitrack.loadbalancer.server.port=3000"
+
 volumes:
   postgres_data:
 
 networks:
+  internal:
+    driver: bridge
   dokploy-network:
     external: true
