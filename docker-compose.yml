@@ -1,22 +1,6 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: "${POSTGRES_USER:-applitrack}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      POSTGRES_DB: "${POSTGRES_DB:-applitrack}"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - internal
-    healthcheck:
-      # Use container env vars, not host-side substitution
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
+# The Applitrack next.js application
   applitrack:
     build:
       context: .
@@ -24,10 +8,19 @@ services:
       args:
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}"
         CLERK_SECRET_KEY: "${CLERK_SECRET_KEY}"
-    restart: unless-stopped
+        SITE_URL: "${SITE_URL}"
+        DATABASE_URL: "postgresql://${POSTGRES_USER:-applitrack}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-applitrack}"
+    restart: always
+    ports:
+      - "3000:3000"
     networks:
-      - internal
       - dokploy-network
+    labels:
+        - traefik.enable=true
+        - traefik.http.routers.applitrack.rule=Host(`applitrack.no`)
+        - traefik.http.routers.applitrack.entrypoints=websecure"
+        - traefik.http.routers.applitrack.tls.certResolver=letsencrypt"
+        - traefik.http.services.applitrack.loadbalancer.server.port=3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,23 +29,31 @@ services:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-applitrack}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-applitrack}"
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}"
       CLERK_SECRET_KEY: "${CLERK_SECRET_KEY}"
-      CRON_SECRET: "${CRON_SECRET}"
+    
+# The Postgres database for Applitrack
+  postgres:
+    image: postgres:18
+    restart: always
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-applitrack}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB:-applitrack}"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - dokploy-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-applitrack}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-    # If Dokploy uses Swarm/Traefik, prefer deploy.labels
-    deploy:
-      labels:
-        - "traefik.enable=true"
-        - "traefik.docker.network=dokploy-network"
-        - "traefik.http.routers.applitrack.rule=Host(`applitrack.no`) || Host(`www.applitrack.no`)"
-        - "traefik.http.routers.applitrack.entrypoints=websecure"
-        - "traefik.http.routers.applitrack.tls.certresolver=letsencrypt"
-        - "traefik.http.services.applitrack.loadbalancer.server.port=3000"
-
+# defining a volume to persist Postgres data
 volumes:
   postgres_data:
+    driver: local
 
+# defining a network to connect the services
 networks:
-  internal:
-    driver: bridge
   dokploy-network:
-    external: true
+    driver: bridge
