@@ -11,16 +11,14 @@ services:
         SITE_URL: "${SITE_URL}"
         DATABASE_URL: "postgresql://${POSTGRES_USER:-applitrack}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-applitrack}"
     restart: always
-    ports:
-      - "3000:3000"
     networks:
       - dokploy-network
     labels:
         - traefik.enable=true
         - traefik.http.routers.applitrack.rule=Host(`applitrack.no`)
-        - traefik.http.routers.applitrack.entrypoints=websecure"
-        - traefik.http.routers.applitrack.tls.certResolver=letsencrypt"
-        - traefik.http.services.applitrack.loadbalancer.server.port=3000"
+        - traefik.http.routers.applitrack.entrypoints=websecure
+        - traefik.http.routers.applitrack.tls.certResolver=letsencrypt
+        - traefik.http.services.applitrack.loadbalancer.server.port=3000
     depends_on:
       postgres:
         condition: service_healthy
