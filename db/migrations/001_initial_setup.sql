@@ -52,18 +52,18 @@ SELECT
     h.user_id,
     CASE h.from_status
         WHEN 1 THEN 'Applied'
-        WHEN 2 THEN 'Phone Screen'
-        WHEN 3 THEN 'Interview'
-        WHEN 4 THEN 'Assessment'
+        WHEN 2 THEN 'Interview'
+        WHEN 3 THEN 'Second Interview'
+        WHEN 4 THEN 'Third Interview'
         WHEN 5 THEN 'Offer'
         WHEN 6 THEN 'Rejected'
         WHEN 7 THEN 'Ghosted'
     END AS "From",
     CASE h.to_status
         WHEN 1 THEN 'Applied'
-        WHEN 2 THEN 'Phone Screen'
-        WHEN 3 THEN 'Interview'
-        WHEN 4 THEN 'Assessment'
+        WHEN 2 THEN 'Interview'
+        WHEN 3 THEN 'Second Interview'
+        WHEN 4 THEN 'Third Interview'
         WHEN 5 THEN 'Offer'
         WHEN 6 THEN 'Rejected'
         WHEN 7 THEN 'Ghosted'
