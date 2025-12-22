@@ -47,7 +47,7 @@ RUN npm run build
 FROM base AS prod-deps
 COPY package.json package-lock.json* ./
 COPY --from=deps /app/node_modules ./node_modules
-RUN npm prune --omit=dev && npm cache clean --force
+RUN npm prune --omit=dev --legacy-peer-deps && npm cache clean --force
 
 # -----------------------
 # 5. Runtime stage (Production)
