@@ -3,12 +3,19 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - master
+      - backend-refactor
   workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    concurrency:
+      group: docker-build-push-${{ github.ref }}
+      cancel-in-progress: true
     
     steps:
       - name: Checkout code
@@ -30,7 +37,8 @@ jobs:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/applitrack
           tags: |
             type=raw,value=latest
-            type=sha,prefix={{branch}}-
+            type=ref,event=branch
+            type=sha,prefix=sha-,format=short
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -40,8 +48,16 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+            SITE_URL=${{ secrets.SITE_URL }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack:buildcache,mode=max
 
       - name: Image digest
         run: echo "Image tags:" && echo "${{ steps.meta.outputs.tags }}"
+
+  deploy:
+    needs: build-and-push
+    uses: ./.github/workflows/trigger-deployment.yml
+    secrets: inherit

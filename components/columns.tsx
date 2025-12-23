@@ -202,6 +202,14 @@ export const columns: ColumnDef<JobApplication>[] = [
 				</Button>
 			);
 		},
+		cell: ({ row }) => {
+			const date = row.getValue("applied") as string;
+			if (date) {
+				const d = new Date(date);
+				return <div>{d.getDate().toString().padStart(2, '0')}-{(d.getMonth() + 1).toString().padStart(2, '0')}-{d.getFullYear()}</div>
+			}
+			return <div>-</div>
+		}
 	},
 	{
 		accessorKey: "expires_at",
@@ -221,7 +229,8 @@ export const columns: ColumnDef<JobApplication>[] = [
 		cell: ({ row }) => {
 			const date = row.getValue("expires") as string;
 			if (date != null) {
-				return <div>{date}</div>
+				const d = new Date(date);
+				return <div>{d.getDate().toString().padStart(2, '0')}-{(d.getMonth() + 1).toString().padStart(2, '0')}-{d.getFullYear()}</div>
 			}
 			return <div>¯\_(ツ)_/¯</div>
 		}

@@ -1,17 +1,17 @@
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
-import { signOutAction } from "@/app/actions";
-import { createClient } from "@/utils/supabase/server";
+import { currentUser } from '@clerk/nextjs/server';
+import { SignOutButton } from '@clerk/nextjs';
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { headers } from "next/headers";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 
 export default async function AuthButton() {
-  const supabase = await createClient();
+  const user = await currentUser();
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") || "/";
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   return user ? (
     <section className="flex h-full gap-2">
@@ -47,6 +47,21 @@ export default async function AuthButton() {
                   Settings
                 </Link>
               </SheetClose>
+              
+              <SheetClose asChild>
+                <Link href="/dashboard/" className="
+                  w-full px-2 py-3 
+                  text-sm rounded-md
+                  bg-foreground text-card-foreground
+                  transition-colors duration-300 
+                  text-center hover:bg-hover
+                  border-foreground border
+                  ">
+                  Dashboard
+                </Link>
+              </SheetClose>
+
+                
               <section className="mt-10">
                 <SheetDescription className="text-left text-foreground mb-2">
                   Change theme:
@@ -59,9 +74,9 @@ export default async function AuthButton() {
 
             {/* Bottom section with sign out */}
             <section className="w-full mb-6 mt-auto">
-              <form action={signOutAction} className="w-full">
+              <SignOutButton>
                 <button
-                  type="submit"
+                  type="button"
                   className="
                       w-full px-2 bg-foreground 
                       text-card-foreground py-3 
@@ -70,8 +85,9 @@ export default async function AuthButton() {
                       hover:bg-hover border-foreground border
                     ">
                   Sign out
+                  <LogOut className="inline-block ml-2 h-4 w-4" />
                 </button>
-              </form>
+              </SignOutButton>
             </section>
           </section>
         </SheetContent>
@@ -82,7 +98,7 @@ export default async function AuthButton() {
     <section className="flex h-full gap-2">
       <ThemeSwitcher variant="icon-only" />
       <Button asChild variant={"default"} size={"fill"}>
-        <Link href="/auth">Get started</Link>
+        <Link href="/sign-in">Get started</Link>
       </Button>
     </section>
   );

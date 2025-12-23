@@ -8,13 +8,14 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 
 
 # Stack
-- [Next.js 15 (App Router)](https://nextjs.org/)
+- [Next.js 16 (App Router)](https://nextjs.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Zod](https://zod.dev/)
 - [Zustand](https://zustand-demo.pmnd.rs/)
-- [Supabase](https://supabase.com/)
-- [Resend](https://resend.com/)
+- [Clerk](https://clerk.com/) - Authentication
+- [Drizzle ORM](https://orm.drizzle.team/) - Database ORM
+- [PostgreSQL](https://www.postgresql.org/) - Database
 
 
 # Features
@@ -25,6 +26,6 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 - **User Authentication:** Secure sign-up and login with email/password or Google.
 - **Password Reset:** Easily reset your password if you forget it.
 - **Responsive Design:** Works seamlessly on desktop and mobile devices.
-- **Privacy Focused:** Your data is private and i don't sell it. Read more about how your data is used on [terms of service page](https://www.applitrack.no/terms-of-service)
+- **Privacy Focused:** Your data is private, i don't sell it, i don't plan on selling it or using it for nefarious purposes. Honestly this is a side-project and i don't intend on making money on this. Read more about how your data is used on [terms of service page](https://www.applitrack.no/terms-of-service)
 - **Modern UI:** Clean, user-friendly interface built with Tailwind CSS and shadcn/ui. With light/dark mode theme (dark by default to not flashbang your eyes)
 - **Account Management:** Update password or delete your account at any time.

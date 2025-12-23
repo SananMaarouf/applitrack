@@ -1,37 +1,19 @@
-import { resetPasswordAction } from "@/app/actions";
-import { FormMessage, Message } from "@/components/form-message";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
-export default async function ResetPassword(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
+export default function ResetPassword() {
   return (
-    <form className="flex flex-col w-full max-w-md mx-auto p-4 gap-2 [&>input]:mb-4">
+    <section className="flex flex-col w-full max-w-md mx-auto p-4 gap-4">
       <h1 className="text-2xl font-medium">Reset password</h1>
       <p className="text-sm text-foreground">
-        Please enter your new password below.
+        Password reset is now handled through Clerk's authentication system.
       </p>
-      <Label htmlFor="password">New password</Label>
-      <Input
-        type="password"
-        name="password"
-        placeholder="New password"
-        required
-      />
-      <Label htmlFor="confirmPassword">Confirm password</Label>
-      <Input
-        type="password"
-        name="confirmPassword"
-        placeholder="Confirm password"
-        required
-      />
-      <SubmitButton formAction={resetPasswordAction}>
-        Reset password
-      </SubmitButton>
-      <FormMessage message={searchParams} />
-    </form>
+      <p className="text-sm text-muted-foreground">
+        Please use the "Forgot password?" link on the{" "}
+        <Link href="/sign-in" className="text-foreground underline">
+          sign-in page
+        </Link>{" "}
+        to reset your password.
+      </p>
+    </section>
   );
 }

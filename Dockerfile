@@ -1,106 +1,85 @@
+# syntax=docker/dockerfile:1.7
+
 # -----------------------
-# 1. Base deps image
+# 1. Base image
 # -----------------------
 FROM node:20-alpine AS base
-
-# Set working directory
 WORKDIR /app
 
+# Minimal OS deps (keep in base so all stages share it)
+RUN apk add --no-cache libc6-compat
+
+# Disable Next.js telemetry everywhere
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # -----------------------
-# 2. Dependencies stage
+# 2. Dependencies stage (cacheable)
 # -----------------------
 FROM base AS deps
 
-# Install OS deps if needed (openssl generally already there)
-RUN apk add --no-cache libc6-compat
+# Copy only manifests first for best cache reuse
+COPY package.json package-lock.json* ./
 
-# Copy package manifests
-COPY package.json package-lock.json* pnpm-lock.yaml* yarn.lock* .npmrc* ./ 
-
-# Install ALL dependencies (including devDependencies needed for build)
-# Don't set NODE_ENV=production here as it would skip devDependencies
-RUN npm ci --legacy-peer-deps
+# Cache npm downloads across builds (BuildKit)
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps
 
 # -----------------------
 # 3. Build stage
 # -----------------------
 FROM base AS builder
 
-# Set env for Next.js build (can be overridden in Dokploy)
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build-time args: keep to non-secrets where possible
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ARG SITE_URL
 
-# Copy node_modules from deps
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+ENV SITE_URL=${SITE_URL}
+
 COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Copy package.json first for better caching
-COPY package.json package-lock.json* ./
-
-# Copy only necessary config files for build
-COPY next.config.ts tsconfig.json tailwind.config.ts postcss.config.js components.json ./
-
-# Copy source directories
-COPY app ./app
-COPY components ./components
-COPY hooks ./hooks
-COPY lib ./lib
-COPY public ./public
-COPY store ./store
-COPY types ./types
-COPY utils ./utils
-COPY middleware.ts ./
-
-# Build Next.js app
 RUN npm run build
 
 # -----------------------
-# 4. Runtime stage
+# 4. Production deps only (smaller runtime)
+# -----------------------
+FROM base AS prod-deps
+COPY package.json package-lock.json* ./
+COPY --from=deps /app/node_modules ./node_modules
+RUN npm prune --omit=dev --legacy-peer-deps && npm cache clean --force
+
+# -----------------------
+# 5. Runtime stage (Production)
 # -----------------------
 FROM base AS runner
 
-# Next.js runtime env
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs \
-  && adduser -S nextjs -u 1001
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-WORKDIR /app
+# Copy only what is needed at runtime (use --chown to avoid extra chown layer)
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=prod-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 
-# Install only production dependencies for runtime
-COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps --omit=dev && npm cache clean --force
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./next.config.mjs
 
-# Copy only necessary files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/next.config.ts ./next.config.ts
+# Database / migrations
+COPY --from=builder --chown=nextjs:nodejs /app/db ./db
+COPY --from=builder --chown=nextjs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
-# Copy cron script
-COPY scripts/supabase-cron.sh /usr/local/bin/supabase-cron.sh
-RUN chmod +x /usr/local/bin/supabase-cron.sh
-
-# Install supercronic for cron job management (works with non-root users)
-ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.29/supercronic-linux-amd64 \
-    SUPERCRONIC=supercronic-linux-amd64 \
-    SUPERCRONIC_SHA1SUM=cd48d45c4b10f3f0bfdd3a57d054cd05ac96812b
-
-RUN apk add --no-cache curl \
-    && curl -fsSLO "$SUPERCRONIC_URL" \
-    && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
-    && chmod +x "$SUPERCRONIC" \
-    && mv "$SUPERCRONIC" /usr/local/bin/supercronic
-
-# Create crontab file
-RUN echo "0 5 * * 0 /usr/local/bin/supabase-cron.sh >> /var/log/cron.log 2>&1" > /app/crontab
-
-# Ensure correct permissions
-RUN chown -R nextjs:nodejs /app
+# Ensure entrypoint is included + executable
+COPY --from=builder --chown=nextjs:nodejs /app/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 USER nextjs
-
-# Next.js default port
 EXPOSE 3000
 
-# Start both Next.js and supercronic
-CMD supercronic /app/crontab & npm run start
+CMD ["./docker-entrypoint.sh"]

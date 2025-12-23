@@ -1,18 +1,15 @@
 name: Trigger Dokploy Deployment
 
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Image"]
-    types:
-      - completed
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   trigger-deployment:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
 
     env:
+      # save these in github repo secrets without quotation marks
       CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
       CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
       DOKPLOY_DEPLOY_HOOK_URL: ${{ secrets.DOKPLOY_DEPLOY_HOOK_URL }}
@@ -35,7 +32,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
             -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
-            -A "Applitrack-GitHub-Actions-Deploy-Script" \
+            -A "SananMaarouf-GitHub-Actions-Deploy-Script" \
             -d '{}' \
             -w "%{http_code}" \
             -o /tmp/response.txt \
@@ -77,9 +74,6 @@ jobs:
           # Check for success
           if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 204 ]; then
             echo "✅ Deployment triggered successfully!"
-            echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo "Commit: ${{ github.sha }}"
             exit 0
           fi
           

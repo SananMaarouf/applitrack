@@ -1,191 +1,22 @@
 "use server";
 
-import { encodedRedirect } from "@/utils/utils";
-import { createClient } from "@/utils/supabase/server";
-import { createAdminClient } from "@/utils/supabase/admin";
-import { headers } from "next/headers";
+import { db } from "@/db";
+import { applications, applicationStatusHistory } from "@/db/schema";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 
-
-export const signUpAction = async (formData: FormData) => {
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
-  const confirmPassword = formData.get("confirmPassword")?.toString();
-  const supabase = await createClient();
-  const origin = (await headers()).get("origin");
-
-  if (!email || !password || !confirmPassword) {
-    return {
-      success: false,
-      error: "Email, password, and password confirmation are required"
-    };
-  }
-
-  if (password !== confirmPassword) {
-    return {
-      success: false,
-      error: "Passwords do not match"
-    };
-  }
-
-  // Check password strength requirements
-  if (password.length < 6) {
-    return {
-      success: false,
-      error: "Password must be at least 8 characters long"
-    };
-  }
-
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`,
-    },
-  });
-
-  if (error) {
-    console.error(error.code + " " + error.message);
-    return {
-      success: false,
-      error: error.message
-    };
-  } else {
-    return {
-      success: true,
-      message: "Thanks for signing up! Please check your email for a verification link. If you don't see it, check your spam folder."
-    };
-  }
-};
-
-export const signInAction = async (formData: FormData) => {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const supabase = await createClient();
-
-  if (!email || !password) {
-    return {
-      success: false,
-      error: "Email and password are required"
-    };
-  }
-
-  /* 
-    signInWithPassword, if successful, returns a JWT session token and user object.
-    session is stored in a cookie in the browser and user is available in the client.
-  */
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
-    return {
-      success: false,
-      error: error.message
-    };
-  }
-
-  return {
-    success: true,
-    message: "Signed in successfully",
-    data: {
-      user: data.user,
-      redirectUrl: "/dashboard"
-    }
-  };
-};
-
-export const signInWithGoogle = async () => {
-  const origin = process.env.SITE_URL || (await headers()).get("origin");
-  const supabase = await createClient();
-  const { data } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${origin}/auth/callback`,
-    },
-  });
-
-  if (data.url) {
-    redirect(data.url);
-  }
-};
-
-
-export const forgotPasswordAction = async (formData: FormData) => {
-  const email = formData.get("email")?.toString();
-  const supabase = await createClient();
-  const origin = (await headers()).get("origin");
-  const callbackUrl = formData.get("callbackUrl")?.toString();
-
-  if (!email) {
-    return encodedRedirect("error", "/forgot-password", "Email is required");
-  }
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?redirect_to=/dashboard/reset-password`,
-  });
-
-  if (error) {
-    console.error(error.message);
-    return encodedRedirect(
-      "error",
-      "/forgot-password",
-      "Could not reset password",
-    );
-  }
-
-  if (callbackUrl) {
-    return redirect(callbackUrl);
-  }
-
-  return encodedRedirect(
-    "success",
-    "/forgot-password",
-    "Check your email for a link to reset your password. If you don't see it, check your spam folder.",
-  );
-};
-
-export const resetPasswordAction = async (formData: FormData) => {
-  const supabase = await createClient();
-
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (!password || !confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/dashboard/reset-password",
-      "Password and confirm password are required",
-    );
-  }
-
-  if (password !== confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/dashboard/reset-password",
-      "Passwords do not match",
-    );
-  }
-
-  const { error } = await supabase.auth.updateUser({
-    password: password,
-  });
-
-  if (error) {
-    encodedRedirect(
-      "error",
-      "/dashboard/reset-password",
-      "Password update failed",
-    );
-  }
-
-  encodedRedirect("success", "/dashboard", "");
-};
-
 export const changePasswordAction = async (formData: FormData) => {
-  const supabase = await createClient();
+  const { userId } = await auth();
+  
+  if (!userId) {
+    return {
+      success: false,
+      message: "User not authenticated"
+    };
+  }
+
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
 
@@ -203,109 +34,113 @@ export const changePasswordAction = async (formData: FormData) => {
     };
   }
 
-  const { error } = await supabase.auth.updateUser({
-    password: password,
-  });
+  try {
+    const client = await clerkClient();
+    await client.users.updateUser(userId, {
+      password: password,
+    });
 
-  if (error) {
+    return {
+      success: true,
+      message: "Password updated successfully"
+    };
+  } catch (error) {
     return {
       success: false,
       message: "Password update failed",
-      error: error.message
+      error: error instanceof Error ? error.message : "Unknown error"
     };
   }
-
-  return {
-    success: true,
-    message: "Password updated successfully"
-  };
-};
-
-
-export const signOutAction = async () => {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  return redirect("/");
 };
 
 export const saveJobApplicationAction = async (formData: FormData) => {
-  const supabase = await createClient();
+  const { userId } = await auth();
+  
+  if (!userId) {
+    return { success: false, message: "User not authenticated" };
+  }
 
   // Get the form data
-  const user_id = formData.get("user_id")?.toString();
   const position = formData.get("position")?.toString();
   const company = formData.get("company")?.toString();
   const applied_at = formData.get("applied_at")?.toString();
   const expires_at = formData.get("expires_at")?.toString();
   const link = formData.get("link")?.toString();
-  const status = formData.get("status")?.toString();
 
-  if (!position || !company || !applied_at || !status) {
-    return { success: false, message: "Position, company, date applied, and status are required" };
+  if (!position || !company || !applied_at) {
+    return { success: false, message: "Position, company, and date applied are required" };
   }
 
-  const { data, error } = await supabase
-    .from("applications")
-    .insert({
-      user_id,
+  try {
+    const data = await db.insert(applications).values({
+      userId: userId,
       position,
       company,
       status: 1,
-      link,
-      applied_at,
-      expires_at,
-    })
-    .select(); // Use .select() to return the inserted row(s)
+      link: link || null,
+      appliedAt: new Date(applied_at),
+      expiresAt: expires_at ? new Date(expires_at) : null,
+    }).returning();
 
-  if (error) {
-    console.error(error.message);
+    // Transform database response to match JobApplication type
+    const transformedData = data.map(app => ({
+      id: app.id,
+      created_at: app.createdAt.toISOString(),
+      user_id: app.userId,
+      applied_at: app.appliedAt.toISOString(),
+      expires_at: app.expiresAt?.toISOString(),
+      position: app.position,
+      company: app.company,
+      status: app.status,
+      link: app.link || undefined,
+    }));
+
+    return { success: true, message: "Job application saved successfully", data: transformedData };
+  } catch (error) {
+    console.error("Error saving job application:", error);
     return { success: false, message: "Could not save job application" };
   }
-
-  // Return the inserted row(s)
-  return { success: true, message: "Job application saved successfully", data };
 };
 
 export const deleteApplication = async (id: string, user_id: string) => {
-  const supabase = await createClient();
+  const { userId } = await auth();
+  
+  if (!userId || userId !== user_id) {
+    return { success: false, message: "Unauthorized" };
+  }
 
   if (!id || !user_id) {
     return { success: false, message: "Job application ID and user ID are required" };
   }
 
-  const { data, error } = await supabase
-    .from("applications")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user_id);
+  try {
+    await db.delete(applications)
+      .where(and(eq(applications.id, parseInt(id)), eq(applications.userId, user_id)));
 
-  if (error) {
+    // Fetch the updated status history using raw SQL for the view
+    const aggregatedStatusHistoryData = await db.execute(
+      sql`SELECT * FROM application_status_flow WHERE user_id = ${user_id}`
+    );
+
+    const aggregatedStatusHistory = aggregatedStatusHistoryData.rows as AggregatedStatusHistory[] ?? [];
+
+    return {
+      success: true,
+      message: "Job application deleted successfully",
+      aggregatedStatusHistory
+    };
+  } catch (error) {
+    console.error("Error deleting application:", error);
     return { success: false, message: "Could not delete job application" };
   }
-
-  // After deleting the application, fetch the updated status history
-  // to ensure the Sankey Digram on dashboard page reflects the latest data
-  const { data: aggregatedStatusHistoryData, error: aggError } = await supabase
-    .from("application_status_flow")
-    .select("*")
-    .eq("user_id", user_id);
-
-  if (aggError) {
-    return { success: false, message: "Deleted application, but failed to fetch updated status history." };
-  }
-
-  const aggregatedStatusHistory = (aggregatedStatusHistoryData ?? []) as AggregatedStatusHistory[];
-
-  return {
-    success: true,
-    message: "Job application deleted successfully",
-    data,
-    aggregatedStatusHistory
-  };
 };
 
 export const updateApplication = async (jobApplication: JobApplication, newStatus: number) => {
-  const supabase = await createClient();
+  const { userId } = await auth();
+  
+  if (!userId || userId !== jobApplication.user_id) {
+    return { success: false, message: "Unauthorized" };
+  }
 
   const { id, user_id, status } = jobApplication;
 
@@ -321,80 +156,54 @@ export const updateApplication = async (jobApplication: JobApplication, newStatu
 
   try {
     // Fetch job application status history
-    const { data: historyData, error: historyError } = await supabase
-      .from("application_status_history")
-      .select("*")
-      .eq("application_id", id)
-      .eq("user_id", user_id)
-      .order("created_at", { ascending: false });
-
-    if (historyError) {
-      console.error("Error fetching status history:", historyError);
-    }
+    const historyData = await db.select()
+      .from(applicationStatusHistory)
+      .where(
+        and(
+          eq(applicationStatusHistory.applicationId, id),
+          eq(applicationStatusHistory.userId, user_id)
+        )
+      )
+      .orderBy(desc(applicationStatusHistory.createdAt));
 
     // Check if the transition is valid
     const isValidTransition = validateStatusTransition(status, newStatus);
 
     // If newStatus is 1, delete all history records for this application
     if (newStatus === 1 && historyData && historyData.length > 0) {
-      const { error: deleteAllError } = await supabase
-        .from("application_status_history")
-        .delete()
-        .eq("application_id", id)
-        .eq("user_id", user_id);
-
-      if (deleteAllError) {
-        console.error("Error deleting all history records:", deleteAllError);
-        return { success: false, message: "Could not reset status history" };
-      }
+      await db.delete(applicationStatusHistory)
+        .where(
+          and(
+            eq(applicationStatusHistory.applicationId, id),
+            eq(applicationStatusHistory.userId, user_id)
+          )
+        );
     }
     // If transition is invalid, delete the last history record
     else if (!isValidTransition && historyData && historyData.length > 0) {
       const latestHistory = historyData[0];
 
-      // Delete the most recent history entry
-      const { error: deleteError } = await supabase
-        .from("application_status_history")
-        .delete()
-        .eq("id", latestHistory.id);
-
-      if (deleteError) {
-        console.error("Error deleting history record:", deleteError);
-        return { success: false, message: "Could not update status history" };
-      }
+      await db.delete(applicationStatusHistory)
+        .where(eq(applicationStatusHistory.id, latestHistory.id));
     }
 
-    // Update the job application status regardless of validation result
+    // Update the job application status
     // This will trigger the database function to create a new history entry
-    const { error: updateError } = await supabase
-      .from("applications")
-      .update({ status: newStatus })
-      .eq("id", id)
-      .eq("user_id", user_id);
-
-    if (updateError) {
-      return { success: false, message: "Could not update job application status" };
-    }
+    await db.update(applications)
+      .set({ status: newStatus })
+      .where(
+        and(
+          eq(applications.id, id),
+          eq(applications.userId, user_id)
+        )
+      );
 
     // Fetch the updated aggregated status history
-    const { data: aggregatedStatusHistoryData, error: aggError } = await supabase
-      .from("application_status_flow")
-      .select("*")
-      .eq("user_id", user_id);
+    const aggregatedStatusHistoryData = await db.execute(
+      sql`SELECT * FROM application_status_flow WHERE user_id = ${user_id}`
+    );
 
-    if (aggError) {
-      return {
-        success: true,
-        message: isValidTransition
-          ? "Job application status updated, but failed to fetch updated status history."
-          : (newStatus === 1
-            ? "Job application status reset to Applied (history cleared), but failed to fetch updated status history."
-            : "Job application status updated (history corrected), but failed to fetch updated status history."),
-        aggregatedStatusHistory: []
-      };
-    }
-
-    const aggregatedStatusHistory = (aggregatedStatusHistoryData ?? []) as AggregatedStatusHistory[];
+    const aggregatedStatusHistory = aggregatedStatusHistoryData.rows as AggregatedStatusHistory[] ?? [];
 
     // Return success with updated aggregated status history
     return {
@@ -447,24 +256,21 @@ function validateStatusTransition(currentStatus: number, newStatus: number): boo
 }
 
 export const deleteAccountAction = async (user_id: string) => {
-  // Regular client for user operations
-  const supabase = await createAdminClient();
-
-  if (!user_id) {
-    return encodedRedirect("error", "/dashboard/settings", "User ID is required");
+  const { userId } = await auth();
+  
+  if (!userId || userId !== user_id) {
+    return redirect("/?error=Unauthorized");
   }
 
-  // Use the admin client to delete the user with service role permissions
-  const { error: authError } = await supabase.auth.admin.deleteUser(user_id);
+  try {
+    // Delete user from Clerk
+    const client = await clerkClient();
+    await client.users.deleteUser(userId);
 
-  if (authError) {
-    console.error("Error deleting auth user:", authError);
-    return encodedRedirect("error", "/dashboard/settings", "Could not delete account");
+    // Redirect to home page with success message
+    return redirect("/?success=Account+deleted+successfully");
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    return redirect("/dashboard/settings?error=Could+not+delete+account");
   }
-
-  // Sign the user out
-  await supabase.auth.signOut();
-
-  // Redirect to home page with success message
-  return encodedRedirect("success", "/", "Account deleted successfully");
 };

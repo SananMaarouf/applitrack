@@ -5,6 +5,7 @@ import HeaderAuth from "@/components/header-auth";
 import { Toaster } from "@/components/ui/toaster";
 import { HomeButton } from "@/components/homeButton"
 import { Footer } from "@/components/footer";
+import { ClerkProvider } from '@clerk/nextjs';
 
 
 const defaultUrl = process.env.SITE_URL
@@ -27,30 +28,32 @@ const geistSans = Geist({
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={geistSans.className} suppressHydrationWarning>
-      <body className="bg-background text-foreground min-h-screen flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <main className="flex flex-col items-center grow">
-            <section className="flex-1 w-full flex flex-col gap-6 items-center">
-              <nav className="w-full flex justify-center h-16">
-                <section className="
-                  w-full max-w-5xl flex justify-between items-center 
-                  px-1 md:px-0 text-sm py-2">
-                  <HomeButton />
-                  <HeaderAuth />
+    <ClerkProvider>
+      <html lang="en" className={geistSans.className} suppressHydrationWarning>
+        <body className="bg-background text-foreground min-h-screen flex flex-col">
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            <main className="flex flex-col items-center grow">
+              <section className="flex-1 w-full flex flex-col gap-6 items-center">
+                <nav className="w-full flex justify-center h-16">
+                  <section className="
+                    w-full max-w-5xl flex justify-between items-center 
+                    px-1 md:px-0 text-sm py-2">
+                    <HomeButton />
+                    <HeaderAuth />
+                  </section>
+                </nav>
+
+                <section className="flex flex-col gap-6 my-auto w-full max-w-5xl min-h-screen">
+                  {children}
                 </section>
-              </nav>
 
-              <section className="flex flex-col gap-6 my-auto w-full max-w-5xl min-h-screen">
-                {children}
+                <Footer />
               </section>
-
-              <Footer />
-            </section>
-          </main>
-        </ThemeProvider>
-        <Toaster />
-      </body>
-    </html>
+            </main>
+          </ThemeProvider>
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

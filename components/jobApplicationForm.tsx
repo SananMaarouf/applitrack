@@ -73,7 +73,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
 
           // Update Zustand store with the new application from the response
           const jobsStore = useJobsStore.getState();
-          jobsStore.setJobs([...response.data as JobApplication[], ...jobsStore.jobApplications]);
+          jobsStore.setJobs([...(response.data || []), ...jobsStore.jobApplications]);
 
           toast({
             title: "Success ✅",

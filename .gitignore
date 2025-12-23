@@ -33,7 +33,13 @@ yarn-error.log*
 .env*.development
 .env*.local
 .env*.production
+.env.clerk
+
 .env
+
+# drizzle
+/drizzle
+drizzle/
 
 # vercel
 .vercel

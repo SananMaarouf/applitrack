@@ -22,7 +22,6 @@ dist
 
 # Docker
 Dockerfile
-docker-compose.yaml
 .dockerignore
 
 # IDE
@@ -39,5 +38,5 @@ coverage
 # Misc
 .DS_Store
 *.pem
-README.md
-LICENSE
+README*
+*.md
