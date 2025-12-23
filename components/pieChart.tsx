@@ -97,7 +97,7 @@ export function Chart() {
               ) : (
                 <ChartContainer
                   config={chartConfig}
-                  className="mx-auto aspect-square max-h-[23rem] lg:max-h-[28rem]"
+                  className="mx-auto aspect-square max-h-92 lg:max-h-112"
                 >
                   <PieChart>
                     <ChartTooltip

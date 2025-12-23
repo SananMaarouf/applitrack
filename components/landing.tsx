@@ -71,7 +71,7 @@ export function Landing({ paragraphs }: LandingProps) {
 					className="opacity-0 animate-[fade-in_0.8s_ease-in-out_0.8s_forwards] text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left font-bold mb-3 lg:mb-8 px-1"
 				>
 					From{" "}
-					<span className="underline text-pretty break-words">application</span>{" "}
+					<span className="underline text-pretty wrap-break-word">application</span>{" "}
 					to offer, <span className="underline">track</span> every step
 				</h1>
 				{/* the illustration */}

@@ -111,7 +111,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <FormItem>
               <FormLabel className="text-card-foreground">Position*</FormLabel>
               <FormControl>
-                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50" />
               </FormControl>
               <FormMessage className="text-red-400" />
             </FormItem>
@@ -120,7 +120,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <FormItem>
               <FormLabel className="text-card-foreground">Company*</FormLabel>
               <FormControl>
-                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50" />
               </FormControl>
               <FormMessage className="text-red-400" />
             </FormItem>
@@ -189,7 +189,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <FormItem>
               <FormLabel>Link (optional)</FormLabel>
               <FormControl>
-                <input {...field} className="text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50" />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -78,7 +78,7 @@ export function SankeyDiagram() {
 	const sankeyData = { nodes, links };
 	return (
 		<div className="w-full mx-auto">
-			<div className="bg-card text-card-foreground p-3 min-h-[30rem] md:min-h-96 rounded-lg border hover:border-gray-500 transition-all duration-300">
+			<div className="bg-card text-card-foreground p-3 min-h-120 md:min-h-96 rounded-lg border hover:border-gray-500 transition-all duration-300">
 				{links.length > 1 ? (
 					<ResponsiveSankey
 						data={sankeyData}
