@@ -3,7 +3,6 @@ name: Trigger Dokploy Deployment
 on:
   workflow_run:
     workflows: ["Build and Push Docker Image"]
-    branches: [backend-refactor]
     types:
       - completed
   workflow_dispatch:
@@ -26,27 +25,25 @@ jobs:
           CF_ACCESS_CLIENT_ID: ${{ env.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ env.CF_ACCESS_CLIENT_SECRET }}
         run: |
-          set -euo pipefail
-
           echo "Triggering Dokploy deployment..."
           echo "=================================================="
-
-          # NOTE: Avoid using `curl -v` here because it can print request headers
-          # (including Cloudflare Access credentials) into GitHub Actions logs.
-          # We still capture the response body for debugging.
-          HTTP_CODE=$( (curl -X POST "$DOKPLOY_DEPLOY_HOOK_URL" \
+          
+          # Make the request and capture both response and HTTP code
+          # Added -A (User-Agent) to avoid WAF blocking 'curl'
+          # Added -L (Location) to follow redirects
+          HTTP_CODE=$(curl -X POST "$DOKPLOY_DEPLOY_HOOK_URL" \
             -H "Content-Type: application/json" \
             -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
             -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
             -A "Applitrack-GitHub-Actions-Deploy-Script" \
             -d '{}' \
-            -o /tmp/response.txt \
             -w "%{http_code}" \
-            --silent \
-            --show-error \
+            -o /tmp/response.txt \
+            -v \
             -L \
             --max-time 30 \
-            --connect-timeout 10) || echo "000")
+            --connect-timeout 10 \
+            2>&1 | tee /tmp/curl_debug.txt | tail -1)
           
           RESPONSE_BODY=$(cat /tmp/response.txt 2>/dev/null || echo "No response body")
           
@@ -81,8 +78,8 @@ jobs:
           if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 204 ]; then
             echo "✅ Deployment triggered successfully!"
             echo "Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.event.workflow_run.head_branch || github.ref_name }}"
-            echo "Commit: ${{ github.event.workflow_run.head_sha || github.sha }}"
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Commit: ${{ github.sha }}"
             exit 0
           fi
           
@@ -101,6 +98,9 @@ jobs:
                echo "   2. Service Token is not correctly added to the 'gh_dokploy_deploy' policy."
                echo "   3. The policy Action is not set to 'Service Auth'."
             fi
+            echo ""
+            echo "🔍 Cloudflare-related debug info:"
+            grep -i "cloudflare" /tmp/curl_debug.txt || echo "  (none found)"
             exit 1
           elif [ "$HTTP_CODE" -eq 0 ] || [ "$HTTP_CODE" -eq 000 ]; then
             echo ""
@@ -110,6 +110,9 @@ jobs:
             echo "  - Network timeout"
             echo "  - DNS resolution failure"
             echo "  - Cloudflare blocking at network level"
+            echo ""
+            echo "🔍 Full debug info:"
+            cat /tmp/curl_debug.txt
             exit 1
           elif [ "$HTTP_CODE" -ge 500 ]; then
             echo ""
@@ -121,5 +124,7 @@ jobs:
             echo ""
             echo "⚠️  Warning: Unexpected response code: $HTTP_CODE"
             echo "=================================================="
+            echo "🔍 Full debug output:"
+            cat /tmp/curl_debug.txt
             exit 1
           fi
