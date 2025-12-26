@@ -9,13 +9,13 @@ import { JobStatus } from "@/types/jobStatus";
 
 // Define colors for each job status
 const statusColors: { [key in JobStatus]: string } = {
-  [JobStatus.APPLIED]: "var(--color-applied)",
-  [JobStatus.INTERVIEW]: "var(--color-interview)",
-  [JobStatus.SECOND_INTERVIEW]: "var(--color-second-interview)",
-  [JobStatus.THIRD_INTERVIEW]: "var(--color-third-interview)",
-  [JobStatus.OFFER]: "var(--color-offer)",
-  [JobStatus.REJECTED]: "var(--color-rejected)",
-  [JobStatus.GHOSTED]: "var(--color-ghosted)",
+  [JobStatus.APPLIED]: "var(--chart-1)",
+  [JobStatus.INTERVIEW]: "var(--chart-2)",
+  [JobStatus.SECOND_INTERVIEW]: "var(--chart-3)",
+  [JobStatus.THIRD_INTERVIEW]: "var(--chart-4)",
+  [JobStatus.OFFER]: "var(--chart-5)",
+  [JobStatus.REJECTED]: "var(--chart-6)",
+  [JobStatus.GHOSTED]: "var(--chart-7)",
 };
 
 const chartConfig: ChartConfig = {
@@ -24,31 +24,31 @@ const chartConfig: ChartConfig = {
   },
   applied: {
     label: "applied",
-    color: "hsl(var(--chart-1))",
+    color: statusColors[JobStatus.APPLIED],
   },
   interview: {
     label: "interview",
-    color: "hsl(var(--chart-2))",
+    color: statusColors[JobStatus.INTERVIEW],
   },
   second_interview: {
     label: "second interview",
-    color: "hsl(var(--chart-3))",
+    color: statusColors[JobStatus.SECOND_INTERVIEW],
   },
   third_interview: {
     label: "third interview",
-    color: "hsl(var(--chart-4))",
+    color: statusColors[JobStatus.THIRD_INTERVIEW],
   },
   offer: {
     label: "offer",
-    color: "hsl(var(--chart-5))",
+    color: statusColors[JobStatus.OFFER],
   },
   rejected: {
     label: "rejected",
-    color: "hsl(var(--chart-6))",
+    color: statusColors[JobStatus.REJECTED],
   },
   ghosted: {
     label: "ghosted",
-    color: "hsl(var(--chart-7))",
+    color: statusColors[JobStatus.GHOSTED],
   },
 }
 
@@ -80,20 +80,20 @@ export function Chart() {
 
   return (
     <div className="h-full grow">
-      <Card className="flex flex-col bg-card hover:border hover:border-gray-500 transition-all duration-700 h-full grow">
+      <Card className="flex flex-col h-full grow">
         {loading ? (
-          <div className="text-center min-h-96 text-white font-bold flex items-center justify-center">
+          <div className="text-center min-h-96 text-background font-bold flex items-center justify-center">
             <p>Loading job applications...</p>
           </div>
         ) : (
           <>
             <CardHeader className="items-center">
-              <CardTitle className="font-bold text-lg text-btn">Applications</CardTitle>
+              <CardTitle className="font-bold text-lg">Applications</CardTitle>
             </CardHeader>
             <CardContent className="flex-1 pb-0">
               {jobApplications.length === 0 ? (
                 // No job applications
-                <p className="text-center text-white my-10">You have no job applications</p>
+                <p className="text-center text-background my-10">You have no job applications</p>
               ) : (
                 <ChartContainer
                   config={chartConfig}

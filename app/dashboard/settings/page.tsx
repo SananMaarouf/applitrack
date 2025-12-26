@@ -6,10 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { deleteAccountAction } from "@/app/actions";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-
+import { DeleteAccountDialog } from "@/components/delete-account-dialog";
 export default async function SettingsPage() {
   const { userId } = await auth();
   const user = await currentUser();
@@ -23,7 +21,7 @@ export default async function SettingsPage() {
   return (
       <section className="flex flex-col max-w-3xl mx-auto px-8 lg:px-8 gap-6">
         <nav className="w-full mx-auto mb-4">
-          <Link href="/dashboard" className="flex border border-foreground hover:bg-hover hover:text-card-foreground duration-300 transition-colors items-center w-fit p-2 rounded-md text-sm hover:underline" >
+          <Link href="/dashboard" className="flex w-fit hover:underline bg-primary text-primary-foreground p-2 rounded-md" >
             <ArrowLeft className="h-6 w-6 mr-1" /> Back to dashboard
           </Link>
         </nav>
@@ -40,7 +38,7 @@ export default async function SettingsPage() {
               <section className="space-y-2 pt-4">
                 <h3 className="text-md font-medium">Password</h3>
                 <p className="text-sm">Update your password to keep your account secure</p>
-                <Button variant="columns" className="mt-2" asChild >
+                <Button variant="default" className="mt-2" asChild >
                   <Link href="/dashboard/settings/change-password">
                     Change Password
                   </Link>
@@ -49,7 +47,7 @@ export default async function SettingsPage() {
 
               <section className="space-y-2 pt-4">
                 <h3>Want to re-read the terms of service?</h3>
-                <Button variant="columns" className="mt-2" asChild >
+                <Button variant="default" className="mt-2" asChild >
                   <Link href="/terms-of-service?from=settings">
                     Click here 
                     <ArrowRight className="h-4 w-4 ml-1" />
@@ -61,41 +59,12 @@ export default async function SettingsPage() {
             <section className="w-full flex flex-col justify-end gap-6">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="danger-zone"className="border-b-0">
-                  <AccordionTrigger className="text-md font-medium text-destructive">
+                  <AccordionTrigger className="text-md font-medium text-destructive cursor-pointer">
                     Danger Zone
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4">
                     <p className="text-sm">Permanently delete your account and all your data</p>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" className="mt-2">Delete account</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-card text-card-foreground">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogDescription className="text-card-foreground">
-                            This action cannot be undone. This will delete your account and remove your data from our server.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel asChild>
-                            <Button variant="columns">
-                              Cancel
-                            </Button>
-                          </AlertDialogCancel>
-                          <form action={deleteAccountAction.bind(null, userId)}>
-                            <AlertDialogAction asChild>
-                              <Button
-                                type="submit"
-                                variant="destructive"
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                Delete Account
-                              </Button>
-                            </AlertDialogAction>
-                          </form>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <DeleteAccountDialog userId={userId} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

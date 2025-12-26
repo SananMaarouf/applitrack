@@ -69,14 +69,14 @@ export function ExampleDataTable() {
 
   return (
     <div className="w-full mb-1 max-w-xl mx-auto">
-      <div className="bg-card text-card-foreground rounded-lg transition-all duration-1000">
+      <div className="bg-background text-foreground rounded-lg transition-all duration-1000">
         <Table>
           <TableHeader className="">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="bg-card text-card-foreground">
+                    <TableHead key={header.id} className="bg-background text-foreground">
                       {header.isPlaceholder
                         ? undefined
                         : flexRender(

@@ -3,10 +3,9 @@
 import { db } from "@/db";
 import { applications, applicationStatusHistory } from "@/db/schema";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
-
+import { NextResponse } from "next/server";
 export const changePasswordAction = async (formData: FormData) => {
   const { userId } = await auth();
   
@@ -255,22 +254,29 @@ function validateStatusTransition(currentStatus: number, newStatus: number): boo
   return false;
 }
 
-export const deleteAccountAction = async (user_id: string) => {
+export type DeleteAccountState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+};
+
+export const deleteAccountAction = async (
+  _prevState: DeleteAccountState,
+  formData: FormData
+): Promise<DeleteAccountState> => {
+  const formUserId = formData.get("user_id")?.toString();
   const { userId } = await auth();
-  
-  if (!userId || userId !== user_id) {
-    return redirect("/?error=Unauthorized");
+
+  if (!userId || !formUserId || userId !== formUserId) {
+    return { status: "error", message: "Unauthorized" };
   }
 
   try {
     // Delete user from Clerk
     const client = await clerkClient();
     await client.users.deleteUser(userId);
-
-    // Redirect to home page with success message
-    return redirect("/?success=Account+deleted+successfully");
+    return { status: "success", message: "Account deleted successfully" };
   } catch (error) {
     console.error("Error deleting account:", error);
-    return redirect("/dashboard/settings?error=Could+not+delete+account");
+    return { status: "error", message: "Could not delete account" };
   }
 };

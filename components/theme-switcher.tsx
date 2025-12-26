@@ -40,10 +40,10 @@ const ThemeSwitcher = ({ variant = "full" }: ThemeSwitcherProps) => {
     <Select value={theme} onValueChange={(value) => setTheme(value)}>
       <SelectTrigger
         className={`
-          h-full transition-all duration-300
+          h-full transition-all duration-300 hover:bg-primary hover:text-primary-foreground
           ${variant === "icon-only"
-            ? "w-full justify-center text-foreground bg-background border-none hover:bg-card hover:text-card-foreground"
-            : "w-full bg-card text-card-foreground hover:bg-hover"}
+            ? "w-full justify-center"
+            : "w-full"}
         `}
       >
         <SelectValue placeholder="Select theme">
@@ -59,7 +59,7 @@ const ThemeSwitcher = ({ variant = "full" }: ThemeSwitcherProps) => {
           )}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="bg-card text-card-foreground flex ">
+      <SelectContent className="bg-background flex ">
         <SelectItem value="light">
           <div className="flex items-center gap-2">
             <Sun size={ICON_SIZE} /> <span>Light</span>

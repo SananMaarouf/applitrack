@@ -23,7 +23,7 @@ export default async function Home() {
         <p className="text-lg sm:text-xl mb-8 font-bold">Stay on track with Applitrack</p>
         <Link href="/sign-in">
           <p className="
-            px-6 py-3 bg-card text-card-foreground
+            px-6 py-3 bg-primary text-primary-foreground
             rounded-md font-semibold duration-500
             hover:scale-110 text-lg"
           >

@@ -56,13 +56,13 @@ export default async function DasboardPage() {
         </section>
         <Accordion type="multiple" defaultValue={["item-2"]}>
           <AccordionItem value="item-1">
-            <AccordionTrigger className="px-4">Status History</AccordionTrigger>
+            <AccordionTrigger className="px-4 cursor-pointer">Status History</AccordionTrigger>
             <AccordionContent>
               <SankeyDiagram />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
-            <AccordionTrigger className="px-4">Application datatable</AccordionTrigger>
+            <AccordionTrigger className="px-4 cursor-pointer">Application management</AccordionTrigger>
             <AccordionContent>
               <DataTable />
             </AccordionContent>

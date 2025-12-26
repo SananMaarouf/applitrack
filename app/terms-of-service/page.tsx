@@ -22,7 +22,7 @@ function TermsOfServiceContent() {
   return (
     <div className="max-w-3xl mx-auto px-8">
       <nav className="w-full mx-auto mb-4">
-        <Link href={backHref} className="flex border border-foreground hover:bg-hover hover:text-card-foreground duration-300 transition-colors items-center w-fit p-2 rounded-md text-sm hover:underline" >
+        <Link href={backHref} className="flex w-fit hover:underline bg-primary text-primary-foreground p-2 rounded-md" >
           <ArrowLeft className="h-6 w-6 mr-1" /> {backText}
         </Link>
       </nav>
@@ -63,17 +63,14 @@ function TermsOfServiceContent() {
       <p className=" mb-6">
         Any data you submit to the Service, such as job application information, is stored in our database solely for your use within the Service.
         We do not claim any ownership over your data and will not use it for any purposes outside of providing the Service.
-        However, we may analyze anonymized and aggregated data to identify trends, such as which companies are hiring or rejecting applications at high rates.
-        This helps us improve the Service and provide insights to users of Applitrack without compromising user privacy.
       </p>
 
       <h2 className="text-2xl font-semibold  mb-4">6. Privacy</h2>
       <p className=" mb-6">
         Your privacy is important to us.
-        We don&quot;t share, sell, or rent your personal information to third parties without your consent.
-        When you delete your account, we will delete your personal data, including any associated job applications.
+        We don't share, sell, or rent your personal information to third parties.
+        When you delete your account, any associated job applications will also be deleted.
         No using your data for nefarious purposes or training AI mumbo jumbo.
-        Aggregated and anonymized data (which cannot be traced back to you) may be retained to help us improve the Service.
       </p>
 
       <h2 className="text-2xl font-semibold  mb-4">7. Intellectual Property</h2>

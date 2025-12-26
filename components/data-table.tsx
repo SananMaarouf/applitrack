@@ -68,7 +68,7 @@ export function DataTable() {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-card text-card-foreground px-3 rounded-lg border hover:border-gray-500 transition-all duration-1000">
+      <div className="bg-foreground text-background px-3 rounded-lg">
         <div className="flex items-center py-4">
           <Input
             placeholder="search..."
@@ -78,11 +78,11 @@ export function DataTable() {
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="columns" className="ml-auto border">
+              <Button variant="default" className="ml-auto">
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-card-foreground text-card" align="end">
+            <DropdownMenuContent className="bg-foreground/50 text-background rounded-md" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -110,14 +110,14 @@ export function DataTable() {
           </div>
         ) : jobApplications.length > 0 ? (
           // Case 2: Loading is done and jobApplications is not empty
-          <div>
-            <Table>
+          <div className="">
+            <Table className="">
               <TableHeader className="">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id} className="bg-card text-card-foreground">
+                        <TableHead key={header.id} className="bg-primary text-primary-foreground">
                           {header.isPlaceholder
                             ? null
                             : flexRender(
@@ -173,7 +173,7 @@ export function DataTable() {
             <div className="flex items-center justify-end space-x-2 py-4">
               <Button
                 className=""
-                variant="add"
+                variant="default"
                 size="sm"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
@@ -182,7 +182,7 @@ export function DataTable() {
               </Button>
               <Button
                 className=""
-                variant="add"
+                variant="default"
                 size="sm"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
@@ -193,7 +193,7 @@ export function DataTable() {
           </div>
         ) : (
           // Case 3: Loading is done and jobApplications is empty
-          <div className="flex items-center justify-center h-96 text-muted-foreground text-sm font-semibold">
+          <div className="flex items-center justify-center h-96 text-background text-sm font-semibold">
             No job applications. Add some to get started!
           </div>
         )}

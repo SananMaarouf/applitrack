@@ -1,5 +1,6 @@
 "use client";
-import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { JobApplication } from "@/types/jobApplication";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { JobStatus } from "@/types/jobStatus";
@@ -10,30 +11,31 @@ interface Row {
 }
 
 export function ExampleStatusSelect({ row }: { row: Row }) {
-	const { toast } = useToast();
+	const [status, setStatus] = useState(row.original.status.toString());
 
-	const updateJobStatus = async () => {
-		toast({
-			title: "Success ✅",
-			description: "This is what you would see if status was updated successfully",
-			variant: "success",
-		});
+	useEffect(() => {
+		setStatus(row.original.status.toString());
+	}, [row.original.status]);
+
+	const updateJobStatus = async (nextStatus: string) => {
+		setStatus(nextStatus);
+		toast.success("This is a successful status update toast!");
 	};
 
 	return (
 		<span>
-			<Select value={row.original.status.toString()} onValueChange={() => updateJobStatus()}>
-				<SelectTrigger className="bg-primary hover:bg-hover text-primary-foreground hover:text-card-foreground transition-colors duration-300">
+			<Select value={status} onValueChange={updateJobStatus}>
+				<SelectTrigger className="bg-primary text-primary-foreground">
 					<SelectValue />
 				</SelectTrigger>
-				<SelectContent className="bg-primary border-2 border-gray-500">
-					<SelectItem className="focus:bg-hover focus:text-card-foreground" value={JobStatus.APPLIED.toString()}>Applied</SelectItem>
-					<SelectItem className="focus:bg-hover focus:text-card-foreground" value={JobStatus.INTERVIEW.toString()}>Interview</SelectItem>
-					<SelectItem className="focus:bg-hover focus:text-card-foreground" value={JobStatus.SECOND_INTERVIEW.toString()}>Second Interview</SelectItem>
-					<SelectItem className="focus:bg-hover focus:text-card-foreground" value={JobStatus.THIRD_INTERVIEW.toString()}>Third Interview</SelectItem>
-					<SelectItem className="focus:bg-hover focus:text-card-foreground" value={JobStatus.OFFER.toString()}>Offer</SelectItem>
-					<SelectItem className="focus:bg-hover focus:text-card-foreground" value={JobStatus.REJECTED.toString()}>Rejected</SelectItem>
-					<SelectItem className="focus:bg-hover focus:text-card-foreground" value={JobStatus.GHOSTED.toString()}>Ghosted</SelectItem>
+				<SelectContent className="">
+					<SelectItem className="" value={JobStatus.APPLIED.toString()}>Applied</SelectItem>
+					<SelectItem className="" value={JobStatus.INTERVIEW.toString()}>Interview</SelectItem>
+					<SelectItem className="" value={JobStatus.SECOND_INTERVIEW.toString()}>Second Interview</SelectItem>
+					<SelectItem className="" value={JobStatus.THIRD_INTERVIEW.toString()}>Third Interview</SelectItem>
+					<SelectItem className="" value={JobStatus.OFFER.toString()}>Offer</SelectItem>
+					<SelectItem className="" value={JobStatus.REJECTED.toString()}>Rejected</SelectItem>
+					<SelectItem className="" value={JobStatus.GHOSTED.toString()}>Ghosted</SelectItem>
 				</SelectContent>
 			</Select>
 		</span>
