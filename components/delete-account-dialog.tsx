@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { deleteAccountAction, DeleteAccountState } from "@/app/actions";
+import { deleteAccountAction } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import type { DeleteAccountState } from "@/types/accountStates";
 
 const INITIAL_DELETE_STATE: DeleteAccountState = {
   status: "idle",
