@@ -17,25 +17,37 @@ export const changePasswordAction = async (formData: FormData) => {
     };
   }
 
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (!password || !confirmPassword) {
-    return {
-      success: false,
-      message: "Password and confirm password are required"
-    };
-  }
-
-  if (password !== confirmPassword) {
-    return {
-      success: false,
-      message: "Passwords do not match"
-    };
-  }
-
   try {
     const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    
+    // Check if user has a password (not OAuth-only)
+    const hasPassword = user.passwordEnabled;
+    
+    if (!hasPassword) {
+      return {
+        success: false,
+        message: "Password change is not available for accounts using social login (Google, etc.). Your account is managed through your social provider."
+      };
+    }
+
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (!password || !confirmPassword) {
+      return {
+        success: false,
+        message: "Password and confirm password are required"
+      };
+    }
+
+    if (password !== confirmPassword) {
+      return {
+        success: false,
+        message: "Passwords do not match"
+      };
+    }
+
     await client.users.updateUser(userId, {
       password: password,
     });
