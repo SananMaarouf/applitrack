@@ -268,12 +268,36 @@ export const deleteAccountAction = async (
   }
 
   try {
-    // Delete user from Clerk - clerkClient is an object, not a function
+    // Step 1: Delete all user data from database
+    // Delete status history first (though cascade should handle this)
+    await db.delete(applicationStatusHistory)
+      .where(eq(applicationStatusHistory.userId, userId));
+
+    // Delete applications
+    await db.delete(applications)
+      .where(eq(applications.userId, userId));
+
+    // Step 2: Verify deletion by querying again
+    const remainingApplications = await db.select()
+      .from(applications)
+      .where(eq(applications.userId, userId));
+
+    const remainingHistory = await db.select()
+      .from(applicationStatusHistory)
+      .where(eq(applicationStatusHistory.userId, userId));
+
+    if (remainingApplications.length > 0 || remainingHistory.length > 0) {
+      console.error(`Failed to delete all user data. Remaining: ${remainingApplications.length} applications, ${remainingHistory.length} history records`);
+      return { status: "error", message: "Failed to delete user data from database" };
+    }
+
+    // Step 3: Delete user from Clerk
     const client = await clerkClient();
     await client.users.deleteUser(userId);
-    
+      
     return { status: "success", message: "Account deleted successfully" };
   } catch (error) {
+    console.error("Error deleting account:", error);
     return { status: "error", message: "Could not delete account" };
   }
 };
