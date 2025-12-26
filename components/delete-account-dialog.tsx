@@ -56,30 +56,22 @@ export function DeleteAccountDialog({ userId }: { userId: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form action={formAction} className="flex w-full items-center gap-3">
+          <input type="hidden" name="user_id" value={userId} />
           <AlertDialogCancel asChild>
-            <Button variant="destructive" type="button">
+            <Button variant="outline" type="button">
               Cancel
             </Button>
           </AlertDialogCancel>
-          <input type="hidden" name="user_id" value={userId} />
-          <DeleteAccountSubmitButton pending={isPending} />
+          <Button
+            type="submit"
+            variant="destructive"
+            className="ml-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isPending}
+          >
+            {isPending ? "Deleting..." : "Delete Account"}
+          </Button>
         </form>
       </AlertDialogContent>
     </AlertDialog>
-  );
-}
-
-function DeleteAccountSubmitButton({ pending }: { pending: boolean }) {
-  return (
-    <AlertDialogAction asChild>
-      <Button
-        type="submit"
-        variant="destructive"
-        className="ml-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
-        disabled={pending}
-      >
-        {pending ? "Deleting..." : "Delete Account"}
-      </Button>
-    </AlertDialogAction>
   );
 }

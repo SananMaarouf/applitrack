@@ -5,7 +5,7 @@ import { applications, applicationStatusHistory } from "@/db/schema";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
-import { NextResponse } from "next/server";
+
 export const changePasswordAction = async (formData: FormData) => {
   const { userId } = await auth();
   
@@ -266,14 +266,19 @@ export const deleteAccountAction = async (
   const formUserId = formData.get("user_id")?.toString();
   const { userId } = await auth();
 
+  console.log("Delete account action called", { userId, formUserId });
+
   if (!userId || !formUserId || userId !== formUserId) {
+    console.log("Authorization failed");
     return { status: "error", message: "Unauthorized" };
   }
 
   try {
-    // Delete user from Clerk
+    // Delete user from Clerk - clerkClient is an object, not a function
     const client = await clerkClient();
     await client.users.deleteUser(userId);
+    console.log(`Successfully deleted user with ID: ${userId}`);
+    
     return { status: "success", message: "Account deleted successfully" };
   } catch (error) {
     console.error("Error deleting account:", error);
