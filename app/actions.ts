@@ -300,7 +300,8 @@ export const updateApplication = async (jobApplication: JobApplication, newStatu
  * Validates if a status transition is valid based on application flow rules.
  * 
  * Flow rules:
- * - Flexible progression: Can skip steps (e.g., Applied → Offer without going through interviews)
+ * - Sequential progression within statuses 1-4: Must go 1→2→3→4 (no skipping)
+ * - Direct to terminal: Can jump from any status (1-4) directly to terminal states (5/6/7)
  * - Corrections allowed: Can go backwards to fix mistakes (e.g., 4→3, 3→2, 2→1)
  * - Terminal state switches: Can change between terminal states (5↔6↔7), which updates the last history entry
  * - Reset: Can reset from any status to Applied(1), which clears all history
@@ -369,17 +370,42 @@ function validateStatusTransition(
     };
   }
 
-  // For non-terminal statuses (1-4), allow flexible progression
+  // For non-terminal statuses (1-4), enforce sequential progression within 1-4, but allow direct jumps to terminal states
   if (currentStatus >= 1 && currentStatus <= 4) {
     const diff = newStatus - currentStatus;
 
-    // Forward transition: allow skipping steps (e.g., Applied → Offer)
+    // Forward transition
     if (diff > 0) {
-      return {
-        isValid: true,
-        transitionType: 'forward',
-        message: "Status updated successfully"
-      };
+      // Transitioning to a terminal status (5, 6, 7) - always allowed
+      if (isNewTerminal) {
+        return {
+          isValid: true,
+          transitionType: 'forward',
+          message: "Status updated successfully"
+        };
+      }
+      
+      // Transitioning within non-terminal statuses (1-4) - must be sequential (+1)
+      if (diff === 1) {
+        return {
+          isValid: true,
+          transitionType: 'forward',
+          message: "Status updated successfully"
+        };
+      } else {
+        // Trying to skip steps within non-terminal statuses
+        const statusNames: { [key: number]: string } = {
+          1: "Applied",
+          2: "Interview",
+          3: "Second Interview",
+          4: "Third Interview"
+        };
+        return {
+          isValid: false,
+          transitionType: null,
+          message: `Cannot skip steps. Progress sequentially: "${statusNames[currentStatus]}" → "${statusNames[currentStatus + 1]}"`
+        };
+      }
     }
 
     // Backward transition (correction): allowed for fixing mistakes
