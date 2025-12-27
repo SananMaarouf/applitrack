@@ -178,11 +178,28 @@ export const updateApplication = async (jobApplication: JobApplication, newStatu
       )
       .orderBy(desc(applicationStatusHistory.createdAt));
 
-    // Check if the transition is valid
-    const isValidTransition = validateStatusTransition(status, newStatus);
+    // Validate the transition
+    const validationResult = validateStatusTransition(status, newStatus);
 
-    // If newStatus is 1, delete all history records for this application
-    if (newStatus === 1 && historyData && historyData.length > 0) {
+    if (!validationResult.isValid) {
+      return { success: false, message: validationResult.message };
+    }
+
+    // Handle special cases based on transition type
+    if (validationResult.transitionType === 'reset') {
+      // Reset to Applied (1) - delete all history and ensure no new entry is created
+      
+      // Update the job application status first
+      await db.update(applications)
+        .set({ status: newStatus })
+        .where(
+          and(
+            eq(applications.id, id),
+            eq(applications.userId, user_id)
+          )
+        );
+      
+      // Delete ALL history records for this application (including the one just created by the trigger)
       await db.delete(applicationStatusHistory)
         .where(
           and(
@@ -190,25 +207,74 @@ export const updateApplication = async (jobApplication: JobApplication, newStatu
             eq(applicationStatusHistory.userId, user_id)
           )
         );
+    } else if (validationResult.transitionType === 'terminal_switch') {
+      // Switching between terminal states - update the last history entry instead of creating new one
+      if (historyData && historyData.length > 0) {
+        const latestHistory = historyData[0];
+        
+        // Update the last history entry to point to the new terminal status
+        await db.update(applicationStatusHistory)
+          .set({ toStatus: newStatus })
+          .where(eq(applicationStatusHistory.id, latestHistory.id));
+        
+        // Update the application status without triggering history creation
+        // We need to update it directly since we already updated the history
+        await db.update(applications)
+          .set({ status: newStatus })
+          .where(
+            and(
+              eq(applications.id, id),
+              eq(applications.userId, user_id)
+            )
+          );
+        
+        // The trigger will have created a duplicate entry, so we need to delete it
+        // Get all history entries again and delete the most recent one (which was just created)
+        const updatedHistory = await db.select()
+          .from(applicationStatusHistory)
+          .where(
+            and(
+              eq(applicationStatusHistory.applicationId, id),
+              eq(applicationStatusHistory.userId, user_id)
+            )
+          )
+          .orderBy(desc(applicationStatusHistory.createdAt));
+        
+        // If there are multiple entries and the first one is different from what we updated, delete it
+        if (updatedHistory.length > 1 && updatedHistory[0].id !== latestHistory.id) {
+          await db.delete(applicationStatusHistory)
+            .where(eq(applicationStatusHistory.id, updatedHistory[0].id));
+        }
+      }
+    } else if (validationResult.transitionType === 'correction') {
+      // Backward transition (correction) - delete the last history record
+      if (historyData && historyData.length > 0) {
+        const latestHistory = historyData[0];
+        await db.delete(applicationStatusHistory)
+          .where(eq(applicationStatusHistory.id, latestHistory.id));
+      }
+      
+      // Update the job application status
+      await db.update(applications)
+        .set({ status: newStatus })
+        .where(
+          and(
+            eq(applications.id, id),
+            eq(applications.userId, user_id)
+          )
+        );
+    } else {
+      // For 'forward' transitions, the database trigger will handle creating the history entry
+      // Update the job application status
+      await db.update(applications)
+        .set({ status: newStatus })
+        .where(
+          and(
+            eq(applications.id, id),
+            eq(applications.userId, user_id)
+          )
+        );
     }
-    // If transition is invalid, delete the last history record
-    else if (!isValidTransition && historyData && historyData.length > 0) {
-      const latestHistory = historyData[0];
-
-      await db.delete(applicationStatusHistory)
-        .where(eq(applicationStatusHistory.id, latestHistory.id));
-    }
-
-    // Update the job application status
-    // This will trigger the database function to create a new history entry
-    await db.update(applications)
-      .set({ status: newStatus })
-      .where(
-        and(
-          eq(applications.id, id),
-          eq(applications.userId, user_id)
-        )
-      );
 
     // Fetch the updated aggregated status history
     const aggregatedStatusHistoryData = await db.execute(
@@ -220,11 +286,7 @@ export const updateApplication = async (jobApplication: JobApplication, newStatu
     // Return success with updated aggregated status history
     return {
       success: true,
-      message: isValidTransition
-        ? "Job application status updated successfully"
-        : (newStatus === 1
-          ? "Job application status reset to Applied (history cleared)"
-          : "Job application status updated (history corrected)"),
+      message: validationResult.message,
       aggregatedStatusHistory
     };
 
@@ -237,34 +299,105 @@ export const updateApplication = async (jobApplication: JobApplication, newStatu
 /**
  * Validates if a status transition is valid based on application flow rules.
  * 
+ * Flow rules:
+ * - Flexible progression: Can skip steps (e.g., Applied → Offer without going through interviews)
+ * - Corrections allowed: Can go backwards to fix mistakes (e.g., 4→3, 3→2, 2→1)
+ * - Terminal state switches: Can change between terminal states (5↔6↔7), which updates the last history entry
+ * - Reset: Can reset from any status to Applied(1), which clears all history
+ * 
  * @param currentStatus - The current status of the job application
  * @param newStatus - The proposed new status
- * @returns boolean - Whether the transition is valid
+ * @returns Object with validation result, transition type, and message
  */
-function validateStatusTransition(currentStatus: number, newStatus: number): boolean {
-  // No change or invalid status
-  if (currentStatus === newStatus || newStatus < 1 || newStatus > 7) {
-    return false;
+function validateStatusTransition(
+  currentStatus: number,
+  newStatus: number
+): { isValid: boolean; transitionType: 'forward' | 'correction' | 'terminal_switch' | 'reset' | null; message: string } {
+  
+  // Validate status range
+  if (newStatus < 1 || newStatus > 7) {
+    return {
+      isValid: false,
+      transitionType: null,
+      message: "Invalid status value"
+    };
   }
 
-  // Final states cannot be updated (Offer, Rejected, Ghosted)
-  if (currentStatus === 5 || currentStatus === 6 || currentStatus === 7) {
-    return false;
+  // Same status check (should be caught earlier, but just in case)
+  if (currentStatus === newStatus) {
+    return {
+      isValid: false,
+      transitionType: null,
+      message: "Status is already set to this value"
+    };
   }
 
-  // For statuses 1-4, ensure the new status is higher
+  // Reset to Applied from any status
+  if (newStatus === 1) {
+    return {
+      isValid: true,
+      transitionType: 'reset',
+      message: "Application status reset to Applied (history cleared)"
+    };
+  }
+
+  // Define terminal statuses
+  const terminalStatuses = [5, 6, 7]; // Offer, Rejected, Ghosted
+  const isCurrentTerminal = terminalStatuses.includes(currentStatus);
+  const isNewTerminal = terminalStatuses.includes(newStatus);
+
+  // Switching between terminal states
+  if (isCurrentTerminal && isNewTerminal) {
+    return {
+      isValid: true,
+      transitionType: 'terminal_switch',
+      message: "Terminal status updated (corrected in history)"
+    };
+  }
+
+  // Cannot transition from terminal state to non-terminal (except Applied which is handled above)
+  if (isCurrentTerminal && !isNewTerminal) {
+    const statusNames: { [key: number]: string } = {
+      5: "Offer",
+      6: "Rejected",
+      7: "Ghosted"
+    };
+    return {
+      isValid: false,
+      transitionType: null,
+      message: `Cannot change from terminal status "${statusNames[currentStatus]}" to a non-terminal status. Reset to "Applied" first if needed.`
+    };
+  }
+
+  // For non-terminal statuses (1-4), allow flexible progression
   if (currentStatus >= 1 && currentStatus <= 4) {
-    // If trying to move backward in the process
-    if (newStatus < currentStatus) {
-      return false;
+    const diff = newStatus - currentStatus;
+
+    // Forward transition: allow skipping steps (e.g., Applied → Offer)
+    if (diff > 0) {
+      return {
+        isValid: true,
+        transitionType: 'forward',
+        message: "Status updated successfully"
+      };
     }
 
-    // All forward transitions are valid
-    return true;
+    // Backward transition (correction): allowed for fixing mistakes
+    if (diff < 0) {
+      return {
+        isValid: true,
+        transitionType: 'correction',
+        message: "Status corrected (previous history entry removed)"
+      };
+    }
   }
 
-  // Default case (should not happen with proper input validation)
-  return false;
+  // Default fallback (should not reach here with valid inputs)
+  return {
+    isValid: false,
+    transitionType: null,
+    message: "Invalid status transition"
+  };
 }
 
 
