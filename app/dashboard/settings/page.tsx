@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import Loading from "./loading";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { DeleteAccountDialog } from "@/components/delete-account-dialog";
@@ -19,6 +21,7 @@ export default async function SettingsPage() {
   const userEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId)?.emailAddress || '';
 
   return (
+    <Suspense fallback={<Loading />}>
       <section className="flex flex-col max-w-3xl mx-auto px-8 lg:px-8 gap-6">
         <nav className="w-full mx-auto mb-4">
           <Link href="/dashboard" className="flex w-fit hover:underline bg-primary text-primary-foreground p-2 rounded-md" >
@@ -71,7 +74,7 @@ export default async function SettingsPage() {
             </section>
           </section>
         </Card>
-      </section>
-
+      </section>        
+    </Suspense>
   );
 }
