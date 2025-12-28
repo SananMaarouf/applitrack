@@ -20,7 +20,7 @@ export function Features() {
 		{
 			component: <ExampleSankeyDiagram />,
 			title: "Application Flow Visualization",
-			description: "Understand your progress with a Sankey diagram that maps each application’s journey from submission to final outcome. Whether that’s an offer✅, rejection😥, or being ghosted👻"
+			description: "Understand your progress with a Sankey diagram that maps each application’s journey from submission to final outcome. Whether that’s an offer, rejection, or being ghosted"
 		},
 		{
 			component: <ExampleChart />,
@@ -29,8 +29,8 @@ export function Features() {
 		},
 		{
 			component: <ExampleDataTable />,
-			title: "Comprehensive Data Management",
-			description: "Work smarter with a searchable, sortable, and filterable data table. Update statuses or remove applications directly without leaving the table"
+			title: "Status tracking & Management",
+			description: "Work smarter with a searchable, sortable, and filterable data table. Update statuses or remove applications easily"
 		}
 	];
 
@@ -156,7 +156,10 @@ export function Features() {
 	};
 
 	return (
-		<section ref={featuresRef} className="opacity-0 flex flex-col w-full items-center rounded-lg py-12 sm:py-16 lg:py-20">
+		<section ref={featuresRef} className="
+			flex flex-col w-full items-center 
+			rounded-lg py-12 sm:py-16 lg:py-20
+		">
 			<h2 className="text-3xl sm:text-4xl font-bold mb-8">
 				Features
 			</h2>
@@ -164,17 +167,27 @@ export function Features() {
 			<div className="w-full max-w-6xl px-4">
 				<div className="flex flex-col lg:flex-row">
 					{/* Feature indicators */}
-					<div className="flex flex-row lg:flex-col lg:h-[670px] justify-between items-center gap-2 lg:space-x-0">
+					<div className="
+						flex flex-row lg:flex-col lg:h-167.5 
+						justify-between items-center gap-2 lg:space-x-0
+					">
 						{features.map((_, index) => (
 							<button
 								key={index}
 								onClick={() => handleFeatureClick(index)}
 								className={`
-									py-3 h-full flex font-semibold transition-colors items-center justify-center text-sm duration-300 rounded-t-xl border-b-2
-									lg:py-0 w-full lg:w-16 lg:border-b-0 lg:rounded-t-none lg:rounded-tl-xl lg:rounded-l-xl lg:border-r-2
+									h-full 
+									w-full lg:w-16 
+									lg:border-b-0 
+									py-3 lg:py-0 
+									rounded-t-xl lg:rounded-t-none 
+									lg:rounded-tl-xl lg:rounded-bl-xl 
+									flex items-center justify-center 
+									font-bold transition-colors duration-300 
+									
 									${index === currentFeature
-										? 'bg-hover text-card-foreground hover:bg-hover'
-										: 'bg-card text-card-foreground hover:bg-hover'
+										? 'bg-primary text-primary-foreground border-b-2 lg:border-r-4'
+										: 'bg-secondary text-secondary-foreground border-b-2 border-b-primary-foreground lg:border-r-4 lg:border-r-primary-foreground'
 									}`}
 							>
 								{index + 1}
@@ -183,7 +196,11 @@ export function Features() {
 					</div>
 
 					{/* Main content container */}
-					<div className="bg-card shadow-lg p-6 h-[600px] lg:w-full lg:h-[670px] flex flex-col rounded-b-xl lg:rounded-b-none lg:rounded-r-xl">
+					<div className="
+							bg-primary p-6 h-150 
+							lg:w-full lg:h-167.5 flex flex-col 
+							rounded-b-xl lg:rounded-r-xl lg:rounded-l-none
+						">
 						{/* Feature content */}
 						<div className="flex flex-col gap-2 lg:flex-row justify-center flex-1">
 							{/* the feature title and description */}
@@ -203,7 +220,7 @@ export function Features() {
 						</div>
 
 						{/* Progress bar */}
-						<Progress value={progress} className="bg-card rounded-full"/>
+						<Progress value={progress} className="" />
 					</div>
 				</div>
 			</div>

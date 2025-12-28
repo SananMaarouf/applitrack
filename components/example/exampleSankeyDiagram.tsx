@@ -140,7 +140,7 @@ export function ExampleSankeyDiagram() {
 	const sankeyData = { nodes, links };
 	return (
 		<div className="w-full mx-auto h-fit">
-			<div className="bg-card text-card-foreground p-3 min-h-[16rem] md:min-h-96 rounded-lg transition-all duration-300">
+			<div className="bg-background text-card-foreground p-3 min-h-64 md:min-h-96 rounded-lg transition-all duration-300">
 				{links.length > 1 ? (
 					<ResponsiveSankey
 						data={sankeyData}
@@ -158,7 +158,7 @@ export function ExampleSankeyDiagram() {
 						labelPosition='outside'
 						labelOrientation="horizontal"
 						labelPadding={10}
-						labelTextColor={theme === 'light' ? '#ede7e0' : '#231f20'}
+						labelTextColor={theme === 'light' ? '#231f20': '#ede7e0'}
 						layout={isNarrow ? 'vertical' : 'horizontal'}
 						theme={{
 							labels: {
@@ -179,7 +179,7 @@ export function ExampleSankeyDiagram() {
 						}}
 					/>
 				) : (
-					<p className="text-center py-10 text-muted-foreground">No application history data available</p>
+					<p className="text-center py-10 text-foreground">No application history data available</p>
 				)}
 			</div>
 		</div>

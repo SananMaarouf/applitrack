@@ -15,7 +15,7 @@ const mockJobApplications: JobApplication[] = [
     "expires_at": undefined,
     "position": "test 4",
     "company": "test 4",
-    "status": 6,
+    "status": 1,
     "link": ""
   },
   {
@@ -26,7 +26,7 @@ const mockJobApplications: JobApplication[] = [
     "expires_at": undefined,
     "position": "test 2",
     "company": "test 3",
-    "status": 7,
+    "status": 2,
     "link": ""
   },
   {
@@ -55,24 +55,24 @@ const mockJobApplications: JobApplication[] = [
 
 // Define colors for each job status
 const statusColors: { [key in JobStatus]: string } = {
-  [JobStatus.APPLIED]: "var(--color-applied)",
-  [JobStatus.INTERVIEW]: "var(--color-interview)",
-  [JobStatus.SECOND_INTERVIEW]: "var(--color-second-interview)",
-  [JobStatus.THIRD_INTERVIEW]: "var(--color-third-interview)",
-  [JobStatus.OFFER]: "var(--color-offer)",
-  [JobStatus.REJECTED]: "var(--color-rejected)",
-  [JobStatus.GHOSTED]: "var(--color-ghosted)",
+  [JobStatus.APPLIED]: "var(--chart-1)",
+  [JobStatus.INTERVIEW]: "var(--chart-2)",
+  [JobStatus.SECOND_INTERVIEW]: "var(--chart-3)",
+  [JobStatus.THIRD_INTERVIEW]: "var(--chart-4)",
+  [JobStatus.OFFER]: "var(--chart-5)",
+  [JobStatus.REJECTED]: "var(--chart-6)",
+  [JobStatus.GHOSTED]: "var(--chart-7)",
 };
 
 const chartConfig: ChartConfig = {
   jobs: { label: "Job applications" },
-  applied: { label: "applied", color: "hsl(var(--chart-1))" },
-  interview: { label: "interview", color: "hsl(var(--chart-2))" },
-  second_interview: { label: "second interview", color: "hsl(var(--chart-3))" },
-  third_interview: { label: "third interview", color: "hsl(var(--chart-4))" },
-  offer: { label: "offer", color: "hsl(var(--chart-5))" },
-  rejected: { label: "rejected", color: "hsl(var(--chart-6))" },
-  ghosted: { label: "ghosted", color: "hsl(var(--chart-7))" },
+  applied: { label: "applied", color: statusColors[JobStatus.APPLIED] },
+  interview: { label: "interview", color: statusColors[JobStatus.INTERVIEW] },
+  second_interview: { label: "second interview", color: statusColors[JobStatus.SECOND_INTERVIEW] },
+  third_interview: { label: "third interview", color: statusColors[JobStatus.THIRD_INTERVIEW] },
+  offer: { label: "offer", color: statusColors[JobStatus.OFFER] },
+  rejected: { label: "rejected", color: statusColors[JobStatus.REJECTED] },
+  ghosted: { label: "ghosted", color: statusColors[JobStatus.GHOSTED] },
 }
 
 export function ExampleChart() {
@@ -99,7 +99,7 @@ export function ExampleChart() {
         <CardTitle className="font-bold text-lg text-btn">Applications</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="mx-auto aspect-square min-h-[100px] max-h-[250px] lg:min-h-[200px] lg:max-h-[400px]">
+        <ChartContainer config={chartConfig} className="mx-auto aspect-square min-h-25 max-h-62.5 lg:min-h-50 lg:max-h-100">
           <PieChart>
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />}
             />

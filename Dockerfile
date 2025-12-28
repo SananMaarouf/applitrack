@@ -22,7 +22,7 @@ COPY package.json package-lock.json* ./
 
 # Cache npm downloads across builds (BuildKit)
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --legacy-peer-deps
+    npm ci
 
 # -----------------------
 # 3. Build stage
@@ -47,7 +47,7 @@ RUN npm run build
 FROM base AS prod-deps
 COPY package.json package-lock.json* ./
 COPY --from=deps /app/node_modules ./node_modules
-RUN npm prune --omit=dev --legacy-peer-deps && npm cache clean --force
+RUN npm prune --omit=dev && npm cache clean --force
 
 # -----------------------
 # 5. Runtime stage (Production)
@@ -68,7 +68,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=prod-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.mjs ./next.config.mjs
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./next.config.ts
 
 # Database / migrations
 COPY --from=builder --chown=nextjs:nodejs /app/db ./db

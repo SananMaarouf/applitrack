@@ -2,7 +2,7 @@ import "./globals.css";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import HeaderAuth from "@/components/header-auth";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner"
 import { HomeButton } from "@/components/homeButton"
 import { Footer } from "@/components/footer";
 import { ClerkProvider } from '@clerk/nextjs';
@@ -33,11 +33,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <body className="bg-background text-foreground min-h-screen flex flex-col">
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <main className="flex flex-col items-center grow">
-              <section className="flex-1 w-full flex flex-col gap-6 items-center">
+              <section className="flex-1 w-full flex flex-col items-center">
                 <nav className="w-full flex justify-center h-16">
                   <section className="
-                    w-full max-w-5xl flex justify-between items-center 
-                    px-1 md:px-0 text-sm py-2">
+                    w-full max-w-5xl flex 
+                    justify-between items-center 
+                    px-1 md:px-0 text-sm py-2
+                    ">
                     <HomeButton />
                     <HeaderAuth />
                   </section>

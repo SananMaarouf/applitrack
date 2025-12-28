@@ -38,7 +38,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
 
   const [appliedDateOpen, setAppliedDateOpen] = useState(false);
   const [expiresDateOpen, setExpiresDateOpen] = useState(false);
-
+  const [date, setDate] = useState<Date | undefined>(new Date())
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -103,24 +103,24 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
   }
 
   return (
-    <div className="bg-card h-full text-card-foreground p-4 rounded-md border hover:border-gray-500 transition-all duration-700">
+    <div className="bg-foreground h-full text-background p-4 rounded-md ">
       <h2 className="text-lg font-bold text-center">Register application</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField control={form.control} name="position" render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-card-foreground">Position*</FormLabel>
+              <FormLabel className="">Position*</FormLabel>
               <FormControl>
-                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="mt-1 text-primary-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50" />
               </FormControl>
               <FormMessage className="text-red-400" />
             </FormItem>
           )} />
           <FormField control={form.control} name="company" render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-card-foreground">Company*</FormLabel>
+              <FormLabel className="">Company*</FormLabel>
               <FormControl>
-                <input {...field} className="mt-1 text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="mt-1 text-primary-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50" />
               </FormControl>
               <FormMessage className="text-red-400" />
             </FormItem>
@@ -128,14 +128,14 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           <FormField control={form.control} name="applied_at" render={({ field }) => (
             <FormItem>
               <FormLabel>Date Applied*</FormLabel>
-              <Popover open={appliedDateOpen} onOpenChange={setAppliedDateOpen}>
+                  <Popover open={appliedDateOpen} onOpenChange={setAppliedDateOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="datepicker" className="w-full text-left">
-                    {field.value ? format(field.value, "PP") : "Select a date"}
+                  <Button variant="default" className="w-full text-left">
+                    {field.value ? format(field.value, "PPP") : "Select a date"}
                     <CalendarIcon className="ml-2 h-5 w-5" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-full p-1">
                   <Calendar
                     mode="single"
                     selected={field.value}
@@ -146,10 +146,6 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                         setAppliedDateOpen(false);
                       }, 500); // 0.4 seconds
                     }}
-                    disabled={(date) =>
-                      date > new Date() // Disable dates in the future
-                    }
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -162,12 +158,12 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
               <FormLabel>Date Expires (optional)</FormLabel>
               <Popover open={expiresDateOpen} onOpenChange={setExpiresDateOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="datepicker" className="w-full text-left">
+                  <Button variant="default" className="w-full text-left">
                     {field.value ? format(field.value, "PPP") : "Select a date"}
                     <CalendarIcon className="ml-2 h-5 w-5" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-full p-1">
                   <Calendar
                     mode="single"
                     selected={field.value}
@@ -178,7 +174,6 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                         setExpiresDateOpen(false);
                       }, 500); // 0.4 seconds
                     }}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -189,7 +184,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <FormItem>
               <FormLabel>Link (optional)</FormLabel>
               <FormControl>
-                <input {...field} className="text-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" />
+                <input {...field} className="text-primary-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -197,8 +192,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           <div className="flex justify-end">
             <Button
               type="submit"
-              variant={"add"}
-              className="mt-2 w-1/3 md:w-36">
+              variant={"default"}
+              className="cursor-pointer hover:scale-105 mt-2 w-1/3 md:w-36">
               <Plus className="h-5 w-5" />
             </Button>
           </div>

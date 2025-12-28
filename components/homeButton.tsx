@@ -5,9 +5,11 @@ export function HomeButton() {
     <Link
       href="/"
       className="
-			h-full flex items-center rounded-xl no-underline text-foreground
-			text-2xl font-bold italic transition-colors duration-500 
-			hover:bg-card hover:text-card-foreground"
+			h-full flex items-center rounded-xl 
+      no-underline text-2xl font-bold italic  
+			hover:bg-primary hover:text-primary-foreground 
+      transition-colors duration-500
+      "
     >
       <p className="flex px-3">
         AT
