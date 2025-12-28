@@ -8,4 +8,4 @@
 
 // Re-export all actions for backward compatibility
 export { changePasswordAction, deleteAccountAction } from './actions/account/actions';
-export { saveJobApplicationAction, deleteApplication, updateApplication } from './actions/applications/actions';
+export { saveJobApplicationAction, deleteApplication, bulkDeleteApplications, updateApplication } from './actions/applications/actions';

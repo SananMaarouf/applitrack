@@ -5,6 +5,10 @@ import { columns } from "./columns";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { useJobsStore } from "@/store/jobsStore";
+import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
+import { bulkDeleteApplications } from "@/app/actions";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "./ui/table";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "./ui/dropdown-menu";
 import { 
@@ -26,12 +30,55 @@ export function DataTable() {
   const [globalFilter, setGlobalFilter] = useState([]);
   const jobApplications = useJobsStore((state) => state.jobApplications);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   useEffect(() => {
     if (jobApplications.length > 0 || loading) {
       setLoading(false); // Set loading to false once data is available
     }
   }, [jobApplications, loading]);
+
+  const setJobApplications = useJobsStore((state) => state.setJobs);
+  const setAggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.setAggregatedStatusHistory);
+
+  const handleBulkDelete = async () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedIds = selectedRows.map(row => row.original.id.toString());
+    const userId = selectedRows[0]?.original.user_id;
+
+    if (!userId || selectedIds.length === 0) {
+      toast.error("No rows selected");
+      return;
+    }
+
+    // Store jobs to restore if needed
+    const jobsToDelete = selectedRows.map(row => row.original);
+
+    // Optimistically remove from UI
+    const remainingJobs = jobApplications.filter(
+      job => !selectedIds.includes(job.id.toString())
+    );
+    setJobApplications(remainingJobs);
+    table.resetRowSelection();
+
+    try {
+      const result = await bulkDeleteApplications(selectedIds, userId);
+      
+      if (result.success) {
+        setAggregatedStatusHistory(result.aggregatedStatusHistory || []);
+        toast.success(`Successfully deleted ${selectedIds.length} job application(s)`);
+      } else {
+        // Restore on failure
+        setJobApplications([...remainingJobs, ...jobsToDelete]);
+        toast.error(result.message || "Failed to delete applications");
+      }
+    } catch (error) {
+      // Restore on error
+      setJobApplications([...remainingJobs, ...jobsToDelete]);
+      toast.error("An error occurred while deleting");
+      console.error(error);
+    }
+  };
 
   const table = useReactTable({
     data: jobApplications,
@@ -42,10 +89,12 @@ export function DataTable() {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       globalFilter,
       columnVisibility,
+      rowSelection,
     },
     onGlobalFilterChange: setGlobalFilter,
   });
@@ -69,20 +118,30 @@ export function DataTable() {
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="bg-foreground text-background px-3 rounded-lg">
-        <div className="flex items-center py-4">
+        <div className="flex items-center py-4 gap-2">
           <Input
             placeholder="search..."
             value={table.getState().globalFilter ?? ""}
             onChange={(e) => table.setGlobalFilter(String(e.target.value))}
             className="max-w-sm text-primary-foreground"
           />
+          {table.getFilteredSelectedRowModel().rows.length > 0 && (
+            <Button 
+              variant="destructive" 
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete ({table.getFilteredSelectedRowModel().rows.length})
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="default" className="ml-auto">
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-foreground/50 text-background rounded-md" align="end">
+            <DropdownMenuContent className="rounded-md" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -90,7 +149,7 @@ export function DataTable() {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize focus:bg-hover focus:text-card-foreground"
+                      className="capitalize cursor-pointer hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
