@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { applications, applicationStatusHistory } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 
 export const saveJobApplicationAction = async (formData: FormData) => {
@@ -85,6 +85,52 @@ export const deleteApplication = async (id: string, user_id: string) => {
   } catch (error) {
     console.error("Error deleting application:", error);
     return { success: false, message: "Could not delete job application" };
+  }
+};
+
+export const bulkDeleteApplications = async (ids: string[], user_id: string) => {
+  const { userId } = await auth();
+  
+  if (!userId || userId !== user_id) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  if (!ids || ids.length === 0) {
+    return { success: false, message: "No application IDs provided" };
+  }
+
+  if (!user_id) {
+    return { success: false, message: "User ID is required" };
+  }
+
+  try {
+    // Convert string IDs to integers
+    const numericIds = ids.map(id => parseInt(id));
+
+    // Delete all applications with matching IDs and user ID using Drizzle's inArray
+    await db.delete(applications)
+      .where(
+        and(
+          inArray(applications.id, numericIds),
+          eq(applications.userId, user_id)
+        )
+      );
+
+    // Fetch the updated status history using raw SQL for the view
+    const aggregatedStatusHistoryData = await db.execute(
+      sql`SELECT * FROM application_status_flow WHERE user_id = ${user_id}`
+    );
+
+    const aggregatedStatusHistory = aggregatedStatusHistoryData.rows as AggregatedStatusHistory[] ?? [];
+
+    return {
+      success: true,
+      message: `Successfully deleted ${ids.length} job application(s)`,
+      aggregatedStatusHistory
+    };
+  } catch (error) {
+    console.error("Error bulk deleting applications:", error);
+    return { success: false, message: "Could not delete job applications" };
   }
 };
 

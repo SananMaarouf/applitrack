@@ -143,6 +143,28 @@ function ActionsCell({ row }: { row: Row<JobApplication> }) {
 
 export const columns: ColumnDef<JobApplication>[] = [
 	{
+		id: "select",
+		header: ({ table }) => (
+			<input
+				type="checkbox"
+				className="cursor-pointer w-4 h-4"
+				checked={table.getIsAllPageRowsSelected()}
+				onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
+				aria-label="Select all"
+			/>
+		),
+		cell: ({ row }) => (
+			<input
+				type="checkbox"
+				className="cursor-pointer w-4 h-4"
+				checked={row.getIsSelected()}
+				onChange={(e) => row.toggleSelected(!!e.target.checked)}
+				aria-label="Select row"
+			/>
+		),
+		enableHiding: false,
+	},
+	{
 		accessorKey: "position",
 		enableHiding: true,
 		header: ({ column }) => {
