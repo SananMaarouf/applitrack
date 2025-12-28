@@ -150,3 +150,9 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
 }
+
+/* Clean Eye button in input */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
