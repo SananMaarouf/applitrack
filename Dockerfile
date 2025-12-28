@@ -60,14 +60,16 @@ ENV PORT=3000
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 nextjs && \
+    chown -R nextjs:nodejs /app
 
-# Copy only what is needed at runtime (use --chown to avoid extra chown layer)
+# Copy only what is needed at runtime
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=prod-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=prod-deps --chown=nextjs:nodejs /app/package-lock.json ./package-lock.json
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./next.config.ts
 
 # Database / migrations
