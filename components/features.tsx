@@ -214,7 +214,7 @@ export function Features() {
 							</div>
 
 							{/* the feature component */}
-							<div className="lg:w-2/3 flex-1 flex overflow-hidden items-center lg:items-center" ref={componentRef}>
+							<div className="lg:w-2/3 flex-1 flex items-center lg:items-center" ref={componentRef}>
 								{features[currentFeature].component}
 							</div>
 						</div>
