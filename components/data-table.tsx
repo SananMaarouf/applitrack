@@ -141,7 +141,7 @@ export function DataTable() {
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-foreground/50 text-background rounded-md" align="end">
+            <DropdownMenuContent className="rounded-md" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -149,7 +149,7 @@ export function DataTable() {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize focus:bg-hover focus:text-card-foreground"
+                      className="capitalize cursor-pointer hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
                         column.toggleVisibility(!!value)
