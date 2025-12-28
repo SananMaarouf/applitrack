@@ -59,14 +59,14 @@ export function DeleteAccountDialog({ userId }: { userId: string }) {
         <form action={formAction} className="flex w-full items-center gap-3">
           <input type="hidden" name="user_id" value={userId} />
           <AlertDialogCancel asChild>
-            <Button variant="outline" type="button">
+            <Button type="button">
               Cancel
             </Button>
           </AlertDialogCancel>
           <Button
             type="submit"
             variant="destructive"
-            className="ml-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="ml-auto"
             disabled={isPending}
           >
             {isPending ? "Deleting..." : "Delete Account"}

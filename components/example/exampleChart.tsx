@@ -94,9 +94,9 @@ export function ExampleChart() {
     }));
 
   return (
-    <Card className="flex flex-col border-2 border-card-foreground bg-card h-fit w-full transition-all duration-700">
+    <Card className="flex flex-col h-fit w-full">
       <CardHeader className="items-center">
-        <CardTitle className="font-bold text-lg text-btn">Applications</CardTitle>
+        <CardTitle className="font-bold text-lg">Applications</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto aspect-square min-h-25 max-h-62.5 lg:min-h-50 lg:max-h-100">

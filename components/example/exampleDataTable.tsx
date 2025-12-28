@@ -8,7 +8,6 @@ import { flexRender, SortingState, useReactTable, getCoreRowModel, getSortedRowM
 
 
 const exampleData: JobApplication[] = [
-
 	{
 		"id": 6,
 		"user_id": "0e756a42-675b-484d-81e8-e4113d27b6e2",
@@ -68,17 +67,17 @@ export function ExampleDataTable() {
   });
 
   return (
-    <div className="w-full mb-1 max-w-xl mx-auto">
-      <div className="bg-background text-foreground rounded-lg transition-all duration-1000">
-        <Table>
+    <div className="w-full max-w-6xl mx-auto">
+      <div className="bg-foreground text-background border border-foreground overflow-hidden rounded-2xl -m-3">
+        <Table className=" ">
           <TableHeader className="">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="bg-background text-foreground">
+                    <TableHead key={header.id} className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
-                        ? undefined
+                        ? null
                         : flexRender(
                           header.column.columnDef.header,
                           header.getContext()
@@ -89,7 +88,7 @@ export function ExampleDataTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="bg-table">
+          <TableBody className="bg-foreground">
             {table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
