@@ -13,10 +13,10 @@ export function SankeyDiagram() {
 	const aggregatedStatusHistory = useAggregatedStatusHistoryStore((state) => state.aggregatedStatusHistory);
 	const { theme } = useTheme();
 	const diagramRef = useRef<HTMLDivElement>(null);
-	
+
 	const exportDiagram = async () => {
 		if (!diagramRef.current) return;
-		
+
 		try {
 			const canvas = await html2canvas(diagramRef.current, {
 				backgroundColor: theme === 'light' ? '#231f20' : '#ede7e0',
@@ -32,11 +32,11 @@ export function SankeyDiagram() {
 					}
 				}
 			});
-			
+
 			// Convert canvas to blob and download
 			canvas.toBlob((blob) => {
 				if (!blob) return;
-				
+
 				const url = URL.createObjectURL(blob);
 				const link = document.createElement('a');
 				const timestamp = new Date().toISOString().split('T')[0];
@@ -44,7 +44,7 @@ export function SankeyDiagram() {
 				link.href = url;
 				link.click();
 				URL.revokeObjectURL(url);
-				
+
 				toast.success("Diagram exported successfully!");
 			});
 		} catch (error) {
@@ -52,7 +52,7 @@ export function SankeyDiagram() {
 			toast.error("Failed to export diagram");
 		}
 	};
-	
+
 	// Create nodes from the aggregatedStatusHistory
 	const rawNodes = aggregatedStatusHistory.map(item => ({
 		source: String(item.From),
@@ -123,61 +123,64 @@ export function SankeyDiagram() {
 	const sankeyData = { nodes, links };
 	return (
 		<div className="w-full mx-auto">
-			{links.length > 0 && (
-				<div className="flex justify-end mb-2">
-					<Button 
-						onClick={exportDiagram}
-						variant="default"
-						size="sm"
-						className="flex items-center gap-2"
-					>
-						<Download className="h-4 w-4" />
-						Export
-					</Button>
-				</div>
-			)}
-			<div ref={diagramRef} className="bg-foreground text-background p-3 min-h-120 md:min-h-96 rounded-lg">
-				{links.length > 0 ? (
-					<ResponsiveSankey
-						data={sankeyData}
-						margin={isNarrow
-							? { top: 20, right: 30, bottom: 20, left: 10 }
-							: { top: 42, right: 84, bottom: 42, left: 70 }}
-						align="justify"
-						colors={{ datum: 'nodeColor' }}
-						nodeThickness={18}
-						nodeSpacing={24}
-						linkOpacity={1}
-						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
-						enableLinkGradient={true}
-						linkBlendMode="normal"
-						labelPosition='outside'
-						labelOrientation="horizontal"
-						labelPadding={10}
-						labelTextColor={theme === 'light' ? '#ede7e0' : '#231f20' }
-						layout={isNarrow ? 'vertical' : 'horizontal'}
-						theme={{
-							labels: {
-								text: {
-									fontSize: '0.8rem',
-									fontWeight: "bolder",
-								},
-							},
-							tooltip: {
-								container: {
-									background: '#333',
-									color: '#fff',
-									fontSize: '12px',
-									padding: '5px',
-									borderRadius: '4px',
-								},
-							},
-						}}
-					/>
-				) : (
-					<p className="text-center py-10 text-background">No application history data available</p>
+			<div className="bg-foreground p-3">
+				{links.length > 0 && (
+					<div className="flex justify-end mb-2">
+						<Button
+							onClick={exportDiagram}
+							variant="default"
+							size="sm"
+							className="flex items-center gap-2"
+						>
+							<Download className="h-4 w-4" />
+							Export
+						</Button>
+					</div>
 				)}
+				<div ref={diagramRef} className="bg-foreground text-background p-3 min-h-120 md:min-h-96 rounded-lg">
+					{links.length > 0 ? (
+						<ResponsiveSankey
+							data={sankeyData}
+							margin={isNarrow
+								? { top: 20, right: 30, bottom: 20, left: 10 }
+								: { top: 42, right: 84, bottom: 42, left: 70 }}
+							align="justify"
+							colors={{ datum: 'nodeColor' }}
+							nodeThickness={18}
+							nodeSpacing={24}
+							linkOpacity={1}
+							nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
+							enableLinkGradient={true}
+							linkBlendMode="normal"
+							labelPosition='outside'
+							labelOrientation="horizontal"
+							labelPadding={10}
+							labelTextColor={theme === 'light' ? '#ede7e0' : '#231f20'}
+							layout={isNarrow ? 'vertical' : 'horizontal'}
+							theme={{
+								labels: {
+									text: {
+										fontSize: '0.8rem',
+										fontWeight: "bolder",
+									},
+								},
+								tooltip: {
+									container: {
+										background: '#333',
+										color: '#fff',
+										fontSize: '12px',
+										padding: '5px',
+										borderRadius: '4px',
+									},
+								},
+							}}
+						/>
+					) : (
+						<p className="text-center py-10 text-background">No application history data available</p>
+					)}
+				</div>
 			</div>
+
 		</div>
 	);
 }
