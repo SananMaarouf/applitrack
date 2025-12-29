@@ -1,4 +1,3 @@
-"use client";
 import { gsap } from "gsap";
 import { DrawSVGPlugin } from "gsap/all";
 import { useEffect, useRef } from "react";
@@ -6,6 +5,7 @@ gsap.registerPlugin(DrawSVGPlugin);
 
 const BusyMan = () => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Get all SVG paths (excluding any you don't want to animate)
@@ -19,6 +19,14 @@ const BusyMan = () => {
       drawSVG: "0%",
       stroke: "var(--foreground)",
       strokeWidth: 1,
+      fill: "oklch(0.27 0 0)"
+    });
+    
+    // Fade in the container
+    tl.to(containerRef.current, {
+      opacity: 1,
+      duration: 0.3,
+      ease: "power1.out"
     });
     
     // Animate each path with a staggered drawing effect
@@ -32,7 +40,7 @@ const BusyMan = () => {
     // After drawing is complete, fill the paths
     tl.to(paths, {
       duration: 0.7,
-      fill: "var(--foreground)",
+      fill: "oklch(0.81 0.01 93.53)",
       ease: "power1.inOut"
     });
     
@@ -41,11 +49,12 @@ const BusyMan = () => {
       tl.kill();
     };
   }, []);
+  
   return (
-    <div>
+    <div ref={containerRef} className="w-3/4 max-w-md opacity-0">
       <svg
         ref={svgRef}
-        className="w-[201px] h-[201px] sm:w-[401px] sm:h-[401px]"
+        className="w-50.25 h-50.25 sm:w-100.25 sm:h-100.25"
         viewBox="0 0 401 401"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
