@@ -154,12 +154,16 @@ export const bulkUpdateApplications = async (
   }
 
   try {
-    // Update all applications in a transaction-like manner
+    // First, validate ALL transitions before making any changes
+    const invalidTransitions: Array<{ id: number, position: string, company: string, message: string }> = [];
+    const applicationsToSkip: number[] = [];
+    
     for (const jobApplication of jobApplications) {
-      const { id, status } = jobApplication;
+      const { id, status, position, company } = jobApplication;
 
-      // Skip if already at the desired status
+      // Track applications already at the desired status
       if (status === newStatus) {
+        applicationsToSkip.push(id);
         continue;
       }
 
@@ -167,10 +171,60 @@ export const bulkUpdateApplications = async (
       const validationResult = validateStatusTransition(status, newStatus);
 
       if (!validationResult.isValid) {
-        // Skip invalid transitions but continue with others
-        console.warn(`Skipping invalid transition for job ${id}: ${validationResult.message}`);
-        continue;
+        invalidTransitions.push({
+          id,
+          position,
+          company,
+          message: validationResult.message
+        });
       }
+    }
+
+    // If there are any invalid transitions, return an error without making changes
+    if (invalidTransitions.length > 0) {
+      // Group errors by message to avoid repetition
+      const errorGroups = invalidTransitions.reduce((acc, t) => {
+        if (!acc[t.message]) {
+          acc[t.message] = 0;
+        }
+        acc[t.message]++;
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Create a concise error message
+      const errorMessages = Object.entries(errorGroups).map(
+        ([message, count]) => count > 1 ? `${message} (${count} applications)` : message
+      );
+      
+      const errorDetail = errorMessages.length === 1 
+        ? errorMessages[0] 
+        : errorMessages.join('; ');
+      
+      return {
+        success: false,
+        message: `Cannot update ${invalidTransitions.length} application(s): ${errorDetail}`
+      };
+    }
+
+    // Filter out applications that are already at the desired status
+    const applicationsToUpdate = jobApplications.filter(
+      app => !applicationsToSkip.includes(app.id)
+    );
+
+    // If all applications are already at the desired status
+    if (applicationsToUpdate.length === 0) {
+      return {
+        success: false,
+        message: "All selected applications are already at the desired status"
+      };
+    }
+
+    // All validations passed, now perform the updates
+    for (const jobApplication of applicationsToUpdate) {
+      const { id, status } = jobApplication;
+
+      // Re-validate to get the transition type
+      const validationResult = validateStatusTransition(status, newStatus);
 
       // Handle different transition types (same logic as updateApplication)
       if (validationResult.transitionType === 'reset') {
@@ -266,7 +320,7 @@ export const bulkUpdateApplications = async (
 
     return {
       success: true,
-      message: `Successfully updated ${jobApplications.length} job application(s)`,
+      message: `Successfully updated ${applicationsToUpdate.length} job application(s)`,
       aggregatedStatusHistory
     };
   } catch (error) {
