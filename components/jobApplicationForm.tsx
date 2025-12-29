@@ -85,6 +85,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
 
           // Reset the form after successful submission
           form.reset();
+          setAppliedDateText("");
+          setExpiresDateText("");
 
         } else {
           toast({
