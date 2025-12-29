@@ -11,9 +11,25 @@ gsap.registerPlugin(useGSAP, SplitText);
 export function Landing({ paragraphs }: LandingProps) {
 	const headlineRef = useRef<HTMLHeadingElement>(null);
 	const subTextRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+	const headlineContainerRef = useRef<HTMLDivElement>(null);
+	const subTextContainerRef = useRef<HTMLDivElement>(null);
 
 	useGSAP(() => {
 		if (headlineRef.current) {
+			// Fade in the headline container
+			gsap.to(headlineContainerRef.current, {
+				opacity: 1,
+				duration: 0.3,
+				ease: "power1.out"
+			});
+
+			// Fade in the subtext container
+			gsap.to(subTextContainerRef.current, {
+				opacity: 1,
+				duration: 0.3,
+				ease: "power1.out",
+				delay: 0.2
+			});
 
 			// Split the text into lines
 			const split = new SplitText(headlineRef.current!, {
@@ -71,31 +87,33 @@ export function Landing({ paragraphs }: LandingProps) {
 			">
 			<div className="w-full lg:w-1/2 flex flex-col">
 				{/* The headline */}
-				<h1 ref={headlineRef}
-					className="animate-[fade-in_0.8s_ease-in-out_0.8s_forwards] text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left font-bold mb-3 lg:mb-8 px-1"
-				>
-					From{" "}
-					<span className="underline text-pretty wrap-break-word">application</span>{" "}
-					to offer, <span className="underline">track</span> your progress
-				</h1>
+				<div ref={headlineContainerRef} className="opacity-0">
+					<h1 ref={headlineRef}
+						className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left font-bold mb-3 lg:mb-8 px-1"
+					>
+						From{" "}
+						<span className="underline text-pretty wrap-break-word">application</span>{" "}
+						to offer, <span className="underline">track</span> your progress
+					</h1>
+				</div>
 				{/* the illustration on mobile */}
-				<div className="lg:hidden mx-auto animate-[fade-in_0.8s_ease-in-out_0.8s_forwards]">
+				<div className="lg:hidden mx-auto">
 					<BusyMan />
 				</div>
 				{/* the sub-text aka selling points*/}
-				{paragraphs.map((text, index) => (
-					<p key={index} ref={el => { subTextRefs.current[index] = el; }}
-						className="animate-[fade-in_0.8s_ease-in-out_0.8s_forwards] text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left"
-					>
-						{text}
-					</p>
-				))}
+				<div ref={subTextContainerRef} className="opacity-0">
+					{paragraphs.map((text, index) => (
+						<p key={index} ref={el => { subTextRefs.current[index] = el; }}
+							className="text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left"
+						>
+							{text}
+						</p>
+					))}
+				</div>
 			</div>
 			{/* the illustration on desktop */}
 			<div className="hidden lg:flex lg:w-1/2 justify-center mt-8 lg:mt-0">
-				<div className="w-3/4 max-w-md animate-[fade-in_0.8s_ease-in-out_0.8s_forwards]">
 					<BusyMan />
-				</div>
 			</div>
 		</section>
 	)

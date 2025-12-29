@@ -1,34 +1,42 @@
+"use client";
 import { gsap } from "gsap";
 import { DrawSVGPlugin } from "gsap/all";
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 gsap.registerPlugin(DrawSVGPlugin);
 
 const BusyMan = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
+  
+  const isDarkTheme = resolvedTheme === "dark";
+  // Set colors based on theme
+  const initialFillColor = isDarkTheme ? 'oklch(0.27 0 0)' : 'oklch(0.98 0.01 93.48)';
+  const finalFillColor = isDarkTheme ? 'oklch(0.98 0.01 93.48)' : 'oklch(0.27 0 0)';
 
   useEffect(() => {
     // Get all SVG paths (excluding any you don't want to animate)
     const paths = svgRef.current!.querySelectorAll("path");
-    
+
     // Create a timeline for the animation sequence
     const tl = gsap.timeline();
-    
+
     // Initial state - all paths are invisible
-    gsap.set(paths, { 
+    gsap.set(paths, {
       drawSVG: "0%",
       stroke: "var(--foreground)",
       strokeWidth: 1,
-      fill: "oklch(0.27 0 0)"
+      fill: initialFillColor
     });
-    
+
     // Fade in the container
     tl.to(containerRef.current, {
       opacity: 1,
       duration: 0.3,
       ease: "power1.out"
     });
-    
+
     // Animate each path with a staggered drawing effect
     tl.to(paths, {
       duration: 0.7,
@@ -36,20 +44,20 @@ const BusyMan = () => {
       stagger: 0.02,
       ease: "power1.inOut"
     });
-    
+
     // After drawing is complete, fill the paths
     tl.to(paths, {
       duration: 0.7,
-      fill: "oklch(0.81 0.01 93.53)",
+      fill: finalFillColor,
       ease: "power1.inOut"
     });
-    
+
     // Return a cleanup function
     return () => {
       tl.kill();
     };
-  }, []);
-  
+  }, [isDarkTheme, initialFillColor, finalFillColor]);
+
   return (
     <div ref={containerRef} className="w-3/4 max-w-md opacity-0">
       <svg
