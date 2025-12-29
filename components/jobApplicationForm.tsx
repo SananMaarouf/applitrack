@@ -5,7 +5,7 @@ import { format, parse, isValid } from "date-fns"
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useJobsStore } from "@/store/jobsStore";
 import { CalendarIcon, Plus } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,7 +41,6 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
   const [expiresDateOpen, setExpiresDateOpen] = useState(false);
   const [appliedDateText, setAppliedDateText] = useState("");
   const [expiresDateText, setExpiresDateText] = useState("");
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,10 +76,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           const jobsStore = useJobsStore.getState();
           jobsStore.setJobs([...(response.data || []), ...jobsStore.jobApplications]);
 
-          toast({
-            title: "Success ✅",
-            description: "Job application saved successfully",
-            variant: "success",
+          toast.success("Job application saved successfully", {
+            description: "Your application has been registered",
           });
 
           // Reset the form after successful submission
@@ -89,18 +86,14 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           setExpiresDateText("");
 
         } else {
-          toast({
-            title: "Error",
+          toast.error("Error", {
             description: response.message,
-            variant: "destructive",
           });
         }
       })
       .catch((error) => {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: "An error occurred while saving the job application",
-          variant: "destructive",
         });
         console.error("Error saving job application:", error);
       });
