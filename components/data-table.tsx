@@ -6,11 +6,13 @@ import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { useJobsStore } from "@/store/jobsStore";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
-import { bulkDeleteApplications } from "@/app/actions";
+import { bulkDeleteApplications, bulkUpdateApplications } from "@/app/actions/applications/actions";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "./ui/table";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "./ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { JobStatus } from "@/types/jobStatus";
 import { 
   flexRender, 
   SortingState, 
@@ -80,6 +82,59 @@ export function DataTable() {
     }
   };
 
+  const handleBulkStatusUpdate = async (newStatus: string) => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedJobs = selectedRows.map(row => row.original);
+    const userId = selectedRows[0]?.original.user_id;
+
+    if (!userId || selectedJobs.length === 0) {
+      toast.error("No rows selected");
+      return;
+    }
+
+    const newStatusNum = parseInt(newStatus);
+
+    // Store original jobs for rollback
+    const originalJobs = [...selectedJobs];
+
+    // Optimistically update UI
+    const updatedJobs = jobApplications.map(job => {
+      const isSelected = selectedJobs.find(sj => sj.id === job.id);
+      if (isSelected) {
+        return { ...job, status: newStatusNum };
+      }
+      return job;
+    });
+    setJobApplications(updatedJobs);
+    table.resetRowSelection();
+
+    try {
+      const result = await bulkUpdateApplications(selectedJobs, newStatusNum, userId);
+      
+      if (result.success) {
+        setAggregatedStatusHistory(result.aggregatedStatusHistory || []);
+        toast.success(`Successfully updated ${selectedJobs.length} job application(s)`);
+      } else {
+        // Restore on failure
+        const restoredJobs = jobApplications.map(job => {
+          const original = originalJobs.find(oj => oj.id === job.id);
+          return original || job;
+        });
+        setJobApplications(restoredJobs);
+        toast.error(result.message || "Failed to update applications");
+      }
+    } catch (error) {
+      // Restore on error
+      const restoredJobs = jobApplications.map(job => {
+        const original = originalJobs.find(oj => oj.id === job.id);
+        return original || job;
+      });
+      setJobApplications(restoredJobs);
+      toast.error("An error occurred while updating");
+      console.error(error);
+    }
+  };
+
   const table = useReactTable({
     data: jobApplications,
     columns,
@@ -126,14 +181,30 @@ export function DataTable() {
             className="max-w-sm text-primary-foreground"
           />
           {table.getFilteredSelectedRowModel().rows.length > 0 && (
-            <Button 
-              variant="destructive" 
-              onClick={handleBulkDelete}
-              className="flex items-center gap-2"
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete ({table.getFilteredSelectedRowModel().rows.length})
-            </Button>
+            <>
+              <Select onValueChange={handleBulkStatusUpdate}>
+                <SelectTrigger className="w-45 cursor-pointer bg-primary text-primary-foreground">
+                  <SelectValue placeholder="Update Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={JobStatus.APPLIED.toString()}>Applied</SelectItem>
+                  <SelectItem value={JobStatus.INTERVIEW.toString()}>Interview</SelectItem>
+                  <SelectItem value={JobStatus.SECOND_INTERVIEW.toString()}>Second Interview</SelectItem>
+                  <SelectItem value={JobStatus.THIRD_INTERVIEW.toString()}>Third Interview</SelectItem>
+                  <SelectItem value={JobStatus.OFFER.toString()}>Offer</SelectItem>
+                  <SelectItem value={JobStatus.REJECTED.toString()}>Rejected</SelectItem>
+                  <SelectItem value={JobStatus.GHOSTED.toString()}>Ghosted</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                variant="destructive" 
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete ({table.getFilteredSelectedRowModel().rows.length})
+              </Button>
+            </>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
