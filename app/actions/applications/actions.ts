@@ -134,6 +134,201 @@ export const bulkDeleteApplications = async (ids: string[], user_id: string) => 
   }
 };
 
+export const bulkUpdateApplications = async (
+  jobApplications: JobApplication[],
+  newStatus: number,
+  user_id: string
+) => {
+  const { userId } = await auth();
+  
+  if (!userId || userId !== user_id) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  if (!jobApplications || jobApplications.length === 0) {
+    return { success: false, message: "No applications provided" };
+  }
+
+  if (!newStatus || newStatus < 1 || newStatus > 7) {
+    return { success: false, message: "Invalid status value" };
+  }
+
+  try {
+    // First, validate ALL transitions before making any changes
+    const invalidTransitions: Array<{ id: number, position: string, company: string, message: string }> = [];
+    const applicationsToSkip: number[] = [];
+    
+    for (const jobApplication of jobApplications) {
+      const { id, status, position, company } = jobApplication;
+
+      // Track applications already at the desired status
+      if (status === newStatus) {
+        applicationsToSkip.push(id);
+        continue;
+      }
+
+      // Validate the transition
+      const validationResult = validateStatusTransition(status, newStatus);
+
+      if (!validationResult.isValid) {
+        invalidTransitions.push({
+          id,
+          position,
+          company,
+          message: validationResult.message
+        });
+      }
+    }
+
+    // If there are any invalid transitions, return an error without making changes
+    if (invalidTransitions.length > 0) {
+      // Group errors by message to avoid repetition
+      const errorGroups = invalidTransitions.reduce((acc, t) => {
+        if (!acc[t.message]) {
+          acc[t.message] = 0;
+        }
+        acc[t.message]++;
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Create a concise error message
+      const errorMessages = Object.entries(errorGroups).map(
+        ([message, count]) => count > 1 ? `${message} (${count} applications)` : message
+      );
+      
+      const errorDetail = errorMessages.length === 1 
+        ? errorMessages[0] 
+        : errorMessages.join('; ');
+      
+      return {
+        success: false,
+        message: `Cannot update ${invalidTransitions.length} application(s): ${errorDetail}`
+      };
+    }
+
+    // Filter out applications that are already at the desired status
+    const applicationsToUpdate = jobApplications.filter(
+      app => !applicationsToSkip.includes(app.id)
+    );
+
+    // If all applications are already at the desired status
+    if (applicationsToUpdate.length === 0) {
+      return {
+        success: false,
+        message: "All selected applications are already at the desired status"
+      };
+    }
+
+    // All validations passed, now perform the updates
+    for (const jobApplication of applicationsToUpdate) {
+      const { id, status } = jobApplication;
+
+      // Re-validate to get the transition type
+      const validationResult = validateStatusTransition(status, newStatus);
+
+      // Handle different transition types (same logic as updateApplication)
+      if (validationResult.transitionType === 'reset') {
+        // Reset to Applied (1) - delete all history
+        await db.update(applications)
+          .set({ status: newStatus })
+          .where(
+            and(
+              eq(applications.id, id),
+              eq(applications.userId, user_id)
+            )
+          );
+        
+        await db.delete(applicationStatusHistory)
+          .where(
+            and(
+              eq(applicationStatusHistory.applicationId, id),
+              eq(applicationStatusHistory.userId, user_id)
+            )
+          );
+      } else if (validationResult.transitionType === 'terminal_switch') {
+        // Switching between terminal states
+        const historyData = await db.select()
+          .from(applicationStatusHistory)
+          .where(
+            and(
+              eq(applicationStatusHistory.applicationId, id),
+              eq(applicationStatusHistory.userId, user_id)
+            )
+          )
+          .orderBy(desc(applicationStatusHistory.createdAt))
+          .limit(1);
+
+        if (historyData && historyData.length > 0) {
+          await db.update(applications)
+            .set({ status: newStatus })
+            .where(
+              and(
+                eq(applications.id, id),
+                eq(applications.userId, user_id)
+              )
+            );
+
+          await db.update(applicationStatusHistory)
+            .set({ toStatus: newStatus })
+            .where(eq(applicationStatusHistory.id, historyData[0].id));
+        }
+      } else if (validationResult.transitionType === 'correction') {
+        // Backward transition - delete the last history record
+        const historyData = await db.select()
+          .from(applicationStatusHistory)
+          .where(
+            and(
+              eq(applicationStatusHistory.applicationId, id),
+              eq(applicationStatusHistory.userId, user_id)
+            )
+          )
+          .orderBy(desc(applicationStatusHistory.createdAt))
+          .limit(1);
+
+        if (historyData && historyData.length > 0) {
+          await db.delete(applicationStatusHistory)
+            .where(eq(applicationStatusHistory.id, historyData[0].id));
+        }
+
+        await db.update(applications)
+          .set({ status: newStatus })
+          .where(
+            and(
+              eq(applications.id, id),
+              eq(applications.userId, user_id)
+            )
+          );
+      } else {
+        // Normal forward transition
+        await db.update(applications)
+          .set({ status: newStatus })
+          .where(
+            and(
+              eq(applications.id, id),
+              eq(applications.userId, user_id)
+            )
+          );
+      }
+    }
+
+    // Fetch the updated aggregated status history
+    const aggregatedStatusHistoryData = await db.execute(
+      sql`SELECT * FROM application_status_flow WHERE user_id = ${user_id}`
+    );
+
+    const aggregatedStatusHistory = aggregatedStatusHistoryData.rows as AggregatedStatusHistory[] ?? [];
+
+    return {
+      success: true,
+      message: `Successfully updated ${applicationsToUpdate.length} job application(s)`,
+      aggregatedStatusHistory
+    };
+  } catch (error) {
+    console.error("Error bulk updating applications:", error);
+    return { success: false, message: "Could not update job applications" };
+  }
+};
+
 export const updateApplication = async (jobApplication: JobApplication, newStatus: number) => {
   const { userId } = await auth();
   
