@@ -140,7 +140,7 @@ export function ExampleSankeyDiagram() {
 	const sankeyData = { nodes, links };
 	return (
 		<div className="w-full mx-auto">
-			<div className="bg-foreground text-background p-3 min-h-120 md:min-h-96 rounded-lg">
+			<div className="bg-foreground text-background p-3 min-h-96 rounded-lg">
 				{links.length > 1 ? (
 					<ResponsiveSankey
 						data={sankeyData}
