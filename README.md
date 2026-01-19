@@ -8,14 +8,35 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 
 
 # Stack
-- [Next.js 16 (App Router)](https://nextjs.org/)
+- [Vite + React](https://vitejs.dev/)
+- [TanStack Router](https://tanstack.com/router)
+- [FastAPI](https://fastapi.tiangolo.com/) - Backend API
 - [Tailwind CSS](https://tailwindcss.com/)
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Zod](https://zod.dev/)
 - [Zustand](https://zustand-demo.pmnd.rs/)
-- [Clerk](https://clerk.com/) - Authentication
-- [Drizzle ORM](https://orm.drizzle.team/) - Database ORM
+- [Clerk](https://clerk.com/) - Authentication (planned for the new frontend/backend)
 - [PostgreSQL](https://www.postgresql.org/) - Database
+
+
+# Development
+
+## Run everything with Docker
+
+Starts PostgreSQL, the FastAPI backend, and the Vite + TanStack Router frontend:
+
+```bash
+docker compose up --build
+```
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000 (health: http://localhost:8000/health)
+- Postgres: localhost:5432
+
+## Auth note
+
+The FastAPI backend currently expects a temporary `X-User-Id` header so you can develop the API + UI quickly.
+This is intended to be replaced with proper Clerk JWT verification.
 
 
 # Features

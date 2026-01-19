@@ -20,34 +20,42 @@ services:
     networks:
       - applitrack-network
 
-  # Next.js Application
-  app:
+  # FastAPI Backend
+  backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile.dev
-    container_name: applitrack-app-dev
-    env_file:
-      - .env.local
+    container_name: applitrack-backend-dev
     environment:
-      - NODE_ENV=development
       - DATABASE_URL=postgresql://sanan:password@postgres:5432/database
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=sanan
-      - DATABASE_PASSWORD=password
-      - DATABASE_NAME=database
+      - CORS_ORIGINS=http://localhost:5173
     ports:
-      - "3000:3000"
+      - "8000:8000"
     volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - applitrack-network
-    command: npm run dev
+
+  # Vite + TanStack Router Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: applitrack-frontend-dev
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - applitrack-network
 
 volumes:
   postgres_data:
