@@ -47,3 +47,6 @@ drizzle/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# virtual environment
+.venv/
