@@ -33,17 +33,17 @@ function Dashboard() {
     if (!userId) return
 
     let cancelled = false
-    ;(async () => {
-      const [applications, statusFlow] = await Promise.all([
-        listApplications(userId),
-        getStatusFlow(userId),
-      ])
-      if (cancelled) return
-      setApplications(applications as any)
-      setAggregatedStatusHistory(statusFlow as any)
-    })().catch((e) => {
-      console.error('Failed to load dashboard data', e)
-    })
+      ; (async () => {
+        const [applications, statusFlow] = await Promise.all([
+          listApplications(userId),
+          getStatusFlow(userId),
+        ])
+        if (cancelled) return
+        setApplications(applications as any)
+        setAggregatedStatusHistory(statusFlow as any)
+      })().catch((e) => {
+        console.error('Failed to load dashboard data', e)
+      })
 
     return () => {
       cancelled = true
@@ -54,8 +54,8 @@ function Dashboard() {
   if (!userId) return <Navigate to={'/sign-in' as any} />
 
   return (
-    <div className="space-y-6">
-      <section className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto my-8">
+      <section className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto">
         <section className="w-full">
           <Chart />
         </section>
@@ -64,20 +64,23 @@ function Dashboard() {
         </section>
       </section>
 
-      <Accordion type="multiple" defaultValue={['item-2']}>
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="px-4 cursor-pointer">Status History</AccordionTrigger>
-          <AccordionContent>
-            <SankeyDiagram />
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-2">
-          <AccordionTrigger className="px-4 cursor-pointer">Application management</AccordionTrigger>
-          <AccordionContent>
-            <DataTable />
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+      <section className='w-full mx-auto'>
+        <Accordion type="multiple" defaultValue={['item-2']}>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="px-4 cursor-pointer">Status History</AccordionTrigger>
+            <AccordionContent>
+              <SankeyDiagram />
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-2">
+            <AccordionTrigger className="px-4 cursor-pointer">Application management</AccordionTrigger>
+            <AccordionContent>
+              <DataTable />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </section>
+
     </div>
   )
 }
