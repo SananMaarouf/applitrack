@@ -14,8 +14,8 @@ function Home() {
     <div>
       <p>API health: {data.status}</p>
       <p>
-        Go to Dashboard to test reading applications/status flow. (It uses a
-        temporary <code>X-User-Id</code> header.)
+        Go to Dashboard to test reading applications/status flow. (You’ll be
+        prompted to sign in with Clerk.)
       </p>
     </div>
   )

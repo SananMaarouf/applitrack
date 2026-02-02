@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import delete, desc, select, text, update
@@ -12,6 +13,16 @@ from app.models import Application, ApplicationStatusHistory
 from app.schemas import ApplicationCreate, ApplicationOut, ApplicationStatusUpdate
 
 router = APIRouter(prefix="/applications", tags=["applications"])
+
+
+def _to_naive_utc(dt: datetime | None) -> datetime | None:
+    if dt is None:
+        return None
+
+    if dt.tzinfo is None:
+        return dt
+
+    return dt.astimezone(timezone.utc).replace(tzinfo=None)
 
 
 @dataclass(frozen=True)
@@ -105,8 +116,8 @@ async def create_application(
         company=payload.company,
         status=1,
         link=payload.link,
-        applied_at=payload.applied_at,
-        expires_at=payload.expires_at,
+        applied_at=_to_naive_utc(payload.applied_at),
+        expires_at=_to_naive_utc(payload.expires_at),
     )
     db.add(row)
     await db.commit()

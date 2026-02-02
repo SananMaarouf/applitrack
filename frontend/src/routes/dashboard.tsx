@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { Navigate } from '@tanstack/react-router'
+import { useAuth } from '@clerk/clerk-react'
 
 import { listApplications, getStatusFlow } from '@/api/applications'
 import { useJobsStore } from '@/store/jobsStore'
@@ -16,32 +18,40 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 
-const demoUserId = 'demo-user'
-
 export const Route = createFileRoute('/dashboard')({
-  loader: async () => {
-    const [applications, statusFlow] = await Promise.all([
-      listApplications(demoUserId),
-      getStatusFlow(demoUserId),
-    ])
-
-    return { applications, statusFlow }
-  },
   component: Dashboard,
 })
 
 function Dashboard() {
-  const { applications, statusFlow } = Route.useLoaderData()
+  const { isLoaded, userId } = useAuth()
   const setApplications = useJobsStore((s) => s.setJobs)
   const setAggregatedStatusHistory = useAggregatedStatusHistoryStore(
     (s) => s.setAggregatedStatusHistory,
   )
 
   useEffect(() => {
-    // Populate stores from loader
-    setApplications(applications as any)
-    setAggregatedStatusHistory(statusFlow as any)
-  }, [applications, statusFlow, setApplications, setAggregatedStatusHistory])
+    if (!userId) return
+
+    let cancelled = false
+    ;(async () => {
+      const [applications, statusFlow] = await Promise.all([
+        listApplications(userId),
+        getStatusFlow(userId),
+      ])
+      if (cancelled) return
+      setApplications(applications as any)
+      setAggregatedStatusHistory(statusFlow as any)
+    })().catch((e) => {
+      console.error('Failed to load dashboard data', e)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [userId, setApplications, setAggregatedStatusHistory])
+
+  if (!isLoaded) return <div>Loading...</div>
+  if (!userId) return <Navigate to={'/sign-in' as any} />
 
   return (
     <div className="space-y-6">
@@ -50,7 +60,7 @@ function Dashboard() {
           <Chart />
         </section>
         <section className="w-full">
-          <JobApplicationForm user_id={demoUserId} />
+          <JobApplicationForm user_id={userId} />
         </section>
       </section>
 

@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
 export default defineConfig({
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [TanStackRouterVite(), react()],
   resolve: {
     alias: {
@@ -11,6 +12,6 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 3000,
   },
 })

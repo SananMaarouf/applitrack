@@ -28,7 +28,7 @@ services:
     container_name: applitrack-backend-dev
     environment:
       - DATABASE_URL=postgresql://sanan:password@postgres:5432/database
-      - CORS_ORIGINS=http://localhost:5173
+      - CORS_ORIGINS=http://localhost:3000
     ports:
       - "8000:8000"
     volumes:
@@ -45,10 +45,12 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     container_name: applitrack-frontend-dev
+    env_file:
+      - ./.env.local
     environment:
       - VITE_API_URL=http://localhost:8000
     ports:
-      - "5173:5173"
+      - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
