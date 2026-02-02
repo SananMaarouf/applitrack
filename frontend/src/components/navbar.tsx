@@ -15,9 +15,6 @@ export function Navbar() {
             Applitrack
           </Link>
           <nav className="flex items-center gap-3 text-sm">
-            <Link to="/" className="hover:underline">
-              Home
-            </Link>
             <Link to="/dashboard" className="hover:underline">
               Dashboard
             </Link>
