@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useJobsStore } from "@/store/jobsStore";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Trash2Icon, SquarePlusIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createApplication } from "@/api/applications";
@@ -264,16 +264,19 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
           <div className="flex flex-row justify-between">
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
+              size={"icon-lg"}
               onClick={() => {
                 form.reset();
                 setAppliedDateText("");
                 setExpiresDateText("");
               }}
             >
-              Clear
+              <Trash2Icon className="size-6" />
             </Button>
-            <Button type="submit">Add</Button>
+            <Button className="px-10" type="submit" variant="default" size={"icon-lg"}>
+              <SquarePlusIcon className="size-8" />
+            </Button>
           </div>
         </form>
       </Form>
