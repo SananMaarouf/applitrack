@@ -29,7 +29,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select2";
 import { JobStatus } from "@/types/jobStatus";
 import type { JobApplication } from "@/types/jobApplication";
 import {
