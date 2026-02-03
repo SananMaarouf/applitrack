@@ -35,8 +35,24 @@ export async function apiFetch<T>(
   })
 
   if (!response.ok) {
-    const text = await response.text().catch(() => '')
-    throw new Error(text || `Request failed: ${response.status}`)
+    let errorMessage = `Request failed: ${response.status}`
+    
+    try {
+      const text = await response.text()
+      if (text) {
+        try {
+          const errorData = JSON.parse(text)
+          errorMessage = errorData.detail || errorData.message || text
+        } catch {
+          // If JSON parsing fails, use the raw text
+          errorMessage = text
+        }
+      }
+    } catch {
+      // If reading response fails, use default message
+    }
+    
+    throw new Error(errorMessage)
   }
 
   if (response.status === 204) return undefined as T

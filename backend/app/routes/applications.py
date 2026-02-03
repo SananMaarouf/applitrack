@@ -68,7 +68,7 @@ def validate_status_transition(current_status: int, new_status: int) -> Transiti
             return TransitionResult(
                 False,
                 None,
-                f"Cannot skip steps. Progress sequentially: \"{status_names[current_status]}\" → \"{status_names[current_status + 1]}\"",
+                f"Cannot skip steps. Progress sequentially: {status_names[current_status]} → {status_names[current_status + 1]}",
             )
 
         if diff < 0:
