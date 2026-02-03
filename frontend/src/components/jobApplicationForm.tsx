@@ -41,7 +41,7 @@ const formSchema = z.object({
 export function JobApplicationForm({ user_id }: { user_id: string }) {
   const [appliedDateOpen, setAppliedDateOpen] = useState(false);
   const [expiresDateOpen, setExpiresDateOpen] = useState(false);
-  const [appliedDateText, setAppliedDateText] = useState("");
+  const [appliedDateText, setAppliedDateText] = useState(format(new Date(), "yyyy-MM-dd"));
   const [expiresDateText, setExpiresDateText] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -73,7 +73,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
       });
 
       form.reset();
-      setAppliedDateText("");
+      setAppliedDateText(format(new Date(), "yyyy-MM-dd"));
       setExpiresDateText("");
     } catch (error: any) {
       toast.error("Error", {
@@ -268,7 +268,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
               size={"icon-lg"}
               onClick={() => {
                 form.reset();
-                setAppliedDateText("");
+                setAppliedDateText(format(new Date(), "yyyy-MM-dd"));
                 setExpiresDateText("");
               }}
             >
