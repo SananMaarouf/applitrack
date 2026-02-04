@@ -1,22 +1,40 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { apiFetch } from '../lib/api'
+import { Landing } from '../components/landing'
+import { Features } from '../components/features'
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute('/')({
-  loader: async () => {
-    return apiFetch<{ status: string }>('/health')
-  },
   component: Home,
 })
 
 function Home() {
-  const data = Route.useLoaderData()
+    const paragraphs = [
+    "Keep losing track of what you've applied to ?",
+    "Want to know how much you're getting ghosted ?",
+    "Organize your job search with Applitrack!",
+  ];
   return (
-    <div>
-      <p>API health: {data.status}</p>
-      <p>
-        Go to Dashboard to test reading applications/status flow. (You’ll be
-        prompted to sign in with Clerk.)
-      </p>
+    <div className="flex flex-col items-center w-full grow mx-auto overflow-hidden ">
+      {/* Landing Section */}
+      <Landing paragraphs={paragraphs} />
+
+      {/* Features Section */}
+      <Features />
+
+      {/* Try It Now Section */}
+      <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 px-4">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-6">What are you waiting for?</h2>
+        <p className="text-lg sm:text-xl mb-8 font-bold">Stay on track with Applitrack</p>
+        <Link to="/sign-in">
+          <p className="
+            px-6 py-3 bg-primary text-primary-foreground
+            rounded-md font-semibold duration-500
+            hover:scale-110 text-lg"
+          >
+            Get started
+          </p>
+        </Link>
+      </section>
     </div>
   )
 }

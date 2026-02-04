@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { SignedIn, SignedOut, SignOutButton } from "@clerk/clerk-react";
