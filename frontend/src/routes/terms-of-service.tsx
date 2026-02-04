@@ -13,12 +13,9 @@ export const Route = createFileRoute('/terms-of-service')({
 function TermsOfService() {
   const { from } = useSearch({ from: '/terms-of-service' })
 
-  let backHref = '/dashboard'
-  let backText = 'Back'
-  if (from === 'auth') {
-    backHref = '/sign-up'
-    backText = 'Back to register form'
-  } else if (from === 'settings') {
+  let backHref = '/sign-up'
+  let backText = 'Back to sign up'
+  if (from === 'settings') {
     backHref = '/my-account'
     backText = 'Back to settings'
   }

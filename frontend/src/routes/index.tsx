@@ -8,7 +8,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Home() {
-    const paragraphs = [
+  const paragraphs = [
     "Keep losing track of what you've applied to ?",
     "Want to know how much you're getting ghosted ?",
     "Organize your job search with Applitrack!",

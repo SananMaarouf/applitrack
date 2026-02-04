@@ -8,7 +8,7 @@ export const Route = createFileRoute('/sign-in')({
 function SignInPage() {
   return (
     <div className="flex justify-center">
-      <SignIn routing="path" path="/sign-in" />
+      <SignIn  />
     </div>
   )
 }
