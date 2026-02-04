@@ -47,7 +47,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: applitrack-frontend-dev
     env_file:
-      - ./.env.local
+      - ./frontend/.env.local
     environment:
       - VITE_API_URL=http://localhost:8000
     ports:

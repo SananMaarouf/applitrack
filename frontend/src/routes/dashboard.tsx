@@ -52,6 +52,7 @@ function Dashboard() {
 
   if (!isLoaded) return <div>Loading...</div>
   if (!userId) return <Navigate to={'/sign-in' as any} />
+  console.log(useAggregatedStatusHistoryStore.getState().aggregatedStatusHistory)
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto my-8">
