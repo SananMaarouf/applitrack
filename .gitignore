@@ -50,3 +50,15 @@ next-env.d.ts
 
 # virtual environment
 .venv/
+
+# Docker volumes data
+postgres_data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log

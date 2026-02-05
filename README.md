@@ -21,7 +21,13 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 
 # Development
 
-## Run everything with Docker
+## Prerequisites
+
+- Docker & Docker Compose
+- Node.js 24+ (for local frontend development)
+- Python 3.12+ (for local backend development)
+
+## Run everything with Docker (Development)
 
 Starts PostgreSQL, the FastAPI backend, and the Vite + TanStack Router frontend:
 
@@ -29,7 +35,7 @@ Starts PostgreSQL, the FastAPI backend, and the Vite + TanStack Router frontend:
 docker compose up --build
 ```
 
-- Frontend: http://localhost:5173
+- Frontend: http://localhost:3000
 - Backend: http://localhost:8000 (health: http://localhost:8000/health)
 - Postgres: localhost:5432
 
@@ -37,6 +43,70 @@ docker compose up --build
 
 The FastAPI backend currently expects a temporary `X-User-Id` header so you can develop the API + UI quickly.
 This is intended to be replaced with proper Clerk JWT verification.
+
+
+# Production Deployment
+
+## 1. Configure Environment Variables
+
+Copy the example environment file and fill in your production values:
+
+```bash
+cp .env.example .env
+```
+
+Required variables:
+- `POSTGRES_USER` - Database username
+- `POSTGRES_PASSWORD` - Strong database password
+- `POSTGRES_DB` - Database name
+- `CORS_ORIGINS` - Your production frontend URL (e.g., `https://yourdomain.com`)
+- `VITE_API_URL` - Your production backend URL (e.g., `https://api.yourdomain.com`)
+- `VITE_CLERK_PUBLISHABLE_KEY` - Your Clerk publishable key
+
+## 2. Build and Deploy
+
+```bash
+# Build and start production containers
+docker compose -f docker-compose.prod.yml up -d --build
+
+# View logs
+docker compose -f docker-compose.prod.yml logs -f
+
+# Stop containers
+docker compose -f docker-compose.prod.yml down
+```
+
+## 3. Production Architecture
+
+```
+                    ┌─────────────────┐
+                    │   Load Balancer │
+                    │   (nginx/caddy) │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              │              │              │
+              ▼              ▼              ▼
+        ┌──────────┐  ┌──────────┐  ┌──────────┐
+        │ Frontend │  │ Backend  │  │ Backend  │
+        │ (nginx)  │  │ (uvicorn)│  │ (uvicorn)│
+        └──────────┘  └────┬─────┘  └────┬─────┘
+                           │              │
+                           └──────┬───────┘
+                                  │
+                           ┌──────▼──────┐
+                           │  PostgreSQL │
+                           └─────────────┘
+```
+
+## Security Considerations
+
+- Database is isolated in an internal network (not exposed to the internet)
+- Non-root users run inside containers
+- API docs disabled in production (`/docs`, `/redoc`, `/openapi.json`)
+- CORS is restricted to configured origins only
+- Health checks configured for all services
+- Use HTTPS in production with a reverse proxy (nginx, Caddy, or cloud load balancer)
 
 
 # Features
