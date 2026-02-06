@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { BusyMan } from "../components/busyMan";
 import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/SplitText';
-import { LandingProps } from '../../../types/landingProps';
+import { LandingProps } from '../types/landingProps';
 
 gsap.registerPlugin(useGSAP, SplitText);
 
@@ -102,7 +102,7 @@ export function Landing({ paragraphs }: LandingProps) {
 				</div>
 				{/* the sub-text aka selling points*/}
 				<div ref={subTextContainerRef} className="opacity-0">
-					{paragraphs.map((text, index) => (
+					{paragraphs.map((text: string, index: number) => (
 						<p key={index} ref={el => { subTextRefs.current[index] = el; }}
 							className="text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left"
 						>
