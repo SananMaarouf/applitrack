@@ -13,18 +13,16 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# Backend folder
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
 
-# production
-/build
-/dist
-dist/
 
-# misc
-.DS_Store
-*.pem
+# Frontend folder
+/frontend/dist/
+/frontend/node_modules
 
 # debug
 npm-debug.log*
@@ -32,19 +30,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.development
-.env*.local
-.env*.production
-.env.clerk
-
 .env
+.env.clerk
+.env*.local
+.env*.development
+.env*.production
 
-# drizzle
-/drizzle
-drizzle/
-
-# vercel
-.vercel
 
 # typescript
 *.tsbuildinfo
@@ -64,3 +55,7 @@ postgres_data/
 
 # Logs
 *.log
+
+# misc
+.DS_Store
+*.pem
