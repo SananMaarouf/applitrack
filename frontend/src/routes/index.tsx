@@ -8,15 +8,10 @@ export const Route = createFileRoute('/')({
 })
 
 function Home() {
-  const paragraphs = [
-    "Keep losing track of what you've applied to ?",
-    "Want to know how much you're getting ghosted ?",
-    "Organize your job search with Applitrack!",
-  ];
   return (
     <div className="flex flex-col items-center w-full grow mx-auto overflow-hidden ">
       {/* Landing Section */}
-      <Landing paragraphs={paragraphs} />
+      <Landing />
 
       {/* Features Section */}
       <Features />
