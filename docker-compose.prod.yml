@@ -9,15 +9,11 @@ services:
     restart: unless-stopped
     env_file:
       - ./env/.env
-    environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/migrations/001_initial_setup.sql:/docker-entrypoint-initdb.d/001_initial_setup.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U -d"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,13 +46,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=${VITE_API_URL}
-        - VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
-        - VITE_CLERK_SIGN_IN_URL=${VITE_CLERK_SIGN_IN_URL:-/sign-in}
-        - VITE_CLERK_SIGN_UP_URL=${VITE_CLERK_SIGN_UP_URL:-/sign-up}
-        - VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=${VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL:-/dashboard}
-        - VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=${VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL:-/dashboard}
     container_name: applitrack-frontend
     restart: unless-stopped
     env_file:
