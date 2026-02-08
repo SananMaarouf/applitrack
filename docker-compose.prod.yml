@@ -1,6 +1,10 @@
 # Production Docker Compose for Applitrack
 # Deployed via Dokploy Compose service type
 #
+# Local testing:
+#   docker compose -f docker-compose.prod.yml --env-file ./env/.env build
+#   docker compose -f docker-compose.prod.yml --env-file ./env/.env up -d
+#
 # Dokploy setup:
 #   1. Create a Compose service in Dokploy
 #   2. Point to this file
