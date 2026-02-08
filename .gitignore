@@ -31,11 +31,10 @@ yarn-error.log*
 
 # local env files
 .env
-.env.clerk
+.env.local
 .env*.local
 .env*.development
 .env*.production
-
 
 # typescript
 *.tsbuildinfo

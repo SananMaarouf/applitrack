@@ -23,11 +23,6 @@ htmlcov/
 *.swp
 *.swo
 
-# Environment
-.env
-.env.local
-.env.*.local
-
 # Docker
 Dockerfile.dev
 
