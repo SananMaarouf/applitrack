@@ -35,10 +35,6 @@ services:
     restart: unless-stopped
     env_file:
       - ./env/.env
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - CORS_ORIGINS=${CORS_ORIGINS}
-      - ENVIRONMENT=${ENVIRONMENT:-production}
     depends_on:
       postgres:
         condition: service_healthy
