@@ -5,6 +5,7 @@ import { useJobsStore } from "@/store/jobsStore";
 import { updateApplicationStatus, getStatusFlow } from "@/api/applications";
 import type { JobApplication } from "@/types/jobApplication";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
+import { useAuth } from "@clerk/clerk-react";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,7 @@ interface Row {
 }
 
 export function StatusSelect({ row }: { row: Row }) {
+  const { getToken } = useAuth();
   const jobApplications = useJobsStore((state) => state.jobApplications);
   const setJobApplications = useJobsStore((state) => state.setJobs);
   const setAggregatedStatusHistory = useAggregatedStatusHistoryStore(
@@ -34,7 +36,9 @@ export function StatusSelect({ row }: { row: Row }) {
 
   const updateJobStatus = async (jobApplication: JobApplication, newStatus: number) => {
     try {
-      await updateApplicationStatus(jobApplication.user_id, jobApplication.id, newStatus);
+      const token = await getToken();
+      if (!token) throw new Error("Not authenticated");
+      await updateApplicationStatus(token, jobApplication.id, newStatus);
 
       setJobApplications(
         jobApplications.map((job) =>
@@ -42,7 +46,7 @@ export function StatusSelect({ row }: { row: Row }) {
         ),
       );
 
-      const flow = await getStatusFlow(jobApplication.user_id);
+      const flow = await getStatusFlow(token);
       setAggregatedStatusHistory(flow);
 
       toast.success("Job application status updated successfully!");

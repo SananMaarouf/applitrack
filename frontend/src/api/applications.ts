@@ -8,30 +8,30 @@ export type CreateApplicationPayload = {
   link?: string | null
 }
 
-export async function listApplications(userId: string) {
-  return apiFetch<Application[]>('/applications', { userId })
+export async function listApplications(token: string) {
+  return apiFetch<Application[]>('/applications', { token })
 }
 
-export async function createApplication(userId: string, payload: CreateApplicationPayload) {
+export async function createApplication(token: string, payload: CreateApplicationPayload) {
   return apiFetch<Application>('/applications', {
     method: 'POST',
-    userId,
+    token,
     body: JSON.stringify(payload),
   })
 }
 
-export async function deleteApplication(userId: string, applicationId: number) {
-  return apiFetch<void>(`/applications/${applicationId}`, { method: 'DELETE', userId })
+export async function deleteApplication(token: string, applicationId: number) {
+  return apiFetch<void>(`/applications/${applicationId}`, { method: 'DELETE', token })
 }
 
-export async function updateApplicationStatus(userId: string, applicationId: number, newStatus: number) {
+export async function updateApplicationStatus(token: string, applicationId: number, newStatus: number) {
   return apiFetch<{ message: string }>(`/applications/${applicationId}/status`, {
     method: 'PATCH',
-    userId,
+    token,
     body: JSON.stringify({ new_status: newStatus }),
   })
 }
 
-export async function getStatusFlow(userId: string) {
-  return apiFetch<StatusFlowRow[]>('/status-flow', { userId })
+export async function getStatusFlow(token: string) {
+  return apiFetch<StatusFlowRow[]>('/status-flow', { token })
 }

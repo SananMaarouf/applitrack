@@ -21,15 +21,15 @@ export type StatusFlowRow = {
 
 export async function apiFetch<T>(
   path: string,
-  options: RequestInit & { userId?: string } = {},
+  options: RequestInit & { token?: string | null } = {},
 ): Promise<T> {
-  const { userId, headers, ...rest } = options
+  const { token, headers, ...rest } = options
 
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
     headers: {
       ...(headers ?? {}),
-      ...(userId ? { 'X-User-Id': userId } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json',
     },
   })

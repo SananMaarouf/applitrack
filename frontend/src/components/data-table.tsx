@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useJobsStore } from "@/store/jobsStore";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { deleteApplication, updateApplicationStatus, getStatusFlow } from "@/api/applications";
+import { useAuth } from "@clerk/clerk-react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import {
@@ -46,6 +47,7 @@ import {
 const LOCAL_STORAGE_KEY = "tableVisibilityState";
 
 export function DataTable() {
+  const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState<any>([]);
@@ -64,18 +66,23 @@ export function DataTable() {
     (state) => state.setAggregatedStatusHistory,
   );
 
-  const refreshStatusFlow = async (userId: string) => {
-    const flow = await getStatusFlow(userId);
+  const refreshStatusFlow = async (token: string) => {
+    const flow = await getStatusFlow(token);
     setAggregatedStatusHistory(flow);
   };
 
   const handleBulkDelete = async () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     const selectedIds = selectedRows.map((row) => row.original.id);
-    const userId = selectedRows[0]?.original.user_id;
 
-    if (!userId || selectedIds.length === 0) {
+    if (selectedIds.length === 0) {
       toast.error("No rows selected");
+      return;
+    }
+
+    const token = await getToken();
+    if (!token) {
+      toast.error("Not authenticated");
       return;
     }
 
@@ -88,8 +95,8 @@ export function DataTable() {
     table.resetRowSelection();
 
     try {
-      await Promise.all(selectedIds.map((id) => deleteApplication(userId, id)));
-      await refreshStatusFlow(userId);
+      await Promise.all(selectedIds.map((id) => deleteApplication(token, id)));
+      await refreshStatusFlow(token);
       toast.success(`Successfully deleted ${selectedIds.length} job application(s)`);
     } catch (error: any) {
       setJobApplications([...remainingJobs, ...jobsToDelete]);
@@ -101,10 +108,15 @@ export function DataTable() {
   const handleBulkStatusUpdate = async (newStatus: string) => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     const selectedJobs = selectedRows.map((row) => row.original as JobApplication);
-    const userId = selectedRows[0]?.original.user_id;
 
-    if (!userId || selectedJobs.length === 0) {
+    if (selectedJobs.length === 0) {
       toast.error("No rows selected");
+      return;
+    }
+
+    const token = await getToken();
+    if (!token) {
+      toast.error("Not authenticated");
       return;
     }
 
@@ -125,9 +137,9 @@ export function DataTable() {
     try {
       // Run sequentially to keep failure handling simple
       for (const job of selectedJobs) {
-        await updateApplicationStatus(userId, job.id, newStatusNum);
+        await updateApplicationStatus(token, job.id, newStatusNum);
       }
-      await refreshStatusFlow(userId);
+      await refreshStatusFlow(token);
       toast.success(`Successfully updated ${selectedJobs.length} job application(s)`);
     } catch (error: any) {
       const restoredJobs = jobApplications.map((job) => {

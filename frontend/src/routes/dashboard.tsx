@@ -23,7 +23,7 @@ export const Route = createFileRoute('/dashboard')({
 })
 
 function Dashboard() {
-  const { isLoaded, userId } = useAuth()
+  const { isLoaded, userId, getToken } = useAuth()
   const setApplications = useJobsStore((s) => s.setJobs)
   const setAggregatedStatusHistory = useAggregatedStatusHistoryStore(
     (s) => s.setAggregatedStatusHistory,
@@ -34,9 +34,11 @@ function Dashboard() {
 
     let cancelled = false
       ; (async () => {
+        const token = await getToken()
+        if (!token || cancelled) return
         const [applications, statusFlow] = await Promise.all([
-          listApplications(userId),
-          getStatusFlow(userId),
+          listApplications(token),
+          getStatusFlow(token),
         ])
         if (cancelled) return
         setApplications(applications as any)
@@ -48,7 +50,7 @@ function Dashboard() {
     return () => {
       cancelled = true
     }
-  }, [userId, setApplications, setAggregatedStatusHistory])
+  }, [userId, getToken, setApplications, setAggregatedStatusHistory])
 
   if (!isLoaded) return <div>Loading...</div>
   if (!userId) return <Navigate to={'/sign-in' as any} />

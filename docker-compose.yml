@@ -30,10 +30,6 @@ services:
     container_name: applitrack-backend-dev
     env_file:
       - ./env/.env.local
-    environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql://sanan:password@postgres:5432/database}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
       - "8000:8000"
     volumes:

@@ -11,6 +11,7 @@ import { CalendarIcon, Trash2Icon, SquarePlusIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createApplication } from "@/api/applications";
+import { useAuth } from "@clerk/clerk-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Form,
@@ -39,6 +40,7 @@ const formSchema = z.object({
 });
 
 export function JobApplicationForm({ user_id }: { user_id: string }) {
+  const { getToken } = useAuth();
   const [appliedDateOpen, setAppliedDateOpen] = useState(false);
   const [expiresDateOpen, setExpiresDateOpen] = useState(false);
   const [appliedDateText, setAppliedDateText] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -57,7 +59,9 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      const created = await createApplication(user_id, {
+      const token = await getToken();
+      if (!token) throw new Error("Not authenticated");
+      const created = await createApplication(token, {
         position: data.position,
         company: data.company,
         applied_at: new Date(data.applied_at).toISOString(),

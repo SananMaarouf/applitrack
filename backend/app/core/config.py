@@ -8,7 +8,10 @@ class Settings(BaseSettings):
     database_url: str = ""
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
     environment: Literal["development", "production", "testing"] = "development"
-    
+
+    # Clerk authentication
+    clerk_secret_key: str = ""
+
     @property
     def is_production(self) -> bool:
         return self.environment == "production"
