@@ -7,7 +7,6 @@ on:
     paths:
       - 'backend/**'
       - 'frontend/**'
-      - 'docker-compose.prod.yml'
       - '.github/workflows/docker-build-push.yml'
   workflow_dispatch:
     inputs:
@@ -158,4 +157,7 @@ jobs:
       (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') &&
       !(needs.build-backend.result == 'skipped' && needs.build-frontend.result == 'skipped')
     uses: ./.github/workflows/trigger-deployment.yml
+    with:
+      deploy_backend: ${{ needs.build-backend.result == 'success' }}
+      deploy_frontend: ${{ needs.build-frontend.result == 'success' }}
     secrets: inherit
