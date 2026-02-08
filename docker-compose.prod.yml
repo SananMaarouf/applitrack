@@ -1,33 +1,43 @@
 # Production Docker Compose for Applitrack
-# Usage: docker compose -f docker-compose.prod.yml up -d
+# Deployed via Dokploy Compose service type
+#
+# Dokploy setup:
+#   1. Create a Compose service in Dokploy
+#   2. Point to this file
+#   3. Set environment variables in Dokploy's Environment tab
+#   4. Configure domains in Dokploy:
+#      - frontend: applitrack.no / www.applitrack.no → port 80
+#      - backend:  api.applitrack.no → port 8000
+#   5. Enable HTTPS (Let's Encrypt) in Dokploy for each domain
 
 services:
-  # PostgreSQL Database
+  # PostgreSQL Database (internal only - not exposed)
   postgres:
     image: postgres:17-alpine
-    container_name: applitrack-db
     restart: unless-stopped
     env_file:
       - ./env/.env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/migrations/001_initial_setup.sql:/docker-entrypoint-initdb.d/001_initial_setup.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U -d"]
+      test: ["CMD-SHELL", "pg_isready -U $${DATABASE_USER} -d $${DATABASE_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     networks:
       - applitrack-internal
-    # No ports exposed - only accessible within Docker network
 
-  # FastAPI Backend
+  # FastAPI Backend (accessible via Dokploy's Traefik → api.applitrack.no)
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: applitrack-backend
     restart: unless-stopped
     env_file:
       - ./env/.env
@@ -36,54 +46,39 @@ services:
         condition: service_healthy
     networks:
       - applitrack-internal
-      - applitrack-external
-    # No ports exposed directly - use reverse proxy in production
+      - dokploy-network
     expose:
       - "8000"
 
-  # Frontend (Nginx serving static files)
+  # Frontend (accessible via Dokploy's Traefik → applitrack.no)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: applitrack-frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY}
+        VITE_CLERK_SIGN_IN_URL: ${VITE_CLERK_SIGN_IN_URL:-/sign-in}
+        VITE_CLERK_SIGN_UP_URL: ${VITE_CLERK_SIGN_UP_URL:-/sign-up}
+        VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: ${VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL:-/dashboard}
+        VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: ${VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL:-/dashboard}
     restart: unless-stopped
-    env_file:
-      - ./env/.env
     depends_on:
       - backend
     networks:
-      - applitrack-external
-    ports:
-      - "${FRONTEND_PORT:-80}:80"
-
-  # Optional: Nginx reverse proxy for backend API
-  # Uncomment if you want to expose both frontend and API through nginx
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: applitrack-proxy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #     - ./nginx/ssl:/etc/nginx/ssl:ro
-  #   depends_on:
-  #     - frontend
-  #     - backend
-  #   networks:
-  #     - applitrack-external
+      - dokploy-network
+    expose:
+      - "80"
 
 volumes:
   postgres_data:
     driver: local
 
 networks:
-  # Internal network for database communication
+  # Internal network for database communication (postgres ↔ backend only)
   applitrack-internal:
     driver: bridge
     internal: true
-  # External network for public-facing services
-  applitrack-external:
-    driver: bridge
+  # Dokploy's Traefik network (required for external routing)
+  dokploy-network:
+    external: true
