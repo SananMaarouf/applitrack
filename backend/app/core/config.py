@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # Clerk authentication
     clerk_secret_key: str = ""
 
+    # Sentry monitoring
+    sentry_dsn: str = ""
+
     @property
     def is_production(self) -> bool:
         return self.environment == "production"
