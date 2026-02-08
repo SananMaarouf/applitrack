@@ -20,7 +20,7 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     env_file:
-      - ./env/.env
+      - .env
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
@@ -44,7 +44,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - ./env/.env
+      - .env
     depends_on:
       postgres:
         condition: service_healthy

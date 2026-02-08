@@ -4,7 +4,7 @@ services:
     image: postgres:17-alpine
     container_name: applitrack-db-dev
     env_file:
-      - ./env/.env.local
+      - .env.local
     environment:
       POSTGRES_USER: ${DATABASE_USER:-sanan}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-password}
@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: applitrack-backend-dev
     env_file:
-      - ./env/.env.local
+      - .env.local
     ports:
       - "8000:8000"
     volumes:
@@ -48,7 +48,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: applitrack-frontend-dev
     env_file:
-      - ./env/.env.local
+      - .env.local
     ports:
       - "3000:3000"
     volumes:
