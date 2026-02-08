@@ -11,6 +11,7 @@ import type { JobApplication, AggregatedStatusHistory } from "@/types/jobApplica
 import { StatusSelect } from "@/components/statusSelect";
 import { ArrowUpDown, Trash2, ExternalLink, Link2Off } from "lucide-react";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
+import { useAuth } from "@clerk/clerk-react";
 
 const getJobsSnapshot = (): JobApplication[] => {
   const { jobApplications } = useJobsStore.getState();
@@ -21,12 +22,13 @@ const getJobsSnapshot = (): JobApplication[] => {
   return [];
 };
 
-const handleDelete = (
+const handleDelete = async (
   row: Row<JobApplication>,
   setJobApplications: (jobs: JobApplication[]) => void,
   setAggregatedStatusHistory: (statusChanges: AggregatedStatusHistory[]) => void,
+  getToken: () => Promise<string | null>,
 ) => {
-  const { id, user_id } = row.original;
+  const { id } = row.original;
 
   const jobApplications = getJobsSnapshot();
   const jobToDelete = jobApplications.find((job) => job.id === id);
@@ -82,17 +84,26 @@ const handleDelete = (
   setTimeout(() => {
     if (cancelDeletion) return;
 
-    deleteApplication(user_id, id)
-      .then(async () => {
-        const flow = await getStatusFlow(user_id);
+    (async () => {
+      try {
+        const token = await getToken();
+        if (!token) {
+          toast.error("Error", {
+            description: "Authentication token not available",
+          });
+          restoreJobApplication();
+          return;
+        }
+
+        await deleteApplication(token, id);
+        const flow = await getStatusFlow(token);
         setAggregatedStatusHistory(flow);
 
         toast.success("Success ✅", {
           description: "Job application deleted successfully 🗑️",
           duration: 3000,
         });
-      })
-      .catch((err: unknown) => {
+      } catch (err: unknown) {
         console.error(err);
         restoreJobApplication();
         toast.error("Error", {
@@ -101,7 +112,8 @@ const handleDelete = (
               ? err.message
               : "Could not delete job application",
         });
-      });
+      }
+    })();
   }, 5000);
 };
 
@@ -110,11 +122,12 @@ function ActionsCell({ row }: { row: Row<JobApplication> }) {
   const setAggregatedStatusHistory = useAggregatedStatusHistoryStore(
     (state) => state.setAggregatedStatusHistory,
   );
+  const { getToken } = useAuth();
 
   return (
     <Button
       variant="destructive"
-      onClick={() => handleDelete(row, setJobApplications, setAggregatedStatusHistory)}
+      onClick={() => handleDelete(row, setJobApplications, setAggregatedStatusHistory, getToken)}
     >
       <Trash2 className="h-6 w-6" />
     </Button>
