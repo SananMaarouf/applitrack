@@ -13,16 +13,16 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# Backend folder
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
 
-# production
-/build
 
-# misc
-.DS_Store
-*.pem
+# Frontend folder
+/frontend/dist/
+/frontend/node_modules
 
 # debug
 npm-debug.log*
@@ -30,20 +30,35 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.development
-.env*.local
-.env*.production
-.env.clerk
-
 .env
-
-# drizzle
-/drizzle
-drizzle/
-
-# vercel
-.vercel
+.env.local
+.env*.local
+.env*.development
+.env*.production
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# virtual environment
+.venv/
+
+# Docker volumes data
+postgres_data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# misc
+.DS_Store
+*.pem
+
+# GitHub instructions and prompts
+.github/instructions/*.md
+.github/prompts/*.md

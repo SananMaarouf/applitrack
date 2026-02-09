@@ -4,6 +4,20 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Python
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+
 # Next.js
 .next
 out

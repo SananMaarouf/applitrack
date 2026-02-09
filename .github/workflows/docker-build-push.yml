@@ -1,22 +1,60 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Images
 
 on:
   push:
     branches:
-      - master
+      - backend-refactor
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/docker-build-push.yml'
   workflow_dispatch:
+    inputs:
+      build_backend:
+        description: 'Build backend image'
+        type: boolean
+        default: true
+      build_frontend:
+        description: 'Build frontend image'
+        type: boolean
+        default: true
 
 jobs:
-  build-and-push:
+  # Detect which services have changes
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  # Build and push backend image
+  build-backend:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      github.event_name == 'workflow_dispatch' && github.event.inputs.build_backend == 'true' ||
+      github.event_name == 'push' && needs.changes.outputs.backend == 'true'
 
     permissions:
       contents: read
 
     concurrency:
-      group: docker-build-push-${{ github.ref }}
+      group: docker-build-backend-${{ github.ref }}
       cancel-in-progress: true
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,30 +72,92 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/applitrack
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/applitrack-backend
           tags: |
             type=raw,value=latest
             type=ref,event=branch
             type=sha,prefix=sha-,format=short
 
-      - name: Build and push Docker image
+      - name: Build and push backend image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack-backend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack-backend:buildcache,mode=max
+
+      - name: Image digest
+        run: echo "Backend image tags:" && echo "${{ steps.meta.outputs.tags }}"
+
+  # Build and push frontend image
+  build-frontend:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: |
+      github.event_name == 'workflow_dispatch' && github.event.inputs.build_frontend == 'true' ||
+      github.event_name == 'push' && needs.changes.outputs.frontend == 'true'
+
+    permissions:
+      contents: read
+
+    concurrency:
+      group: docker-build-frontend-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/applitrack-frontend
+          tags: |
+            type=raw,value=latest
+            type=ref,event=branch
+            type=sha,prefix=sha-,format=short
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-            SITE_URL=${{ secrets.SITE_URL }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack:buildcache,mode=max
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
+            VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack-frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/applitrack-frontend:buildcache,mode=max
 
       - name: Image digest
-        run: echo "Image tags:" && echo "${{ steps.meta.outputs.tags }}"
+        run: echo "Frontend image tags:" && echo "${{ steps.meta.outputs.tags }}"
 
+  # Deploy after builds complete
   deploy:
-    needs: build-and-push
+    needs: [build-backend, build-frontend]
+    # Run if at least one build job ran successfully
+    if: |
+      always() &&
+      (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') &&
+      (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') &&
+      !(needs.build-backend.result == 'skipped' && needs.build-frontend.result == 'skipped')
     uses: ./.github/workflows/trigger-deployment.yml
+    with:
+      deploy_backend: ${{ needs.build-backend.result == 'success' }}
+      deploy_frontend: ${{ needs.build-frontend.result == 'success' }}
     secrets: inherit

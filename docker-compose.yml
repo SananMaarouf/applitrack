@@ -3,51 +3,61 @@ services:
   postgres:
     image: postgres:17-alpine
     container_name: applitrack-db-dev
+    env_file:
+      - .env.local
     environment:
-      POSTGRES_USER: sanan
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: database
+      POSTGRES_USER: ${DATABASE_USER:-sanan}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-password}
+      POSTGRES_DB: ${DATABASE_NAME:-database}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/migrations/001_initial_setup.sql:/docker-entrypoint-initdb.d/001_initial_setup.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sanan -d database"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-sanan} -d ${DATABASE_NAME:-database}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - applitrack-network
 
-  # Next.js Application
-  app:
+  # FastAPI Backend
+  backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile.dev
-    container_name: applitrack-app-dev
+    container_name: applitrack-backend-dev
     env_file:
       - .env.local
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://sanan:password@postgres:5432/database
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=sanan
-      - DATABASE_PASSWORD=password
-      - DATABASE_NAME=database
     ports:
-      - "3000:3000"
+      - "8000:8000"
     volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+      - ./backend:/app
+      - /app/.venv
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - applitrack-network
-    command: npm run dev
+
+  # Vite + TanStack Router Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: applitrack-frontend-dev
+    env_file:
+      - .env.local
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - applitrack-network
 
 volumes:
   postgres_data:
