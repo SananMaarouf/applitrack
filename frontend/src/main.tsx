@@ -2,11 +2,33 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { ClerkProvider } from '@clerk/clerk-react'
+import * as Sentry from '@sentry/react'
 
 import './globals.css'
 
 import { routeTree } from './routeTree.gen'
 import { ThemeProvider } from './theme-provider'
+
+// Initialize Sentry for error monitoring
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration(),
+    ],
+    // Performance Monitoring
+    tracesSampleRate: import.meta.env.MODE === 'development' ? 1.0 : 0.1,
+    // Session Replay
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
+  })
+}
 
 const router = createRouter({ routeTree })
 
