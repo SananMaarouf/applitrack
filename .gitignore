@@ -58,3 +58,7 @@ postgres_data/
 # misc
 .DS_Store
 *.pem
+
+# GitHub instructions and prompts
+.github/instructions/*.md
+.github/prompts/*.md
