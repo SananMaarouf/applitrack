@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - backend-refactor
+      - master
     paths:
       - 'backend/**'
       - 'frontend/**'
