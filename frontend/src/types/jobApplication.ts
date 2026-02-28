@@ -8,6 +8,7 @@ export type JobApplication = {
   company: string
   status: number
   link?: string
+  attachment_key?: string | null
 }
 
 export type AggregatedStatusHistory = {

@@ -5,11 +5,11 @@ import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useJobsStore } from "@/store/jobsStore";
-import { deleteApplication, getStatusFlow } from "@/api/applications";
+import { deleteApplication, getStatusFlow, getAttachmentUrl } from "@/api/applications";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import type { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 import { StatusSelect } from "@/components/statusSelect";
-import { ArrowUpDown, Trash2, ExternalLink, Link2Off } from "lucide-react";
+import { ArrowUpDown, Trash2, ExternalLink, Link2Off, Paperclip } from "lucide-react";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { useAuth } from "@clerk/clerk-react";
 
@@ -116,6 +116,41 @@ const handleDelete = async (
     })();
   }, 5000);
 };
+
+function AttachmentCell({ row }: { row: Row<JobApplication> }) {
+  const { getToken } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleView = async () => {
+    setLoading(true);
+    try {
+      const token = await getToken();
+      if (!token) {
+        toast.error("Error", { description: "Authentication token not available" });
+        return;
+      }
+      const { url } = await getAttachmentUrl(token, row.original.id);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err: unknown) {
+      toast.error("Error", {
+        description: err instanceof Error ? err.message : "Could not load attachment",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!row.original.attachment_key) {
+    return <span className="text-muted-foreground text-sm mx-auto block w-fit">—</span>;
+  }
+
+  return (
+    <Button variant="outline" size="sm" onClick={handleView} disabled={loading} className="mx-auto flex">
+      <Paperclip className="h-4 w-4 mr-1" />
+      {loading ? "Loading…" : "View"}
+    </Button>
+  );
+}
 
 function ActionsCell({ row }: { row: Row<JobApplication> }) {
   const setJobApplications = useJobsStore((state) => state.setJobs);
@@ -294,6 +329,14 @@ export const columns: ColumnDef<JobApplication>[] = [
         <Link2Off className="h-6 w-6 mx-auto " />
       );
     },
+  },
+  {
+    accessorKey: "attachment_key",
+    id: "attachments",
+    enableHiding: true,
+    enableGlobalFilter: false,
+    header: "Attachments",
+    cell: ({ row }) => <AttachmentCell row={row} />,
   },
   {
     accessorKey: "actions",

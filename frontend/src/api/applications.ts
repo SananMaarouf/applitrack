@@ -1,4 +1,4 @@
-import { apiFetch, type Application, type StatusFlowRow } from '@/lib/api'
+import { apiFetch, apiUpload, type Application, type StatusFlowRow } from '@/lib/api'
 
 export type CreateApplicationPayload = {
   position: string
@@ -34,4 +34,24 @@ export async function updateApplicationStatus(token: string, applicationId: numb
 
 export async function getStatusFlow(token: string) {
   return apiFetch<StatusFlowRow[]>('/status-flow', { token })
+}
+
+/** Upload a PDF file as an attachment for the given application. */
+export async function uploadAttachment(token: string, applicationId: number, file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return apiUpload<Application>(`/applications/${applicationId}/attachment`, form, token)
+}
+
+/** Get a short-lived presigned URL to download the attachment. */
+export async function getAttachmentUrl(token: string, applicationId: number) {
+  return apiFetch<{ url: string }>(`/applications/${applicationId}/attachment/url`, { token })
+}
+
+/** Remove the attachment from a job application. */
+export async function deleteAttachment(token: string, applicationId: number) {
+  return apiFetch<void>(`/applications/${applicationId}/attachment`, {
+    method: 'DELETE',
+    token,
+  })
 }

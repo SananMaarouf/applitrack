@@ -10,6 +10,7 @@ export type Application = {
   company: string
   status: number
   link?: string | null
+  attachment_key?: string | null
 }
 
 export type StatusFlowRow = {
@@ -56,5 +57,37 @@ export async function apiFetch<T>(
   }
 
   if (response.status === 204) return undefined as T
+  return (await response.json()) as T
+}
+
+/** Like apiFetch but sends FormData – does NOT set Content-Type so the browser
+ * can add the correct multipart/form-data boundary automatically. */
+export async function apiUpload<T>(
+  path: string,
+  formData: FormData,
+  token: string | null,
+): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  })
+
+  if (!response.ok) {
+    let errorMessage = `Request failed: ${response.status}`
+    try {
+      const text = await response.text()
+      if (text) {
+        try {
+          const errorData = JSON.parse(text)
+          errorMessage = errorData.detail || errorData.message || text
+        } catch {
+          errorMessage = text
+        }
+      }
+    } catch { /* ignore */ }
+    throw new Error(errorMessage)
+  }
+
   return (await response.json()) as T
 }

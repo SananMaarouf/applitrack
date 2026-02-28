@@ -3,14 +3,15 @@
 import { z } from "zod";
 import { format, parse, isValid } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useJobsStore } from "@/store/jobsStore";
-import { CalendarIcon, Trash2Icon, SquarePlusIcon } from "lucide-react";
+import { CalendarIcon, PaperclipIcon, Trash2Icon, SquarePlusIcon, XIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createApplication } from "@/api/applications";
+import { uploadAttachment } from "@/api/applications";
 import { useAuth } from "@clerk/clerk-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -45,6 +46,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
   const [expiresDateOpen, setExpiresDateOpen] = useState(false);
   const [appliedDateText, setAppliedDateText] = useState(format(new Date(), "yyyy-MM-dd"));
   const [expiresDateText, setExpiresDateText] = useState("");
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,13 +64,24 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
     try {
       const token = await getToken();
       if (!token) throw new Error("Not authenticated");
-      const created = await createApplication(token, {
+      let created = await createApplication(token, {
         position: data.position,
         company: data.company,
         applied_at: new Date(data.applied_at).toISOString(),
         expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null,
         link: data.link || null,
       });
+
+      // Upload the PDF attachment if one was selected
+      if (attachmentFile) {
+        try {
+          created = await uploadAttachment(token, (created as any).id, attachmentFile);
+        } catch (attachErr: any) {
+          toast.warning("Application saved, but attachment upload failed", {
+            description: attachErr?.message || "Could not upload the PDF",
+          });
+        }
+      }
 
       const jobsStore = useJobsStore.getState();
       jobsStore.setJobs([created as any, ...jobsStore.jobApplications]);
@@ -79,6 +93,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
       form.reset();
       setAppliedDateText(format(new Date(), "yyyy-MM-dd"));
       setExpiresDateText("");
+      setAttachmentFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error: any) {
       toast.error("Error", {
         description: error?.message || "An error occurred while saving the job application",
@@ -265,6 +281,49 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             )}
           />
 
+          {/* PDF attachment */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium leading-none">Attachment (optional, PDF)</label>
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="pdf-attachment"
+                className="flex items-center gap-2 cursor-pointer text-primary-foreground bg-primary px-3 py-2 rounded-md text-sm hover:opacity-80 transition-opacity"
+              >
+                <PaperclipIcon className="h-4 w-4" />
+                {attachmentFile ? attachmentFile.name : "Choose PDF…"}
+              </label>
+              <input
+                id="pdf-attachment"
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  if (file && file.type !== "application/pdf") {
+                    toast.error("Invalid file type", { description: "Only PDF files are allowed" });
+                    e.target.value = "";
+                    return;
+                  }
+                  setAttachmentFile(file);
+                }}
+              />
+              {attachmentFile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAttachmentFile(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Remove attachment"
+                >
+                  <XIcon className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="flex flex-row justify-between">
             <Button
               type="button"
@@ -274,6 +333,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                 form.reset();
                 setAppliedDateText(format(new Date(), "yyyy-MM-dd"));
                 setExpiresDateText("");
+                setAttachmentFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
               }}
             >
               <Trash2Icon className="size-6" />

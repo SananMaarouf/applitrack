@@ -3,16 +3,35 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import delete, desc, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.storage import delete_file, generate_presigned_url, upload_file
 from app.db import get_db
 from app.deps import get_user_id
 from app.models import Application, ApplicationStatusHistory
 from app.schemas import ApplicationCreate, ApplicationOut, ApplicationStatusUpdate
 
 router = APIRouter(prefix="/applications", tags=["applications"])
+
+_MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024  # 10 MB
+_ALLOWED_CONTENT_TYPES = {"application/pdf"}
+
+
+def _row_to_out(r: Application) -> ApplicationOut:
+    return ApplicationOut(
+        id=r.id,
+        created_at=r.created_at,
+        user_id=r.user_id,
+        applied_at=r.applied_at,
+        expires_at=r.expires_at,
+        position=r.position,
+        company=r.company,
+        status=r.status,
+        link=r.link,
+        attachment_key=r.attachment_key,
+    )
 
 
 def _to_naive_utc(dt: datetime | None) -> datetime | None:
@@ -88,20 +107,7 @@ async def list_applications(
         )
     ).scalars().all()
 
-    return [
-        ApplicationOut(
-            id=r.id,
-            created_at=r.created_at,
-            user_id=r.user_id,
-            applied_at=r.applied_at,
-            expires_at=r.expires_at,
-            position=r.position,
-            company=r.company,
-            status=r.status,
-            link=r.link,
-        )
-        for r in rows
-    ]
+    return [_row_to_out(r) for r in rows]
 
 
 @router.post("", response_model=ApplicationOut, status_code=status.HTTP_201_CREATED)
@@ -123,17 +129,7 @@ async def create_application(
     await db.commit()
     await db.refresh(row)
 
-    return ApplicationOut(
-        id=row.id,
-        created_at=row.created_at,
-        user_id=row.user_id,
-        applied_at=row.applied_at,
-        expires_at=row.expires_at,
-        position=row.position,
-        company=row.company,
-        status=row.status,
-        link=row.link,
-    )
+    return _row_to_out(row)
 
 
 @router.patch("/{application_id}/status")
@@ -252,8 +248,124 @@ async def delete_application(
     db: AsyncSession = Depends(get_db),
     user_id: str = Depends(get_user_id),
 ) -> Response:
+    result = await db.execute(
+        select(Application).where(Application.id == application_id, Application.user_id == user_id)
+    )
+    app = result.scalar_one_or_none()
+    if app and app.attachment_key:
+        try:
+            await delete_file(app.attachment_key)
+        except Exception:
+            pass  # Don't block deletion if R2 cleanup fails
+
     await db.execute(
         delete(Application).where(Application.id == application_id, Application.user_id == user_id)
+    )
+    await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{application_id}/attachment", response_model=ApplicationOut)
+async def upload_attachment(
+    application_id: int,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(get_user_id),
+) -> ApplicationOut:
+    """Upload a PDF attachment for a job application and store it in Cloudflare R2."""
+    if file.content_type not in _ALLOWED_CONTENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Only PDF files are allowed",
+        )
+
+    data = await file.read()
+    if len(data) > _MAX_ATTACHMENT_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="File exceeds the 10 MB limit",
+        )
+
+    result = await db.execute(
+        select(Application).where(Application.id == application_id, Application.user_id == user_id)
+    )
+    app = result.scalar_one_or_none()
+    if not app:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+
+    # Remove the old attachment from R2 if one exists
+    if app.attachment_key:
+        try:
+            await delete_file(app.attachment_key)
+        except Exception:
+            pass
+
+    safe_filename = file.filename or "attachment.pdf"
+    # Sanitise – keep only safe characters
+    safe_filename = "".join(c for c in safe_filename if c.isalnum() or c in "._-")
+    if not safe_filename.endswith(".pdf"):
+        safe_filename += ".pdf"
+
+    key = f"attachments/{user_id}/{application_id}/{safe_filename}"
+    await upload_file(key, data, "application/pdf")
+
+    await db.execute(
+        update(Application)
+        .where(Application.id == application_id, Application.user_id == user_id)
+        .values(attachment_key=key)
+    )
+    await db.commit()
+    await db.refresh(app)
+
+    return _row_to_out(app)
+
+
+@router.get("/{application_id}/attachment/url")
+async def get_attachment_url(
+    application_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(get_user_id),
+) -> dict[str, str]:
+    """Return a short-lived presigned URL to download the application's PDF attachment."""
+    result = await db.execute(
+        select(Application).where(Application.id == application_id, Application.user_id == user_id)
+    )
+    app = result.scalar_one_or_none()
+    if not app:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+    if not app.attachment_key:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No attachment found")
+
+    url = await generate_presigned_url(app.attachment_key)
+    return {"url": url}
+
+
+@router.delete(
+    "/{application_id}/attachment",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    response_model=None,
+)
+async def delete_attachment(
+    application_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(get_user_id),
+) -> Response:
+    """Remove a PDF attachment from R2 and clear the key from the DB."""
+    result = await db.execute(
+        select(Application).where(Application.id == application_id, Application.user_id == user_id)
+    )
+    app = result.scalar_one_or_none()
+    if not app:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+    if not app.attachment_key:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No attachment found")
+
+    await delete_file(app.attachment_key)
+    await db.execute(
+        update(Application)
+        .where(Application.id == application_id, Application.user_id == user_id)
+        .values(attachment_key=None)
     )
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

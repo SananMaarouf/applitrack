@@ -25,6 +25,7 @@ class Application(Base):
 
     status: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     link: Mapped[str | None] = mapped_column(Text, nullable=True)
+    attachment_key: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class ApplicationStatusHistory(Base):

@@ -22,6 +22,7 @@ class ApplicationOut(ApplicationBase):
     created_at: datetime
     user_id: str
     status: int
+    attachment_key: str | None = None
 
 
 class ApplicationStatusUpdate(BaseModel):
