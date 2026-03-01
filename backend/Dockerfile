@@ -31,6 +31,8 @@ RUN addgroup -g 1001 -S appgroup && \
 # Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/app /app/app
+COPY --from=builder /app/alembic /app/alembic
+COPY --from=builder /app/alembic.ini /app/alembic.ini
 
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH"

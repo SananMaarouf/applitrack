@@ -1,5 +1,14 @@
+from __future__ import annotations
+
+import asyncio
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.core.config import settings
 from app.routes import applications, health, status_flow
 import sentry_sdk
@@ -16,8 +25,19 @@ if settings.sentry_dsn:
         traces_sample_rate=1.0 if settings.environment == "development" else 0.1,
     )
 
+_ALEMBIC_CFG = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"))
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, command.upgrade, _ALEMBIC_CFG, "head")
+    yield
+
+
 app = FastAPI(
     title="Applitrack API",
+    lifespan=lifespan,
     docs_url="/docs" if not settings.is_production else None,
     redoc_url="/redoc" if not settings.is_production else None,
     openapi_url="/openapi.json" if not settings.is_production else None,
