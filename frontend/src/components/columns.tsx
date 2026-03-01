@@ -9,7 +9,7 @@ import { deleteApplication, getStatusFlow, getAttachmentUrl } from "@/api/applic
 import { ColumnDef, Row } from "@tanstack/react-table";
 import type { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 import { StatusSelect } from "@/components/statusSelect";
-import { ArrowUpDown, Trash2, ExternalLink, Link2Off, Paperclip, X, FileQuestion, CircleQuestionMark} from "lucide-react";
+import { ArrowUpDown, Trash2, ExternalLink, Link2Off, Paperclip, X, FileQuestion, CircleQuestionMark, CalendarX2 } from "lucide-react";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { useAuth } from "@clerk/clerk-react";
 
@@ -280,7 +280,7 @@ export const columns: ColumnDef<JobApplication>[] = [
         );
       }
       return <div>
-        <CircleQuestionMark className="h-5 w-5 mx-auto" />
+        <CalendarX2 className="h-5 w-5 mx-auto" />
       </div>;
     },
   },
