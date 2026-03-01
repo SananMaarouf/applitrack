@@ -9,7 +9,7 @@ import { deleteApplication, getStatusFlow, getAttachmentUrl } from "@/api/applic
 import { ColumnDef, Row } from "@tanstack/react-table";
 import type { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 import { StatusSelect } from "@/components/statusSelect";
-import { ArrowUpDown, Trash2, ExternalLink, Link2Off, Paperclip } from "lucide-react";
+import { ArrowUpDown, Trash2, ExternalLink, Link2Off, Paperclip, X, FileQuestion, CircleQuestionMark} from "lucide-react";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { useAuth } from "@clerk/clerk-react";
 
@@ -141,7 +141,7 @@ function AttachmentCell({ row }: { row: Row<JobApplication> }) {
   };
 
   if (!row.original.attachment_key) {
-    return <span className="text-muted-foreground text-sm mx-auto block w-fit">—</span>;
+    return <FileQuestion className="h-5 w-5 mx-auto" />;
   }
 
   return (
@@ -279,7 +279,9 @@ export const columns: ColumnDef<JobApplication>[] = [
           </div>
         );
       }
-      return <div>¯\\_(ツ)_/¯</div>;
+      return <div>
+        <CircleQuestionMark className="h-5 w-5 mx-auto" />
+      </div>;
     },
   },
   {
