@@ -75,11 +75,11 @@
   --ring: oklch(1.00 0 0);
   --chart-1: oklch(40.157% 0.25762 270.24); /* applied */
   --chart-2: oklch(86.6% 0.18566 111.074); /* interview */
-  --chart-3: oklch(0.31 0.05 289.74); /* second interview */
+  --chart-3: oklch(60.362% 0.16326 287.504); /* second interview */
   --chart-4: oklch(53.784% 0.23946 328.281); /* third interview */
-  --chart-5: oklch(78.377% 0.26267 142.761); /* offer interview */
-  --chart-6: oklch(56.777% 0.22704 28.657); /* rejected */
-  --chart-7: oklch(100% 0.00011 271.152);
+  --chart-5: oklch(61.815% 0.20564 142.812); /* offer interview */
+  --chart-6: oklch(49.452% 0.19569 28.44); /* rejected */
+  --chart-7: oklch(0.27 0 0);
   --sidebar: oklch(0.24 0 0);
   --sidebar-foreground: oklch(0.81 0.01 93.53);
   --sidebar-primary: oklch(0.33 0 0);
