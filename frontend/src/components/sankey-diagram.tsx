@@ -5,7 +5,13 @@ import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistory
 import { useEffect, useState, useRef } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, Download } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import { toast } from "sonner";
 
@@ -147,25 +153,26 @@ export function SankeyDiagram() {
     <div className="w-full mx-auto">
       <div className="bg-foreground p-3">
         {links.length > 0 && (
-          <div className="flex justify-end gap-2 mb-2">
-            <Button
-              onClick={exportCSV}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export CSV
-            </Button>
-            <Button
-              onClick={exportDiagram}
-              variant="default"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export PNG
-            </Button>
+          <div className="flex justify-end mb-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" size="sm" className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportCSV}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportDiagram}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export PNG
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
         <div
