@@ -16,6 +16,29 @@ export function SankeyDiagram() {
   const { theme } = useTheme();
   const diagramRef = useRef<HTMLDivElement>(null);
 
+  const exportCSV = () => {
+    const headers = ["From", "To", "Weight"];
+    const rows = aggregatedStatusHistory.map((item) => [
+      String(item.From),
+      String(item.To),
+      String(item.Weight),
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const timestamp = new Date().toISOString().split("T")[0];
+    link.download = `sankey-data-${timestamp}.csv`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success("CSV exported successfully!");
+  };
+
   const exportDiagram = async () => {
     if (!diagramRef.current) return;
 
@@ -124,7 +147,16 @@ export function SankeyDiagram() {
     <div className="w-full mx-auto">
       <div className="bg-foreground p-3">
         {links.length > 0 && (
-          <div className="flex justify-end mb-2">
+          <div className="flex justify-end gap-2 mb-2">
+            <Button
+              onClick={exportCSV}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
             <Button
               onClick={exportDiagram}
               variant="default"
@@ -132,7 +164,7 @@ export function SankeyDiagram() {
               className="flex items-center gap-2"
             >
               <Download className="h-4 w-4" />
-              Export
+              Export PNG
             </Button>
           </div>
         )}
