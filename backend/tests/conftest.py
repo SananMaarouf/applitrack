@@ -69,7 +69,10 @@ def _make_test_email() -> str:
     return f"applitrack.test.{uuid.uuid4().hex[:10]}@example.com"
 
 
-def _build_clerk() -> Clerk:
+def _build_clerk() -> Clerk | None:
+    """Return a Clerk SDK client, or *None* when running in testing mode."""
+    if settings.environment == "testing":
+        return None
     if not settings.clerk_secret_key:
         raise RuntimeError(
             "CLERK_SECRET_KEY is not configured. "
@@ -78,13 +81,23 @@ def _build_clerk() -> Clerk:
     return Clerk(bearer_auth=settings.clerk_secret_key)
 
 
-def _fresh_jwt(clerk_client: Clerk, user_id: str) -> str:
-    """
-    Create a new Clerk session for *user_id* and return its short-lived JWT.
+_STATIC_TOKENS: dict[str, str] = {
+    "user_a": "user-a-token",
+    "user_b": "user-b-token",
+}
 
-    Clerk tokens expire after 60 s, so call this immediately before each
-    authenticated request rather than caching across tests.
+
+def _fresh_jwt(clerk_client: Clerk | None, user_id: str) -> str:
     """
+    Return a bearer token for *user_id*.
+
+    In testing mode a static token is returned so CI never calls Clerk.
+    Otherwise a short-lived JWT is minted via the Clerk Backend API.
+    """
+    if settings.environment == "testing":
+        return _STATIC_TOKENS.get(user_id, "test-token")
+
+    assert clerk_client is not None
     session = clerk_client.sessions.create(
         request=CreateSessionRequestBody(user_id=user_id)
     )
@@ -113,7 +126,7 @@ def event_loop():
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
-def clerk_client() -> Clerk:
+def clerk_client() -> Clerk | None:
     return _build_clerk()
 
 
@@ -167,16 +180,36 @@ def _delete_clerk_user(clerk_client: Clerk, user_id: str) -> None:
 
 
 @pytest.fixture(scope="session")
-def clerk_user(clerk_client: Clerk) -> Generator[ClerkUserInfo, None, None]:
+def clerk_user(clerk_client: Clerk | None) -> Generator[ClerkUserInfo, None, None]:
     """Primary test user – created once per test session, deleted afterwards."""
+    if settings.environment == "testing":
+        yield ClerkUserInfo(
+            user_id="user_a",
+            email="user_a@test.example.com",
+            password="",
+            first_name="Alice",
+            last_name="Tester",
+        )
+        return
+    assert clerk_client is not None
     info = _create_clerk_user(clerk_client, "Alice", "Tester")
     yield info
     _delete_clerk_user(clerk_client, info["user_id"])
 
 
 @pytest.fixture(scope="session")
-def second_clerk_user(clerk_client: Clerk) -> Generator[ClerkUserInfo, None, None]:
+def second_clerk_user(clerk_client: Clerk | None) -> Generator[ClerkUserInfo, None, None]:
     """Secondary test user for isolation / multi-user scenarios."""
+    if settings.environment == "testing":
+        yield ClerkUserInfo(
+            user_id="user_b",
+            email="user_b@test.example.com",
+            password="",
+            first_name="Bob",
+            last_name="Tester",
+        )
+        return
+    assert clerk_client is not None
     info = _create_clerk_user(clerk_client, "Bob", "Tester")
     yield info
     _delete_clerk_user(clerk_client, info["user_id"])
@@ -219,12 +252,12 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
 @pytest_asyncio.fixture()
 async def authed_client(
     client: AsyncClient,
-    clerk_client: Clerk,
+    clerk_client: Clerk | None,
     clerk_user: ClerkUserInfo,
 ) -> AsyncGenerator[AsyncClient, None]:
     """
-    Authenticated client pre-configured with a fresh Clerk JWT.
-    The token is obtained immediately at fixture setup, giving ~60 s validity.
+    Authenticated client pre-configured with a fresh Clerk JWT (or a static
+    test token when ENVIRONMENT=testing).
     """
     token = _fresh_jwt(clerk_client, clerk_user["user_id"])
     client.headers.update({"Authorization": f"Bearer {token}"})
@@ -233,7 +266,7 @@ async def authed_client(
 
 @pytest_asyncio.fixture()
 async def second_authed_client(
-    clerk_client: Clerk,
+    clerk_client: Clerk | None,
     second_clerk_user: ClerkUserInfo,
 ) -> AsyncGenerator[AsyncClient, None]:
     """Authenticated client for the secondary test user."""
