@@ -46,12 +46,16 @@ def authenticate_request(request: httpx.Request) -> str | None:
             if origin.strip()
         ]
 
-        request_state = clerk.authenticate_request(
-            request,
-            AuthenticateRequestOptions(
-                authorized_parties=authorized_parties,
-            ),
+        # Only enforce the azp check when a non-empty whitelist is configured.
+        # Backend-created session tokens (used in tests) have no azp claim, so
+        # passing a non-empty list here would always reject them.
+        auth_options = (
+            AuthenticateRequestOptions(authorized_parties=authorized_parties)
+            if authorized_parties
+            else AuthenticateRequestOptions()
         )
+
+        request_state = clerk.authenticate_request(request, auth_options)
 
         if not request_state.is_signed_in:
             logger.warning("Clerk auth failed: %s", request_state.reason)

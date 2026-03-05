@@ -35,6 +35,10 @@ yarn-error.log*
 .env*.local
 .env*.development
 .env*.production
+.env.test
+
+# test seed data
+backend/tests/seed_data.json
 
 # typescript
 *.tsbuildinfo
