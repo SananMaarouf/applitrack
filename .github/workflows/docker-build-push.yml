@@ -6,9 +6,14 @@ on:
       - backend-refactor
       - master
     paths:
-      - 'backend/**'
       - 'frontend/**'
       - '.github/workflows/docker-build-push.yml'
+  workflow_run:
+    workflows: ["Backend CI"]
+    types: [completed]
+    branches:
+      - master
+      - backend-refactor
   workflow_dispatch:
     inputs:
       build_backend:
@@ -46,8 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: changes
     if: |
-      github.event_name == 'workflow_dispatch' && github.event.inputs.build_backend == 'true' ||
-      github.event_name == 'push' && needs.changes.outputs.backend == 'true'
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.build_backend == 'true') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     permissions:
       contents: read
