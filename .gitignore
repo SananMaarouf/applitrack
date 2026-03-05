@@ -23,6 +23,8 @@ __pycache__/
 # Frontend folder
 /frontend/dist/
 /frontend/node_modules
+/frontend/coverage
+/frontend/.tanstack/
 
 # debug
 npm-debug.log*
