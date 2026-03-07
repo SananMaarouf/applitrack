@@ -42,10 +42,11 @@ export function ThemeSwitcher({ variant = "icon-only" }: ThemeSwitcherProps) {
     );
   }
 
+  /* if no variant specified it defaults to this */
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Toggle theme">
+        <Button variant="secondary" size="icon" aria-label="Toggle theme" className="data-[state=open]:bg-primary-foreground data-[state=open]:text-foreground">
           <Icon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
