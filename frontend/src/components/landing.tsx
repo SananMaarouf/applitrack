@@ -1,9 +1,9 @@
 "use client";
 import gsap from 'gsap';
 import { useRef } from 'react';
-import { BusyMan } from "../components/busyMan";
 import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/SplitText';
+import { Celebrate } from './celebrate';
 
 gsap.registerPlugin(useGSAP, SplitText);
 
@@ -104,8 +104,8 @@ export function Landing() {
 						</h1>
 					</div>
 					{/* the illustration on mobile */}
-					<div className="lg:hidden mx-auto">
-						<BusyMan />
+					<div className="lg:hidden mx-auto bg-primary/30 rounded-full">
+						<Celebrate />
 					</div>
 					{/* the sub-text aka selling points*/}
 					<div ref={subTextContainerRef} className="opacity-0">
@@ -119,8 +119,8 @@ export function Landing() {
 					</div>
 				</div>
 				{/* the illustration on desktop */}
-				<div className="hidden lg:flex lg:w-1/2 justify-center mt-8 lg:mt-0">
-					<BusyMan />
+				<div className="hidden bg-primary/30 lg:flex items-center justify-center rounded-full p-8">
+					<Celebrate />
 				</div>
 			</div>
 		</section>
