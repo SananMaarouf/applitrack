@@ -18,15 +18,21 @@ export function Navbar() {
 
   return (
     <header className="w-full px-4 flex">
-      <div className="bg-primary flex mx-auto w-full 
-      max-w-7xl items-center justify-between rounded-b-lg px-6 py-5">
-        <div className="
-        flex items-center ">
+      <div className="
+        bg-primary flex mx-auto w-full max-w-7xl mt-2
+        items-center justify-between rounded-lg px-6 py-5"
+      >
+        
+        <div className="flex items-center ">
           <Link to="/" className="
           gap-2 hover:gap-4 group transition-all duration-300 
           font-bold text-primary-foreground text-2xl flex items-center">
             Applitrack
-            <svg className="group-hover:scale-110 transition-transform duration-300" width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg 
+              className="group-hover:scale-110 transition-transform duration-300" 
+              width="28" height="28" 
+              viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+            >
               <rect x="4" y="4" width="40" height="40" rx="9"
                     fill="var(--primary-foreground)" />
               <line x1="14" y1="16" x2="34" y2="16"
@@ -76,7 +82,7 @@ export function Navbar() {
           <SignedOut>
             <div className="flex gap-2">
               <ThemeSwitcher variant="icon-only" />
-              <Button asChild>
+              <Button variant="secondary" asChild>
                 <Link to="/sign-in">Get started</Link>
               </Button>
             </div>

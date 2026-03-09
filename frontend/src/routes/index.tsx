@@ -14,7 +14,9 @@ function Home() {
       <Landing />
 
       {/* Features Section */}
-      <Features />
+      <div id="features">
+        <Features />
+      </div>
 
       {/* Try It Now Section */}
       <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 px-4">

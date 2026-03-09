@@ -59,6 +59,7 @@ export function ExampleDataTable() {
         link: false,
         actions: false,
         expires: false,
+        applied: false,
       }
     },
     onGlobalFilterChange: setGlobalFilter,

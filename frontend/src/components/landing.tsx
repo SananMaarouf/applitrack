@@ -2,127 +2,104 @@
 import gsap from 'gsap';
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
-import { SplitText } from 'gsap/SplitText';
 import { Celebrate } from './celebrate';
+import { ArrowDown } from 'lucide-react';
+import { Button } from './ui/button';
 
-gsap.registerPlugin(useGSAP, SplitText);
+gsap.registerPlugin(useGSAP);
 
 export function Landing() {
-	const headlineRef = useRef<HTMLHeadingElement>(null);
-	const subTextRefs = useRef<(HTMLParagraphElement | null)[]>([]);
-	const headlineContainerRef = useRef<HTMLDivElement>(null);
-	const subTextContainerRef = useRef<HTMLDivElement>(null);
+	const headlineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+	const subTextRef = useRef<HTMLDivElement>(null);
+	const celebrateContainerRef = useRef<HTMLDivElement>(null);
+	const textColumnRef = useRef<HTMLDivElement>(null);
 
-	const paragraphs = [
-		"Keep losing track of what you've applied to ?",
-		"Want to know how much you're getting ghosted ?",
+	const headlines = [
+		"Keep losing track of what you've applied to?",
+		"Want to know how much you're getting ghosted?",
 		"Organize your job search with Applitrack!",
 	];
 
 	useGSAP(() => {
-		if (headlineRef.current) {
-			// Fade in the headline container
-			gsap.to(headlineContainerRef.current, {
-				opacity: 1,
-				duration: 0.3,
-				ease: "power1.out"
-			});
+		gsap.set([headlineRefs.current[1], headlineRefs.current[2]], { y: 60, opacity: 0 });
+		gsap.set(subTextRef.current, { y: 20, opacity: 0 });
 
-			// Fade in the subtext container
-			gsap.to(subTextContainerRef.current, {
-				opacity: 1,
-				duration: 0.3,
-				ease: "power1.out",
-				delay: 0.2
-			});
+		const [h1, h2, h3] = headlineRefs.current;
 
-			// Split the text into lines
-			const split = new SplitText(headlineRef.current!, {
-				type: "lines",
-				linesClass: "split-line"
-			});
+		const addHeadlineCycling = (tl: gsap.core.Timeline) => {
+			tl.to(h1, { y: -40, opacity: 0, duration: 1.3, ease: "power2.in" }, "+=1.8");
+			tl.to(h2, { y: 0, opacity: 1, duration: 1.3, ease: "power2.out" }, "-=0.4");
+			tl.to(h2, { y: -40, opacity: 0, duration: 1.3, ease: "power2.in" }, "+=2.4");
+			tl.to(h3, { y: 0, opacity: 1, duration: 1.3, ease: "power2.out" }, "-=0.4");
+			tl.add("reveal", "+=0.7");
+			tl.to(subTextRef.current, { y: 0, opacity: 1, duration: 1.3, ease: "power2.out" }, "reveal");
+		};
 
-			// Set initial state for headline
-			gsap.set(split.lines, {
-				y: 100,
-				opacity: 0
-			});
 
-			// Animate headline lines in
-			gsap.to(split.lines, {
-				y: 0,
-				opacity: 1,
-				duration: 0.8,
-				stagger: 0.2,
-				ease: "power2.out",
-				delay: 0.3
-			});
+		const mm = gsap.matchMedia();
 
-			// Animate sub-text paragraphs in after headline
-			gsap.set(subTextRefs.current, {
-				opacity: 0
-			});
-			gsap.to(subTextRefs.current, {
-				opacity: 1,
-				duration: 0.7,
-				ease: "power2.out",
-				delay: 1.6 // matches headline animation end
-			});
+		// Desktop: text column slides in from left
+		mm.add("(min-width: 1024px)", () => {
+			const tl = gsap.timeline();
+			tl.from('header', { y: -100, duration: 0.7, ease: "power2.out" });
+			tl.from(celebrateContainerRef.current, { x: 80, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.2");
+			tl.from(textColumnRef.current, { x: -60, duration: 0.8, ease: "power2.out" }, "-=0.4");
+			tl.from(h1, { y: 60, opacity: 0, duration: 1.3, ease: "power2.out" }, "<");
+			addHeadlineCycling(tl);
+		});
 
-			// Handle resize - just revert to allow natural text flow
-			const handleResize = () => {
-				if (split) split.revert();
-			};
-
-			window.addEventListener('resize', handleResize);
-
-			// Cleanup function
-			return () => {
-				window.removeEventListener('resize', handleResize);
-				if (split) split.revert();
-			};
-		}
-	}, { scope: headlineRef });
+		// Mobile: headline fades in from top
+		mm.add("(max-width: 1023px)", () => {
+			const tl = gsap.timeline();
+			tl.from('header', { y: -100, duration: 0.7, ease: "power2.out" });
+			tl.from(celebrateContainerRef.current, { x: 80, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.2");
+			tl.from(h1, { y: -60, opacity: 0, duration: 1.3, ease: "power2.out" }, "-=0.4");
+			addHeadlineCycling(tl);
+		});
+	});
 
 	return (
-		<section className="
-			w-full justify-center 
-			flex flex-col 
-			lg:flex-row lg:py-22
-			rounded-lg px-12 
-			">
-			<div className='flex max-w-6xl'>
-				<div className="w-full flex flex-col">
-					{/* The headline */}
-					<div ref={headlineContainerRef} className="opacity-0">
-						<h1 ref={headlineRef}
-							className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center lg:text-left font-bold mb-3 lg:mb-8 px-1"
+		<section className="relative flex flex-col rounded-lg lg:flex-row lg:py-22 max-w-6xl">
+
+			{/* text — overlays illustration on mobile, left column on desktop */}
+			<article ref={textColumnRef} className="w-full min-w-0 flex flex-col place-content-between lg:place-content-evenly z-10">
+				{/* Headlines - stack in same cell, swap one by one */}
+				<div className="grid lg:relative h-fit items-center lg:h-auto">
+					{headlines.map((text, index) => (
+						<h2 key={index} ref={el => { headlineRefs.current[index] = el; }}
+							className="
+									col-start-1 row-start-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
+								font-bold px-4 lg:px-0 text-center lg:text-left"
 						>
-							From{" "}
-							<span className="underline text-pretty wrap-break-word">application</span>{" "}
-							to offer, <span className="underline">track</span> your progress
-						</h1>
-					</div>
-					{/* the illustration on mobile */}
-					<div className="lg:hidden mx-auto bg-primary/30 rounded-full">
-						<Celebrate />
-					</div>
-					{/* the sub-text aka selling points*/}
-					<div ref={subTextContainerRef} className="opacity-0">
-						{paragraphs.map((text: string, index: number) => (
-							<p key={index} ref={el => { subTextRefs.current[index] = el; }}
-								className="text-lg sm:text-xl font-bold mb-4 px-4 lg:px-0 text-center lg:text-left"
-							>
-								{text}
-							</p>
-						))}
-					</div>
+							{text}
+						</h2>
+					))}
+				</div> 
+
+				{/* Sub-text - animates in after all headlines */}
+				<div ref={subTextRef} className="flex mt-72 flex-col gap-4 lg:mt-0 lg:items-start">
+					<p
+						className="
+								text-3xl sm:text-3xl text-center lg:text-left font-bold"
+					>
+						Track every{" "}
+						<span className="underline">application</span>,{" "}
+						land your next <span className="underline">offer</span>
+					</p>
+
+					<Button size="lg" className="self-center mt-10 hover:scale-125 transition-all duration-300" onClick={() => window.scrollBy({ top: 500, behavior: 'smooth' })}>
+						Learn more
+						<ArrowDown className="ml-2" />
+					</Button>
 				</div>
-				{/* the illustration on desktop */}
-				<div className="hidden bg-primary/30 lg:flex items-center justify-center rounded-full p-8">
-					<Celebrate />
-				</div>
-			</div>
+			</article>
+
+			{/* illustration — absolute behind text on mobile, right column on desktop */}
+			<figure ref={celebrateContainerRef} className="
+					absolute inset-0 mt-5 flex justify-center z-0
+					lg:static lg:flex lg:items-center lg:justify-center">
+				<Celebrate />
+			</figure>
 		</section>
 	)
 }
