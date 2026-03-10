@@ -87,25 +87,25 @@ export function Chart() {
 
   return (
     <div className="h-full grow">
-      <Card className="flex flex-col h-full grow gap-2">
+      <Card className="flex h-full grow flex-col gap-2">
         {loading ? (
           <div className="text-center min-h-60 text-background font-bold flex items-center justify-center">
             <p>Loading job applications...</p>
           </div>
         ) : (
           <>
-            <CardHeader className="items-center">
-              <CardTitle className="font-bold text-lg">Applications</CardTitle>
+            <CardHeader className="items-center hidden md:flex">
+              <CardTitle className="font-bold text-sm lg:text-lg">Applications</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="h-full p-0">
               {jobApplications.length === 0 ? (
                 <p className="text-center text-background my-10">You have no job applications </p>
               ) : (
                 <ChartContainer
                   config={chartConfig}
-                  className="mx-auto max-h-60"
+                  className="mx-auto h-full w-full aspect-square px-0 sm:min-h-64 md:aspect-video"
                 >
-                  <PieChart>
+                  <PieChart className="mx-0 h-full w-full px-0">
                     <ChartTooltip
                       cursor={false}
                       content={<ChartTooltipContent hideLabel />}
@@ -114,9 +114,9 @@ export function Chart() {
                       data={chartData}
                       dataKey="applications"
                       nameKey="jobs"
-                      innerRadius={40}
+                      innerRadius={30}
+                      outerRadius="88%"
                       strokeWidth={6}
-
                     >
                       <Label
                         content={({ viewBox }) => {

@@ -96,7 +96,7 @@ export function BarStatusChart() {
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle className="font-bold text-lg">Applications sent in 2026</CardTitle>
+        <CardTitle className="font-bold text-sm lg:text-lg">Applications sent in 2026</CardTitle>
       </CardHeader>
       <CardContent>
         {jobApplications.length === 0 ? (
