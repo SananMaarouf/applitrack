@@ -32,8 +32,9 @@ export function Navbar() {
         <div className="flex items-center ">
           <Link to="/" className="
           gap-2 hover:gap-4 group transition-all duration-300 
-          font-bold text-primary-foreground text-xl lg:text-2xl flex items-center">
-            Applitrack
+          font-bold italic text-primary-foreground text-2xl flex items-center">
+            <span className="md:hidden">AT</span>
+            <span className="hidden md:inline">Applitrack</span>
             <svg 
               className="group-hover:scale-110 transition-transform duration-300" 
               width="28" height="28" 
