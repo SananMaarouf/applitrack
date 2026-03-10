@@ -60,6 +60,7 @@ export function ExampleDataTable() {
         actions: false,
         expires: false,
         applied: false,
+        company: false,
       }
     },
     onGlobalFilterChange: setGlobalFilter,

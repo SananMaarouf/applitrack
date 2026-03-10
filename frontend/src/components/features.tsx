@@ -18,7 +18,7 @@ const features = [
     component: <ExampleChart />,
     title: "Analytics & Insights",
     description:
-      "Get insight with a pie chart that shows the distribution of your applications across statuses",
+      "Get insight with a charts that shows the distribution of your applications across statuses",
   },
   {
     component: <ExampleDataTable />,
@@ -54,7 +54,7 @@ export function Features() {
   }, []);
 
   return (
-    <section className="flex flex-col w-full items-center mt-10 py-12 sm:py-16 lg:py-20 overflow-hidden">
+    <section className="flex flex-col max-w-4xl w-full items-center mt-10 py-12 sm:py-16 lg:py-20 overflow-hidden">
       <div className="w-full max-w-6xl px-4 flex flex-col gap-20 lg:gap-28">
         {features.map((feature, index) => {
           const textFirst = index % 2 === 0;
@@ -78,7 +78,7 @@ export function Features() {
                 </p>
               </div>
 
-              <div className="lg:w-2/3 w-full">{feature.component}</div>
+              <div className="lg:w-2/3 w-11/12">{feature.component}</div>
             </div>
           );
         })}
