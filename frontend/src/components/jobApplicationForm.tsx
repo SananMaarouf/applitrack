@@ -104,7 +104,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
   }
 
   return (
-    <div className="bg-foreground w-full lg:w-2/3 h-full text-background p-4 rounded-md ">
+    <div className="bg-foreground w-full h-full text-background p-4 rounded-md">
       <h2 className="text-lg font-bold text-center">Register application</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

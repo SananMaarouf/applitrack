@@ -20,7 +20,7 @@ export function Navbar() {
     <header className="w-full px-4 flex">
       <div className="
         bg-primary flex mx-auto w-full max-w-7xl mt-2
-        items-center justify-between rounded-lg px-6 py-5"
+        items-center justify-between shadow-xl rounded-lg px-6 py-5"
       >
         
         <div className="flex items-center ">

@@ -87,9 +87,9 @@ export function Chart() {
 
   return (
     <div className="h-full grow">
-      <Card className="flex flex-col h-full grow">
+      <Card className="flex flex-col h-full grow gap-2">
         {loading ? (
-          <div className="text-center min-h-96 text-background font-bold flex items-center justify-center">
+          <div className="text-center min-h-60 text-background font-bold flex items-center justify-center">
             <p>Loading job applications...</p>
           </div>
         ) : (
@@ -97,15 +97,13 @@ export function Chart() {
             <CardHeader className="items-center">
               <CardTitle className="font-bold text-lg">Applications</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 pb-0">
+            <CardContent>
               {jobApplications.length === 0 ? (
-                <p className="text-center text-background my-10">
-                  You have no job applications
-                </p>
+                <p className="text-center text-background my-10">You have no job applications </p>
               ) : (
                 <ChartContainer
                   config={chartConfig}
-                  className="mx-auto aspect-square max-h-92 lg:max-h-112"
+                  className="mx-auto max-h-60"
                 >
                   <PieChart>
                     <ChartTooltip
@@ -116,8 +114,9 @@ export function Chart() {
                       data={chartData}
                       dataKey="applications"
                       nameKey="jobs"
-                      innerRadius={60}
-                      strokeWidth={5}
+                      innerRadius={40}
+                      strokeWidth={6}
+
                     >
                       <Label
                         content={({ viewBox }) => {
@@ -132,7 +131,7 @@ export function Chart() {
                                 <tspan
                                   x={viewBox.cx}
                                   y={viewBox.cy}
-                                  className="fill-current text-3xl font-bold"
+                                    className="fill-current text-2xl font-bold"
                                 >
                                   {jobApplications.length}
                                 </tspan>

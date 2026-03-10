@@ -8,6 +8,8 @@ import { useJobsStore } from '@/store/jobsStore'
 import { useAggregatedStatusHistoryStore } from '@/store/aggregatedStatusHistoryStore'
 
 import { Chart } from '@/components/pieChart'
+import { RadarStatusChart } from '@/components/radarChart'
+import { BarStatusChart } from '@/components/barChart'
 import { DataTable } from '@/components/data-table'
 import { SankeyDiagram } from '@/components/sankey-diagram'
 import { JobApplicationForm } from '@/components/jobApplicationForm'
@@ -54,13 +56,23 @@ function Dashboard() {
 
   if (!isLoaded) return <div>Loading...</div>
   if (!userId) return <Navigate to={'/sign-in' as any} />
-  console.log(useAggregatedStatusHistoryStore.getState().aggregatedStatusHistory)
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto my-8">
-      <section className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto">
-          <Chart />
+      <section className="w-full grid grid-cols-1 lg:grid-cols-10 gap-4 mx-auto">
+        <div className="space-y-4 lg:col-span-7">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Chart />
+            <RadarStatusChart />
+          </div>
+          <div>
+            <BarStatusChart />
+          </div>
+        </div>
+
+        <div className="lg:col-span-3">
           <JobApplicationForm user_id={userId} />
+        </div>
       </section>
 
       <section className='w-full mx-auto'>
