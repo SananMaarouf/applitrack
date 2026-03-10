@@ -59,7 +59,7 @@ export function Landing() {
 	});
 
 	return (
-		<section className="relative flex flex-col rounded-lg lg:flex-row lg:py-22 max-w-6xl">
+		<section className="relative flex flex-col rounded-lg lg:flex-row lg:py-22 max-w-5xl">
 
 			{/* text — overlays illustration on mobile, left column on desktop */}
 			<article ref={textColumnRef} className="w-full min-w-0 flex flex-col place-content-between lg:place-content-evenly z-10">
