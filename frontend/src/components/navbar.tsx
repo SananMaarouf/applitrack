@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { SignedIn, SignedOut, SignOutButton } from "@clerk/clerk-react";
+import {
+  ClerkLoaded,
+  ClerkLoading,
+  SignedIn,
+  SignedOut,
+  SignOutButton,
+} from "@clerk/clerk-react";
 import { Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +32,7 @@ export function Navbar() {
         <div className="flex items-center ">
           <Link to="/" className="
           gap-2 hover:gap-4 group transition-all duration-300 
-          font-bold text-primary-foreground text-2xl flex items-center">
+          font-bold text-primary-foreground text-xl lg:text-2xl flex items-center">
             Applitrack
             <svg 
               className="group-hover:scale-110 transition-transform duration-300" 
@@ -48,81 +54,102 @@ export function Navbar() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-6">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-2">
-            <SignedIn>
-              <Button variant={"secondary"} asChild>
-                <Link to="/dashboard">
-                  Dashboard
-                </Link>
-              </Button>
-              <Button variant={"secondary"} asChild>
-                <Link to={'/my-account' as any}>
-                  Profile
-                </Link>
-              </Button>
-            </SignedIn>
-          </nav>
+          <ClerkLoaded>
+            <nav className="hidden md:flex items-center gap-2">
+              <SignedIn>
+                <Button variant={"secondary"} asChild>
+                  <Link to="/dashboard">
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button variant={"secondary"} asChild>
+                  <Link to={'/my-account' as any}>
+                    Profile
+                  </Link>
+                </Button>
+              </SignedIn>
+            </nav>
+          </ClerkLoaded>
           
           <ThemeSwitcher variant="icon-only" />
-          <SignedOut>
+          <ClerkLoading>
             <Button variant={"secondary"} asChild>
               <Link to="/sign-in">Get started</Link>
             </Button>
-          </SignedOut>
+          </ClerkLoading>
 
-          <SignedIn>
-            <SignOutButton redirectUrl="/">
-              <Button variant="destructive">Sign out</Button>
-            </SignOutButton>
-          </SignedIn>
+          <ClerkLoaded>
+            <SignedOut>
+              <Button variant={"secondary"} asChild>
+                <Link to="/sign-in">Get started</Link>
+              </Button>
+            </SignedOut>
+
+            <SignedIn>
+              <SignOutButton redirectUrl="/">
+                <Button variant="destructive">Sign out</Button>
+              </SignOutButton>
+            </SignedIn>
+          </ClerkLoaded>
         </div>
 
         {/* Mobile Menu */}
         <div className="md:hidden">
-          <SignedOut>
+          <ClerkLoading>
             <div className="flex gap-2">
               <ThemeSwitcher variant="icon-only" />
               <Button variant="secondary" asChild>
                 <Link to="/sign-in">Get started</Link>
               </Button>
             </div>
-          </SignedOut>
-          <SignedIn>
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button size={"icon-lg"}>
-                  <Menu className="size-8" />
-                  <span className="sr-only">Toggle menu</span>
+          </ClerkLoading>
+
+          <ClerkLoaded>
+            <SignedOut>
+              <div className="flex gap-2">
+                <ThemeSwitcher variant="icon-only" />
+                <Button variant="secondary" asChild>
+                  <Link to="/sign-in">Get started</Link>
                 </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="px-2 text-2xl flex flex-col">
-                <SheetHeader />
-                <div className="flex flex-col gap-4 mt-6">
-                  <Link to="/dashboard" className="hover:underline" onClick={() => setOpen(false)}>
-                    Dashboard
-                  </Link>
-                  <SignedIn>
-                    <Link to={'/my-account'} className="hover:underline" onClick={() => setOpen(false)}>
-                      Profile
+              </div>
+            </SignedOut>
+            <SignedIn>
+              <Sheet open={open} onOpenChange={setOpen}>
+                <SheetTrigger asChild>
+                  <Button size={"icon-lg"}>
+                    <Menu className="size-8" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="px-2 text-2xl flex flex-col">
+                  <SheetHeader />
+                  <div className="flex flex-col gap-4 mt-6">
+                    <Link to="/dashboard" className="hover:underline" onClick={() => setOpen(false)}>
+                      Dashboard
                     </Link>
-                  </SignedIn>
-                  <div className="mt-4">
-                    <p className="mb-1 text-sm ">Theme: </p>
-                    <ThemeSwitcher variant="dropdown-menu" />
+                    <SignedIn>
+                      <Link to={'/my-account'} className="hover:underline" onClick={() => setOpen(false)}>
+                        Profile
+                      </Link>
+                    </SignedIn>
+                    <div className="mt-4">
+                      <p className="mb-1 text-sm ">Theme: </p>
+                      <ThemeSwitcher variant="dropdown-menu" />
+                    </div>
                   </div>
-                </div>
-                <div className="mt-auto mb-4 flex flex-col gap-4">
-                  <SignedIn>
-                    <SignOutButton redirectUrl="/">
-                      <Button variant="destructive" onClick={() => setOpen(false)}>
-                        Sign out
-                      </Button>
-                    </SignOutButton>
-                  </SignedIn>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </SignedIn>
+                  <div className="mt-auto mb-4 flex flex-col gap-4">
+                    <SignedIn>
+                      <SignOutButton redirectUrl="/">
+                        <Button variant="destructive" onClick={() => setOpen(false)}>
+                          Sign out
+                        </Button>
+                      </SignOutButton>
+                    </SignedIn>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </SignedIn>
+          </ClerkLoaded>
         </div>
       </div>
     </header>

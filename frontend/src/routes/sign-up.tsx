@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { SignUp } from '@clerk/clerk-react'
+import { ClerkLoaded, ClerkLoading, SignUp } from '@clerk/clerk-react'
 
 export const Route = createFileRoute('/sign-up')({
   component: SignUpPage,
@@ -7,8 +7,13 @@ export const Route = createFileRoute('/sign-up')({
 
 function SignUpPage() {
   return (
-    <div className="flex justify-center">
-      <SignUp />
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <ClerkLoading>
+        <div className="text-lg ">Loading sign-up...</div>
+      </ClerkLoading>
+      <ClerkLoaded>
+        <SignUp />
+      </ClerkLoaded>
     </div>
   )
 }
