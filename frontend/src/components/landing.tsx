@@ -77,7 +77,7 @@ export function Landing() {
 				</div> 
 
 				{/* Sub-text - animates in after all headlines */}
-				<div ref={subTextRef} className="flex mt-72 flex-col gap-4 lg:mt-0 lg:items-start">
+				<div ref={subTextRef} className="flex mt-64 md:mt-70 flex-col gap-4 lg:mt-0 lg:items-start">
 					<p
 						className="
 								text-3xl sm:text-3xl text-center lg:text-left font-bold"
@@ -87,7 +87,7 @@ export function Landing() {
 						land your next <span className="underline">offer</span>
 					</p>
 
-					<Button size="lg" className="self-center mt-10 hover:scale-125 transition-all duration-300" onClick={() => window.scrollBy({ top: 500, behavior: 'smooth' })}>
+					<Button size="lg" className="self-center mt-2 hover:scale-125 transition-all duration-300" onClick={() => window.scrollBy({ top: 500, behavior: 'smooth' })}>
 						Learn more
 						<ArrowDown className="ml-2" />
 					</Button>
@@ -96,7 +96,7 @@ export function Landing() {
 
 			{/* illustration — absolute behind text on mobile, right column on desktop */}
 			<figure ref={celebrateContainerRef} className="
-					absolute inset-0 mt-5 flex justify-center z-0
+					absolute inset-0 mt-10 md:mt-5 flex justify-center z-0
 					lg:static lg:flex lg:items-center lg:justify-center">
 				<Celebrate />
 			</figure>
