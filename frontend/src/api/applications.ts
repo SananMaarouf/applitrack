@@ -1,4 +1,5 @@
 import { apiFetch, apiUpload, type Application, type StatusFlowRow } from '@/lib/api'
+import type { DashboardTrends, TrendPeriod } from '@/types/jobApplication'
 
 export type CreateApplicationPayload = {
   position: string
@@ -54,4 +55,8 @@ export async function deleteAttachment(token: string, applicationId: number) {
     method: 'DELETE',
     token,
   })
+}
+
+export async function getDashboardTrends(token: string, period: TrendPeriod = 'week') {
+  return apiFetch<DashboardTrends>(`/dashboard/trends?period=${period}`, { token })
 }

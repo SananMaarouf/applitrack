@@ -16,3 +16,26 @@ export type AggregatedStatusHistory = {
   To: string
   Weight: number
 }
+
+export type TrendDirection = 'up' | 'down' | 'neutral'
+export type TrendPeriod = 'week' | 'month'
+
+export type TrendMetric = {
+  current: number
+  previous: number
+  difference: number
+  percentChange: number | null
+  direction: TrendDirection
+}
+
+export type DashboardTrends = {
+  period: TrendPeriod
+  ranges: {
+    current_start: string
+    current_end: string
+    previous_start: string
+    previous_end: string
+  }
+  applications_sent: TrendMetric
+  interviews: TrendMetric
+}

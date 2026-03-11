@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.routes import applications, health, status_flow
+from app.routes import applications, health, status_flow, dashboard
 import sentry_sdk
 
 # Initialize Sentry for error monitoring
@@ -55,3 +55,4 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(applications.router)
 app.include_router(status_flow.router)
+app.include_router(dashboard.router)

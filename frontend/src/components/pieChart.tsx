@@ -87,7 +87,7 @@ export function Chart() {
 
   return (
     <div className="h-full grow">
-      <Card className="flex h-full grow flex-col gap-2">
+      <Card className="flex h-full max-h-64 lg:max-h-full grow flex-col gap-2">
         {loading ? (
           <div className="text-center min-h-60 text-background font-bold flex items-center justify-center">
             <p>Loading job applications...</p>
@@ -103,7 +103,7 @@ export function Chart() {
               ) : (
                 <ChartContainer
                   config={chartConfig}
-                  className="mx-auto h-full w-full aspect-square px-0 sm:min-h-64 md:aspect-video"
+                  className="mx-auto h-full w-full px-0"
                 >
                   <PieChart className="mx-0 h-full w-full px-0">
                     <ChartTooltip
