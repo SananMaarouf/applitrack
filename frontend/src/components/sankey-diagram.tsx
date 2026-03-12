@@ -149,11 +149,11 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
   useImperativeHandle(ref, () => ({ exportCSV, exportDiagram }));
 
   return (
-    <div className="w-full mx-auto lg:my-4">
+    <div className="w-full mx-auto">
       <div className="bg-foreground rounded-xl overflow-hidden">
         <div
           ref={diagramRef}
-          className="bg-foreground text-background min-h-96 md:min-h-[28rem] rounded-lg"
+          className="bg-foreground text-background min-h-96 md:min-h-0 md:h-72 rounded-lg"
         >
           {links.length > 0 ? (
             <ResponsiveSankey

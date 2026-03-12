@@ -99,7 +99,7 @@ export function BarStatusChart() {
         {jobApplications.length === 0 ? (
           <p className="text-center text-background my-10">No data to visualize yet</p>
         ) : (
-          <ChartContainer config={chartConfig} className="mx-auto w-full max-h-64 my-1">
+          <ChartContainer config={chartConfig} className="mx-auto w-full max-h-64 lg:my-2">
             <BarChart accessibilityLayer data={chartPoints}>
               <CartesianGrid vertical={false} stroke="var(--card-foreground)" />
               <XAxis
