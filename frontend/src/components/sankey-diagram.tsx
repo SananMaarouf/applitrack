@@ -160,7 +160,7 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
               data={sankeyData}
               margin={
                 isNarrow
-                  ? { top: 15, right: 10, bottom: 20, left: 10 }
+                  ? { top: 15, right: 20, bottom: 20, left: 10 }
                   : { top: 10, right: 84, bottom: 10, left: 70 }
               }
               align="justify"
