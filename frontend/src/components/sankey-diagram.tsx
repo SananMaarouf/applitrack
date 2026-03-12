@@ -153,7 +153,7 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
       <div className="bg-foreground rounded-xl overflow-hidden">
         <div
           ref={diagramRef}
-          className="bg-foreground text-background min-h-64 md:min-h-64 rounded-lg"
+          className="bg-foreground text-background min-h-96 md:min-h-[28rem] rounded-lg"
         >
           {links.length > 0 ? (
             <ResponsiveSankey

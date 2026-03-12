@@ -111,7 +111,7 @@ function Dashboard() {
           </div>
           <div className="space-y-2 bg-card rounded-xl p-2">
             {/* set active chart switch */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-1">
               <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
                 <Button
                   variant={activeChart === 'bar' ? 'default' : 'ghost'}
@@ -129,11 +129,12 @@ function Dashboard() {
                 </Button>
               </div>
               {activeChart === 'sankey' && sankeyHasLinks && (
+                <div className="ml-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="default" size="sm" className="flex items-center gap-2">
                       <Download className="h-4 w-4" />
-                      Export
+                      <span className="hidden sm:inline">Export</span>
                       <ChevronDown className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -148,7 +149,9 @@ function Dashboard() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                </div>
               )}
+
             </div>
             {activeChart === 'bar' ? <BarStatusChart /> : <SankeyDiagram ref={sankeyRef} />}
           </div>
