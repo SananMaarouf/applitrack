@@ -153,7 +153,9 @@ function Dashboard() {
               )}
 
             </div>
-            {activeChart === 'bar' ? <BarStatusChart /> : <SankeyDiagram ref={sankeyRef} />}
+            <div key={activeChart} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {activeChart === 'bar' ? <BarStatusChart /> : <SankeyDiagram ref={sankeyRef} />}
+            </div>
           </div>
         </div>
 
