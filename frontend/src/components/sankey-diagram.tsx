@@ -2,20 +2,17 @@
 
 import { ResponsiveSankey } from "@nivo/sankey";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Download } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import { toast } from "sonner";
 
-export function SankeyDiagram() {
+export interface SankeyDiagramHandle {
+  exportCSV: () => void;
+  exportDiagram: () => void;
+}
+
+export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiagram(_, ref) {
   const aggregatedStatusHistory = useAggregatedStatusHistoryStore(
     (state) => state.aggregatedStatusHistory,
   );
@@ -149,43 +146,22 @@ export function SankeyDiagram() {
 
   const sankeyData = { nodes, links };
 
+  useImperativeHandle(ref, () => ({ exportCSV, exportDiagram }));
+
   return (
     <div className="w-full mx-auto">
-      <div className="bg-foreground p-3">
-        {links.length > 0 && (
-          <div className="flex justify-end mb-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="default" size="sm" className="flex items-center gap-2">
-                  <Download className="h-4 w-4" />
-                  Export
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={exportCSV}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export CSV
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportDiagram}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export PNG
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
+      <div className="bg-foreground rounded-xl overflow-hidden">
         <div
           ref={diagramRef}
-          className="bg-foreground text-background p-3 min-h-120 md:min-h-96 rounded-lg"
+          className="bg-foreground text-background min-h-64 md:min-h-64 rounded-lg"
         >
           {links.length > 0 ? (
             <ResponsiveSankey
               data={sankeyData}
               margin={
                 isNarrow
-                  ? { top: 20, right: 30, bottom: 20, left: 10 }
-                  : { top: 42, right: 84, bottom: 42, left: 70 }
+                  ? { top: 15, right: 10, bottom: 20, left: 10 }
+                  : { top: 10, right: 84, bottom: 10, left: 70 }
               }
               align="justify"
               colors={{ datum: "nodeColor" }}
@@ -203,7 +179,7 @@ export function SankeyDiagram() {
               theme={{
                 labels: {
                   text: {
-                    fontSize: "0.8rem",
+                    fontSize: "0.7rem",
                     fontWeight: "bolder",
                   },
                 },
@@ -227,4 +203,4 @@ export function SankeyDiagram() {
       </div>
     </div>
   );
-}
+});

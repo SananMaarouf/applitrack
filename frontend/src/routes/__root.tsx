@@ -13,7 +13,7 @@ function Root() {
     <div className="min-h-screen bg-background text-foreground">
       <Toaster />
       <Navbar />
-      <main className="p-4">
+      <main className="p-4 pb-20 md:pb-4">
         <Outlet />
       </main>
     </div>

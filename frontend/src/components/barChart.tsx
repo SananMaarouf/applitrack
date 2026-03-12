@@ -94,15 +94,12 @@ export function BarStatusChart() {
     }));
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <CardTitle className="font-bold text-sm lg:text-lg">Applications over time</CardTitle>
-      </CardHeader>
+    <Card className="flex flex-col border-0">
       <CardContent>
         {jobApplications.length === 0 ? (
           <p className="text-center text-background my-10">No data to visualize yet</p>
         ) : (
-          <ChartContainer config={chartConfig} className="mx-auto w-full max-h-64">
+          <ChartContainer config={chartConfig} className="mx-auto w-full max-h-64 my-1">
             <BarChart accessibilityLayer data={chartPoints}>
               <CartesianGrid vertical={false} stroke="var(--card-foreground)" />
               <XAxis

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { Navigate } from '@tanstack/react-router'
+import { useEffect, useState, useRef } from 'react'
+import { Navigate, useLocation } from '@tanstack/react-router'
 import { useAuth } from '@clerk/clerk-react'
 
 import { listApplications, getStatusFlow, getDashboardTrends } from '@/api/applications'
@@ -12,16 +12,17 @@ import { Chart } from '@/components/pieChart'
 import { RadarStatusChart } from '@/components/radarChart'
 import { BarStatusChart } from '@/components/barChart'
 import { DataTable } from '@/components/data-table'
-import { SankeyDiagram } from '@/components/sankey-diagram'
+import { SankeyDiagram, type SankeyDiagramHandle } from '@/components/sankey-diagram'
 import { JobApplicationForm } from '@/components/jobApplicationForm'
 import { TrendCards } from '@/components/trendCards'
+import { Button } from '@/components/ui/button'
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
-import { useMediaQuery } from '@/hooks/use-media-query'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ChevronDown, Download } from 'lucide-react'
 
 export const Route = createFileRoute('/dashboard')({
   component: Dashboard,
@@ -34,7 +35,19 @@ function Dashboard() {
     (s) => s.setAggregatedStatusHistory,
   )
   const { trends, period, isLoading, setTrends, setPeriod, setLoading } = useTrendsStore()
-  const isMd = useMediaQuery('(min-width: 768px)')
+  const [activeChart, setActiveChart] = useState<'bar' | 'sankey'>('bar')
+  const sankeyRef = useRef<SankeyDiagramHandle>(null)
+  const sankeyHasLinks = useAggregatedStatusHistoryStore((s) => s.aggregatedStatusHistory.length > 0)
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.hash) {
+      const el = document.getElementById(location.hash)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }, [location.hash])
 
   useEffect(() => {
     if (!userId) return
@@ -84,10 +97,10 @@ function Dashboard() {
   if (!userId) return <Navigate to={'/sign-in' as any} />
 
   return (
-    <div className="space-y-1 max-w-6xl mx-auto my-2">
-      <section className="w-full grid grid-cols-1 lg:grid-cols-10 gap-4 mx-auto">
-        <div className="space-y-4 lg:col-span-7">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+    <div className="space-y-2 max-w-6xl mx-auto my-2">
+      <section className="w-full grid grid-cols-1 lg:grid-cols-10 gap-2 mx-auto">
+        <div className="space-y-2 lg:col-span-7">
+          <div id="stats-section" className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <TrendCards
               trends={trends}
               period={period}
@@ -96,40 +109,58 @@ function Dashboard() {
             />
             <Chart />
           </div>
-          {isMd ? (
-            <BarStatusChart />
-          ) : (
-            <Accordion type="single" collapsible>
-              <AccordionItem value="bar-chart" className="border rounded-lg">
-                <AccordionTrigger className="bg-primary text-primary-foreground px-4 cursor-pointer">Applications over time</AccordionTrigger>
-                <AccordionContent>
-                  <BarStatusChart />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
+          <div className="space-y-2 bg-card rounded-xl p-2">
+            {/* set active chart switch */}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
+                <Button
+                  variant={activeChart === 'bar' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setActiveChart('bar')}
+                >
+                  Applications over time
+                </Button>
+                <Button
+                  variant={activeChart === 'sankey' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setActiveChart('sankey')}
+                >
+                  Status flow
+                </Button>
+              </div>
+              {activeChart === 'sankey' && sankeyHasLinks && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="default" size="sm" className="flex items-center gap-2">
+                      <Download className="h-4 w-4" />
+                      Export
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => sankeyRef.current?.exportCSV()}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => sankeyRef.current?.exportDiagram()}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export PNG
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+            {activeChart === 'bar' ? <BarStatusChart /> : <SankeyDiagram ref={sankeyRef} />}
+          </div>
         </div>
 
-        <div className="lg:col-span-3">
+        <div className="hidden lg:block lg:col-span-3">
           <JobApplicationForm user_id={userId} />
         </div>
       </section>
 
-      <section className='w-full mx-auto mt-1'>
-        <Accordion type="multiple" defaultValue={['item-2']} className="flex flex-col gap-2">
-          <AccordionItem value="item-1">
-            <AccordionTrigger className="bg-primary text-primary-foreground px-4 cursor-pointer">Status History</AccordionTrigger>
-            <AccordionContent>
-              <SankeyDiagram />
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-2">
-            <AccordionTrigger className="bg-primary text-primary-foreground px-4 cursor-pointer">Application management</AccordionTrigger>
-            <AccordionContent>
-              <DataTable />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      <section id="datatable-section" className='w-full mx-auto scroll-mt-4'>
+        <DataTable />
       </section>
 
     </div>

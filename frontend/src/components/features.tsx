@@ -67,9 +67,6 @@ export function Features() {
               className={`flex flex-col ${textFirst ? "lg:flex-row" : "lg:flex-row-reverse"} gap-8 lg:gap-12 items-center`}
             >
               <div className="lg:w-1/3 px-12 flex flex-col space-y-4">
-                <span className="text-sm font-semibold text-primary uppercase tracking-widest">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
                 <h3 className="text-2xl lg:text-3xl font-semibold">
                   {feature.title}
                 </h3>

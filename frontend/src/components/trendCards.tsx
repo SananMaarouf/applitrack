@@ -93,7 +93,7 @@ function MetricCard({
       </CardHeader>
       <CardContent>
         <p className="text-xs text-muted-foreground">
-          {metric.previous.toLocaleString()} in the previous <PeriodLabel period={period} />
+          {metric.previous.toLocaleString()} in the <PeriodLabel period={period} />
           {metric.difference !== 0 && (
             <span className={metric.difference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>
               {' '}({metric.difference > 0 ? '+' : ''}{metric.difference})
@@ -133,7 +133,7 @@ export function TrendCards({ trends, period, isLoading, onPeriodChange }: TrendC
     <div className="flex flex-col gap-3 h-full bg-card rounded-xl p-4">
       <div className="flex items-center justify-between">
         <div className='text-card-foreground'>
-          <h2 className="text-sm font-semibold">{periodLabel} vs. previous period</h2>
+          <h2 className="text-sm font-semibold">{periodLabel}</h2>
           <p className="text-xs">Rolling window comparison</p>
         </div>
         <Select value={period} onValueChange={(v) => onPeriodChange(v as TrendPeriod)}>
@@ -148,7 +148,7 @@ export function TrendCards({ trends, period, isLoading, onPeriodChange }: TrendC
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 grid-rows-2 flex-1 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-1 grid-rows-1 lg:grid-rows-2 flex-1 gap-3">
         {isLoading || !trends ? (
           <>
             <SkeletonCard />

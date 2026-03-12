@@ -61,13 +61,13 @@
   --card-foreground: oklch(0.27 0 0);
   --popover: oklch(0.31 0 0);
   --popover-foreground: oklch(0.92 0 0);
-  --primary: oklch(0.67 0.13 38.92);
+  --primary: oklch(0.62 0.14 39.15);
   --primary-foreground: oklch(1.00 0 0);
   --secondary: oklch(0.98 0.01 93.48);
   --secondary-foreground: oklch(0.31 0 0);
   --muted: oklch(0.22 0 0);
   --muted-foreground: oklch(0.77 0.02 100.64);
-  --accent: oklch(0.67 0.13 38.92);
+  --accent: oklch(0.62 0.14 39.15);
   --accent-foreground: oklch(0.97 0.01 93.49);
   --destructive: oklch(0.64 0.21 25.39);
   --border: oklch(1.00 0 0);

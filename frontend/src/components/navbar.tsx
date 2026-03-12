@@ -1,29 +1,52 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import {
   ClerkLoaded,
   ClerkLoading,
   SignedIn,
   SignedOut,
   SignOutButton,
+  useAuth,
+  useClerk,
 } from "@clerk/clerk-react";
-import { Menu } from "lucide-react";
+import { Home, BarChart2, Plus, X, ClipboardList, User, LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { JobApplicationForm } from "@/components/jobApplicationForm";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
-  const [open, setOpen] = useState(false);
+  const { userId } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { signOut } = useClerk();
+  const isOnMyAccount = location.pathname.startsWith('/my-account');
+  const [addOpen, setAddOpen] = useState(false);
+
+  const scrollToSection = (id: string) => {
+    const scroll = () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    if (location.pathname === '/dashboard') {
+      scroll();
+    } else {
+      navigate({ to: '/dashboard' }).then(() => setTimeout(scroll, 100));
+    }
+  };
 
   return (
-    <header className="w-full px-4 flex">
+    <>
+      <header className="w-full px-4 flex">
       <div className="
         bg-primary flex mx-auto w-full max-w-7xl mt-2
         items-center justify-between shadow-xl rounded-lg px-6 py-5"
@@ -94,17 +117,11 @@ export function Navbar() {
           </ClerkLoaded>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile: show theme + sign-in when signed out, theme only when signed in */}
         <div className="md:hidden">
           <ClerkLoading>
-            <div className="flex gap-2">
-              <ThemeSwitcher variant="icon-only" />
-              <Button variant="secondary" asChild>
-                <Link to="/sign-in">Get started</Link>
-              </Button>
-            </div>
+            <ThemeSwitcher variant="icon-only" />
           </ClerkLoading>
-
           <ClerkLoaded>
             <SignedOut>
               <div className="flex gap-2">
@@ -115,44 +132,80 @@ export function Navbar() {
               </div>
             </SignedOut>
             <SignedIn>
-              <Sheet open={open} onOpenChange={setOpen}>
-                <SheetTrigger asChild>
-                  <Button size={"icon-lg"}>
-                    <Menu className="size-8" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="px-2 text-2xl flex flex-col">
-                  <SheetHeader />
-                  <div className="flex flex-col gap-4 mt-6">
-                    <Link to="/dashboard" className="hover:underline" onClick={() => setOpen(false)}>
-                      Dashboard
-                    </Link>
-                    <SignedIn>
-                      <Link to={'/my-account'} className="hover:underline" onClick={() => setOpen(false)}>
-                        Profile
-                      </Link>
-                    </SignedIn>
-                    <div className="mt-4">
-                      <p className="mb-1 text-sm ">Theme: </p>
-                      <ThemeSwitcher variant="dropdown-menu" />
-                    </div>
-                  </div>
-                  <div className="mt-auto mb-4 flex flex-col gap-4">
-                    <SignedIn>
-                      <SignOutButton redirectUrl="/">
-                        <Button variant="destructive" onClick={() => setOpen(false)}>
-                          Sign out
-                        </Button>
-                      </SignOutButton>
-                    </SignedIn>
-                  </div>
-                </SheetContent>
-              </Sheet>
+              <div className="flex gap-2">
+                <ThemeSwitcher variant="icon-only" />
+                {isOnMyAccount && (
+                  <SignOutButton redirectUrl="/">
+                    <Button variant="destructive">
+                      <LogOut className="size-4" />
+                      Sign out
+                    </Button>
+                  </SignOutButton>
+                )}
+              </div>
             </SignedIn>
           </ClerkLoaded>
         </div>
       </div>
     </header>
+
+    {/* Mobile Bottom Navigation */}
+    <ClerkLoaded>
+      <SignedIn>
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-primary shadow-[0_-2px_12px_rgba(0,0,0,0.2)] flex items-end justify-around px-2 h-16">
+          <Link
+            to="/dashboard"
+            activeProps={{ className: "flex flex-col items-center justify-center gap-0.5 h-full flex-1 text-primary-foreground" }}
+            inactiveProps={{ className: "flex flex-col items-center justify-center gap-0.5 h-full flex-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors" }}
+          >
+            <Home className="size-5" />
+            <span className="text-xs">Home</span>
+          </Link>
+
+          <button
+            onClick={() => scrollToSection('stats-section')}
+            className="flex flex-col items-center justify-center gap-0.5 h-full flex-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors"
+          >
+            <BarChart2 className="size-5" />
+            <span className="text-xs">Stats</span>
+          </button>
+
+          <button
+            onClick={() => setAddOpen((prev) => !prev)}
+            className="flex flex-col items-center cursor-pointer hover:scale-110 transition-all duration-600 z-50 justify-center h-full flex-1 text-primary-foreground/50 hover:text-primary-foreground"
+            aria-label={addOpen ? "Close" : "Add job application"}
+          >
+            <div className="bg-primary-foreground z-50 text-primary rounded-full p-2.5 -translate-y-3 shadow-lg ring-4 ring-primary">
+              {addOpen ? <X className="size-5 z-50" /> : <Plus className="size-5" />}
+            </div>
+          </button>
+
+          <button
+            onClick={() => scrollToSection('datatable-section')}
+            className="flex flex-col items-center justify-center gap-0.5 h-full flex-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors"
+          >
+            <ClipboardList className="size-5" />
+            <span className="text-xs">Edit</span>
+          </button>
+
+          <Link
+            to={'/my-account' as any}
+            activeProps={{ className: "flex flex-col items-center justify-center gap-0.5 h-full flex-1 text-primary-foreground" }}
+            inactiveProps={{ className: "flex flex-col items-center justify-center gap-0.5 h-full flex-1 text-primary-foreground/50 hover:text-primary-foreground transition-colors" }}
+          >
+            <User className="size-5" />
+            <span className="text-xs">Profile</span>
+          </Link>
+        </nav>
+
+        {/* New Application Modal */}
+        <Dialog open={addOpen} onOpenChange={setAddOpen}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto p-0">
+            {userId && <JobApplicationForm user_id={userId} />}
+          </DialogContent>
+        </Dialog>
+      </SignedIn>
+    </ClerkLoaded>
+    </>
   );
 }

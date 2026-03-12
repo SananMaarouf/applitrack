@@ -108,7 +108,7 @@ const Celebrate = () => {
         version="1.0"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 200 960 645"
-        className="w-100.25 h-100.25"
+        className="w-100.25 h-72"
         preserveAspectRatio="xMidYMid meet"
       >
         <g transform="translate(0.000000,1002.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
