@@ -94,7 +94,7 @@ export function BarStatusChart() {
     }));
 
   return (
-    <Card className="flex flex-col border-0">
+    <Card className="flex flex-col border-0 shadow-none">
       <CardContent>
         {jobApplications.length === 0 ? (
           <p className="text-center text-background my-10">No data to visualize yet</p>
