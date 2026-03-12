@@ -118,7 +118,7 @@ function Dashboard() {
                   size="sm"
                   onClick={() => setActiveChart('bar')}
                 >
-                  Applications over time
+                  History
                 </Button>
                 <Button
                   variant={activeChart === 'sankey' ? 'default' : 'ghost'}

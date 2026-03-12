@@ -137,7 +137,7 @@ export function TrendCards({ trends, period, isLoading, onPeriodChange }: TrendC
           <p className="text-xs">Rolling window comparison</p>
         </div>
         <Select value={period} onValueChange={(v) => onPeriodChange(v as TrendPeriod)}>
-          <SelectTrigger size="sm" className="w-fit min-w-0 bg-primary text-primary-foreground border-none shadow-none">
+          <SelectTrigger size="sm" className="w-fit min-w-0 text-sm  bg-primary text-primary-foreground border-none shadow-none">
             <SlidersHorizontal className="size-4 text-primary-foreground" />
             <SelectValue className="hidden" />
           </SelectTrigger>
@@ -158,7 +158,7 @@ export function TrendCards({ trends, period, isLoading, onPeriodChange }: TrendC
           <>
             <MetricCard
               title="Applications sent"
-              description="Applications sent"
+              description="Applications"
               icon={SendHorizonal}
               metric={trends.applications_sent}
               period={trends.period}
