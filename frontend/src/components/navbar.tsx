@@ -67,7 +67,7 @@ export function Navbar() {
           </div>
         </header>
 
-        <nav className="fixed right-0 bottom-0 left-0 z-50 mx-4 flex h-16 items-end justify-around rounded-xl bg-primary px-2 md:hidden">
+        <nav className="fixed right-0 bottom-0 left-0 z-50 mx-4 flex h-[calc(4rem+env(safe-area-inset-bottom))] items-end justify-around rounded-xl bg-primary px-2 pb-[env(safe-area-inset-bottom)] md:hidden">
           <Link
             to="/dashboard"
             activeProps={{ className: "flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-primary-foreground" }}
@@ -117,7 +117,7 @@ export function Navbar() {
         </nav>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogContent className="max-h-[90dvh] overflow-y-auto p-0">
+          <DialogContent className="top-auto bottom-[calc(5rem+env(safe-area-inset-bottom))] max-h-[calc(100dvh-6rem-env(safe-area-inset-bottom))] translate-y-0 overflow-y-auto p-0 md:top-[50%] md:bottom-auto md:max-h-[90dvh] md:translate-y-[-50%]">
             {userId && <JobApplicationForm user_id={userId} />}
           </DialogContent>
         </Dialog>
