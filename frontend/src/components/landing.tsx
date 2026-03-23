@@ -9,31 +9,15 @@ import { Button } from './ui/button';
 gsap.registerPlugin(useGSAP);
 
 export function Landing() {
-	const headlineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+	const headlineRef = useRef<HTMLHeadingElement>(null);
 	const subTextRef = useRef<HTMLDivElement>(null);
 	const celebrateContainerRef = useRef<HTMLDivElement>(null);
 	const textColumnRef = useRef<HTMLDivElement>(null);
 
-	const headlines = [
-		"Keep losing track of what you've applied to?",
-		"Want to know how much you're getting ghosted?",
-		"Organize your job search with Applitrack!",
-	];
-
 	useGSAP(() => {
-		gsap.set([headlineRefs.current[1], headlineRefs.current[2]], { y: 60, opacity: 0 });
 		gsap.set(subTextRef.current, { y: 20, opacity: 0 });
 
-		const [h1, h2, h3] = headlineRefs.current;
-
-		const addHeadlineCycling = (tl: gsap.core.Timeline) => {
-			tl.to(h1, { y: -40, opacity: 0, duration: 1.3, ease: "power2.in" }, "+=1.8");
-			tl.to(h2, { y: 0, opacity: 1, duration: 1.3, ease: "power2.out" }, "-=0.4");
-			tl.to(h2, { y: -40, opacity: 0, duration: 1.3, ease: "power2.in" }, "+=2.4");
-			tl.to(h3, { y: 0, opacity: 1, duration: 1.3, ease: "power2.out" }, "-=0.4");
-			tl.add("reveal", "+=0.7");
-			tl.to(subTextRef.current, { y: 0, opacity: 1, duration: 1.3, ease: "power2.out" }, "reveal");
-		};
+		const h1 = headlineRef.current;
 
 
 		const mm = gsap.matchMedia();
@@ -45,7 +29,7 @@ export function Landing() {
 			tl.from(celebrateContainerRef.current, { y: -80, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.2");
 			tl.from(textColumnRef.current, { x: -60, duration: 0.8, ease: "power2.out" }, "-=0.4");
 			tl.from(h1, { y: 60, opacity: 0, duration: 1.3, ease: "power2.out" }, "<");
-			addHeadlineCycling(tl);
+			tl.to(subTextRef.current, { y: 0, opacity: 1, duration: 1.1, ease: "power2.out" }, "-=0.2");
 		});
 
 		// Mobile: headline fades in from top
@@ -54,7 +38,7 @@ export function Landing() {
 			tl.from('header', { y: -100, duration: 0.7, ease: "power2.out" });
 			tl.from(celebrateContainerRef.current, { y: -80, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.2");
 			tl.from(h1, { y: -60, opacity: 0, duration: 1.3, ease: "power2.out" }, "-=0.4");
-			addHeadlineCycling(tl);
+			tl.to(subTextRef.current, { y: 0, opacity: 1, duration: 1.1, ease: "power2.out" }, "-=0.2");
 		});
 	});
 
@@ -63,6 +47,7 @@ export function Landing() {
 
 			{/* illustration — top on mobile, right column on desktop */}
 			<figure ref={celebrateContainerRef} className="
+					order-2
 					flex justify-center
 					lg:order-last lg:items-center lg:justify-center">
 				<Celebrate />
@@ -70,31 +55,28 @@ export function Landing() {
 
 			{/* text — below illustration on mobile, left column on desktop */}
 			<article ref={textColumnRef} className="
-				w-full min-w-0 flex flex-col 
-				place-content-between 
-				lg:place-content-evenly lg:order-first">
-				{/* Headlines - stack in same cell, swap one by one */}
-				<div className="grid lg:relative h-fit items-center lg:h-auto">
-					{headlines.map((text, index) => (
-						<h2 key={index} ref={el => { headlineRefs.current[index] = el; }}
-							className="
-									col-start-1 row-start-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
-								font-bold px-4 lg:px-0 text-center lg:text-left"
-						>
-							{text}
-						</h2>
-					))}
+				contents
+				lg:order-first lg:flex lg:w-full lg:min-w-0 lg:flex-col
+				lg:place-content-evenly">
+				{/* Headline */}
+				<div className="order-1 grid h-fit items-center lg:relative lg:h-auto lg:order-0">
+					<h2
+						ref={headlineRef}
+						className="
+							col-start-1 row-start-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
+							font-bold px-4 lg:px-0 text-center lg:text-left"
+					>
+						Stay on track with Applitrack
+					</h2>
 				</div> 
 
-				{/* Sub-text - animates in after all headlines */}
-				<div ref={subTextRef} className="flex flex-col gap-4 lg:mt-0 lg:items-start">
+				{/* Sub-text - animates in after headline */}
+				<div ref={subTextRef} className="order-3 mt-4 flex flex-col gap-4 lg:order-0 lg:mt-0 lg:items-start">
 					<p
 						className="
-								text-3xl sm:text-3xl text-center lg:text-left font-bold"
+								text-2xl text-center lg:text-left font-bold"
 					>
-						Track every{" "}
-						<span className="underline">application</span>,{" "}
-						land your next <span className="underline">offer</span>
+						Map your job hunt journey
 					</p>
 
 					<Button size="lg" className="self-center mt-2 hover:scale-125 transition-all duration-300" onClick={() => window.scrollBy({ top: 500, behavior: 'smooth' })}>

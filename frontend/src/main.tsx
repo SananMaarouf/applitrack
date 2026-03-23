@@ -70,7 +70,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       routerPush={(to: string) => router.navigate({ to: to as any })}
       routerReplace={(to: string) => router.navigate({ to: to as any, replace: true })}
     >
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
         <RouterProvider router={router} />
       </ThemeProvider>
     </ClerkProvider>
