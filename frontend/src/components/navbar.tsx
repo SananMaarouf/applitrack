@@ -117,8 +117,8 @@ export function Navbar() {
         </nav>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogContent className="top-auto bottom-[calc(5rem+env(safe-area-inset-bottom))] max-h-[calc(100dvh-6rem-env(safe-area-inset-bottom))] translate-y-0 overflow-y-auto p-0 md:top-[50%] md:bottom-auto md:max-h-[90dvh] md:translate-y-[-50%]">
-            {userId && <JobApplicationForm user_id={userId} />}
+          <DialogContent showCloseButton={false} className="top-auto bottom-[calc(5rem+env(safe-area-inset-bottom))] max-h-[calc(100dvh-6rem-env(safe-area-inset-bottom))] translate-y-0 overflow-y-auto p-0 md:top-[50%] md:bottom-auto md:max-h-[90dvh] md:translate-y-[-50%]">
+            {userId && <JobApplicationForm user_id={userId} onClose={() => setAddOpen(false)} />}
           </DialogContent>
         </Dialog>
       </>

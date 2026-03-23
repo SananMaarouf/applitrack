@@ -169,8 +169,8 @@ export function AppSidebar() {
       </Sidebar>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="max-h-[90dvh] overflow-y-auto p-0">
-          {userId && <JobApplicationForm user_id={userId} />}
+        <DialogContent showCloseButton={false} className="max-h-[90dvh] overflow-y-auto p-0">
+          {userId && <JobApplicationForm user_id={userId} onClose={() => setAddOpen(false)} />}
         </DialogContent>
       </Dialog>
     </>

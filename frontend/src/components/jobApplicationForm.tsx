@@ -40,7 +40,7 @@ const formSchema = z.object({
   link: z.string().optional(),
 });
 
-export function JobApplicationForm({ user_id }: { user_id: string }) {
+export function JobApplicationForm({ user_id, onClose }: { user_id: string; onClose?: () => void }) {
   const { getToken } = useAuth();
   const [appliedDateOpen, setAppliedDateOpen] = useState(false);
   const [expiresDateOpen, setExpiresDateOpen] = useState(false);
@@ -104,20 +104,34 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
   }
 
   return (
-    <div className="bg-foreground w-full h-full text-background p-4 rounded-md">
-      <h2 className="text-lg font-bold text-center">Register application</h2>
+    <div className="bg-foreground w-full rounded-md p-3 text-background sm:p-4">
+      <div className="mb-2 flex items-center justify-between sm:mb-3">
+        <h2 className="text-base font-bold sm:text-lg">Register application</h2>
+        {onClose && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="hidden text-background/80 hover:text-background md:inline-flex"
+            onClick={onClose}
+            aria-label="Close form"
+          >
+            <XIcon className="size-5" />
+          </Button>
+        )}
+      </div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
           <FormField
             control={form.control}
             name="position"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Position*</FormLabel>
+                <FormLabel className="text-xs sm:text-sm">Position*</FormLabel>
                 <FormControl>
                   <input
                     {...field}
-                    className="mt-1 text-primary-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50"
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-primary p-1.5 text-sm text-primary-foreground shadow-xs focus:ring-3 focus:ring-opacity-50 sm:p-2"
                   />
                 </FormControl>
                 <FormMessage className="text-red-400" />
@@ -129,11 +143,11 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company*</FormLabel>
+                <FormLabel className="text-xs sm:text-sm">Company*</FormLabel>
                 <FormControl>
                   <input
                     {...field}
-                    className="mt-1 text-primary-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50"
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-primary p-1.5 text-sm text-primary-foreground shadow-xs focus:ring-3 focus:ring-opacity-50 sm:p-2"
                   />
                 </FormControl>
                 <FormMessage className="text-red-400" />
@@ -145,8 +159,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             name="applied_at"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date Applied*</FormLabel>
-                <div className="flex gap-2">
+                <FormLabel className="text-xs sm:text-sm">Date Applied*</FormLabel>
+                <div className="flex gap-1.5 sm:gap-2">
                   <FormControl>
                     <Input
                       type="text"
@@ -171,12 +185,12 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                           setAppliedDateText("");
                         }
                       }}
-                      className="text-primary-foreground bg-primary"
+                      className="h-9 bg-primary text-sm text-primary-foreground sm:h-10"
                     />
                   </FormControl>
                   <Popover open={appliedDateOpen} onOpenChange={setAppliedDateOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="default" size="icon" type="button">
+                      <Button variant="default" size="icon" type="button" className="h-9 w-9 sm:h-10 sm:w-10">
                         <CalendarIcon className="h-5 w-5" />
                       </Button>
                     </PopoverTrigger>
@@ -207,8 +221,8 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             name="expires_at"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date Expires (optional)</FormLabel>
-                <div className="flex gap-2">
+                <FormLabel className="text-xs sm:text-sm">Date Expires (optional)</FormLabel>
+                <div className="flex gap-1.5 sm:gap-2">
                   <FormControl>
                     <Input
                       type="text"
@@ -233,12 +247,12 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                           setExpiresDateText("");
                         }
                       }}
-                      className="text-primary-foreground bg-primary"
+                      className="h-9 bg-primary text-sm text-primary-foreground sm:h-10"
                     />
                   </FormControl>
                   <Popover open={expiresDateOpen} onOpenChange={setExpiresDateOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="default" size="icon" type="button">
+                      <Button variant="default" size="icon" type="button" className="h-9 w-9 sm:h-10 sm:w-10">
                         <CalendarIcon className="h-5 w-5" />
                       </Button>
                     </PopoverTrigger>
@@ -269,11 +283,11 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             name="link"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Link (optional)</FormLabel>
+                <FormLabel className="text-xs sm:text-sm">Link (optional)</FormLabel>
                 <FormControl>
                   <input
                     {...field}
-                    className="text-primary-foreground bg-primary p-2 block w-full border-gray-300 rounded-md shadow-xs focus:ring-3 focus:ring-opacity-50"
+                    className="block w-full rounded-md border-gray-300 bg-primary p-1.5 text-sm text-primary-foreground shadow-xs focus:ring-3 focus:ring-opacity-50 sm:p-2"
                   />
                 </FormControl>
                 <FormMessage />
@@ -283,13 +297,13 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
 
           {/* PDF attachment */}
           <div className="space-y-1">
-            <label className="text-sm font-medium leading-none">Attachment (optional, PDF)</label>
+            <label className="text-xs font-medium leading-none sm:text-sm">Attachment (optional, PDF)</label>
             <div className="flex items-center gap-2">
               <label
                 htmlFor="pdf-attachment"
-                className="flex items-center gap-2 cursor-pointer text-primary-foreground bg-primary px-3 py-2 rounded-md text-sm hover:opacity-80 transition-opacity"
+                className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-2.5 py-1.5 text-xs text-primary-foreground transition-opacity hover:opacity-80 sm:px-3 sm:py-2 sm:text-sm"
               >
-                <PaperclipIcon className="h-4 w-4" />
+                <PaperclipIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 {attachmentFile ? attachmentFile.name : "Choose PDF…"}
               </label>
               <input
@@ -318,7 +332,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                   className="text-muted-foreground hover:text-foreground transition-colors"
                   aria-label="Remove attachment"
                 >
-                  <XIcon className="h-4 w-4" />
+                  <XIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
               )}
             </div>
@@ -328,7 +342,7 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
             <Button
               type="button"
               variant="destructive"
-              size={"icon-lg"}
+              size="icon"
               onClick={() => {
                 form.reset();
                 setAppliedDateText(format(new Date(), "yyyy-MM-dd"));
@@ -337,10 +351,10 @@ export function JobApplicationForm({ user_id }: { user_id: string }) {
                 if (fileInputRef.current) fileInputRef.current.value = "";
               }}
             >
-              <Trash2Icon className="size-6" />
+              <Trash2Icon className="size-5" />
             </Button>
-            <Button className="px-10" type="submit" variant="default" size={"icon-lg"}>
-              <SquarePlusIcon className="size-8" />
+            <Button className="px-8 sm:px-10" type="submit" variant="default" size="icon">
+              <SquarePlusIcon className="size-6" />
             </Button>
           </div>
         </form>
