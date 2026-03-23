@@ -19,6 +19,34 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
   const { theme } = useTheme();
   const diagramRef = useRef<HTMLDivElement>(null);
 
+  const statusOrder: Record<string, number> = {
+    Applied: 1,
+    Interview: 2,
+    "Second Interview": 3,
+    "Third Interview": 4,
+    Offer: 5,
+    Rejected: 6,
+    Ghosted: 7,
+  };
+
+  // Nivo Sankey requires an acyclic graph, so keep only forward transitions.
+  const sankeyFlow = aggregatedStatusHistory
+    .map((item) => ({
+      from: String(item.From),
+      to: String(item.To),
+      weight: Number(item.Weight),
+    }))
+    .filter((item) => {
+      if (!Number.isFinite(item.weight) || item.weight <= 0) return false;
+      if (item.from === item.to) return false;
+
+      const fromOrder = statusOrder[item.from];
+      const toOrder = statusOrder[item.to];
+      if (!fromOrder || !toOrder) return false;
+
+      return fromOrder < toOrder;
+    });
+
   const exportCSV = () => {
     const headers = ["From", "To", "Weight"];
     const rows = aggregatedStatusHistory.map((item) => [
@@ -82,9 +110,9 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
     }
   };
 
-  const rawNodes = aggregatedStatusHistory.map((item) => ({
-    source: String(item.From),
-    target: String(item.To),
+  const rawNodes = sankeyFlow.map((item) => ({
+    source: item.from,
+    target: item.to,
   }));
 
   const allNodeIds = rawNodes.reduce((acc, curr) => {
@@ -138,10 +166,10 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
     return () => window.removeEventListener("resize", updatePosition);
   }, []);
 
-  const links = aggregatedStatusHistory.map((item) => ({
-    source: String(item.From),
-    target: String(item.To),
-    value: Number(item.Weight),
+  const links = sankeyFlow.map((item) => ({
+    source: item.from,
+    target: item.to,
+    value: item.weight,
   }));
 
   const sankeyData = { nodes, links };

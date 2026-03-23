@@ -148,7 +148,7 @@ export function TrendCards({ trends, period, isLoading, onPeriodChange }: TrendC
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-1 grid-rows-1 lg:grid-rows-2 flex-1 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 flex-1 gap-3">
         {isLoading || !trends ? (
           <>
             <SkeletonCard />

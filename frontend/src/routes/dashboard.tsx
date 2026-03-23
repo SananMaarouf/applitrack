@@ -98,17 +98,16 @@ function Dashboard() {
   return (
     <div className="space-y-2 max-w-6xl mx-auto my-2">
       <section className="w-full grid grid-cols-1 gap-2 mx-auto">
-        <div className="space-y-2">
-          <div id="stats-section" className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <div id="stats-section" className="grid grid-cols-1 lg:grid-cols-10 gap-2">
+          <div className="lg:col-span-10">
             <TrendCards
               trends={trends}
               period={period}
               isLoading={isLoading}
               onPeriodChange={setPeriod}
             />
-            <Chart />
           </div>
-          <div className="space-y-2 bg-card border rounded-xl p-2 shadow-lg">
+          <div className="order-3 lg:order-2 lg:col-span-7 space-y-2 bg-card border rounded-xl p-2 shadow-lg">
             {/* set active chart switch */}
             <div className="flex items-center justify-between gap-1">
               <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
@@ -129,32 +128,34 @@ function Dashboard() {
               </div>
               {activeChart === 'sankey' && sankeyHasLinks && (
                 <div className="ml-auto">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="default" size="sm" className="flex items-center gap-2">
-                      <Download className="h-4 w-4" />
-                      <span className="hidden sm:inline">Export</span>
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => sankeyRef.current?.exportCSV()}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Export CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => sankeyRef.current?.exportDiagram()}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Export PNG
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="default" size="sm" className="flex items-center gap-2">
+                        <Download className="h-4 w-4" />
+                        <span className="hidden sm:inline">Export</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => sankeyRef.current?.exportCSV()}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => sankeyRef.current?.exportDiagram()}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export PNG
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               )}
-
             </div>
             <div key={activeChart} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
               {activeChart === 'bar' ? <BarStatusChart /> : <SankeyDiagram ref={sankeyRef} />}
             </div>
+          </div>
+          <div className="order-2 lg:order-3 lg:col-span-3">
+            <Chart />
           </div>
         </div>
 
