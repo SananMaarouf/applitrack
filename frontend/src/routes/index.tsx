@@ -1,13 +1,19 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, Navigate, createFileRoute } from '@tanstack/react-router'
 import { Landing } from '../components/landing'
 import { Features } from '../components/features'
-import { Link } from "@tanstack/react-router";
+import { useAuth } from '@clerk/clerk-react'
 
 export const Route = createFileRoute('/')({
   component: Home,
 })
 
 function Home() {
+  const { isLoaded, userId } = useAuth()
+
+  if (isLoaded && userId) {
+    return <Navigate to="/dashboard" replace />
+  }
+
   return (
     <div className="flex flex-col items-center w-full grow mx-auto overflow-hidden ">
       {/* Landing Section */}

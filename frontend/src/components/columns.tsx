@@ -145,7 +145,7 @@ function AttachmentCell({ row }: { row: Row<JobApplication> }) {
   }
 
   return (
-    <Button variant="outline" size="sm" onClick={handleView} disabled={loading} className="mx-auto flex">
+    <Button variant="default" size="sm" onClick={handleView} disabled={loading} className="mx-auto flex">
       <Paperclip className="h-4 w-4 mr-1" />
       {loading ? "Loading…" : "View"}
     </Button>
@@ -175,7 +175,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     header: ({ table }) => (
       <input
         type="checkbox"
-        className="cursor-pointer w-4 h-4"
+        className="h-4 w-4 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         checked={table.getIsAllPageRowsSelected()}
         onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
         aria-label="Select all"
@@ -184,7 +184,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     cell: ({ row }) => (
       <input
         type="checkbox"
-        className="cursor-pointer w-4 h-4"
+        className="h-4 w-4 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         checked={row.getIsSelected()}
         onChange={(e) => row.toggleSelected(!!e.target.checked)}
         aria-label="Select row"

@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, Laptop } from "lucide-react";
+import { Moon, Sun, Laptop, Check } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 
 type ThemeSwitcherProps = {
-  variant?: "icon-only" | "dropdown-menu";
+  variant?: "icon" | "icon-only" | "dropdown-menu";
 };
 
 export function ThemeSwitcher({ variant = "icon-only" }: ThemeSwitcherProps) {
@@ -42,18 +42,27 @@ export function ThemeSwitcher({ variant = "icon-only" }: ThemeSwitcherProps) {
     );
   }
 
-  /* if no variant specified it defaults to this */
+  /* if no variant specified it defaults to icon-only */
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="icon" aria-label="Toggle theme" className="data-[state=open]:bg-primary-foreground data-[state=open]:text-foreground">
+        <Button variant="default" size="icon" aria-label="Toggle theme" className="">
           <Icon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("light")} className="justify-between">
+          Light
+          <Check className={`h-4 w-4 ml-4 ${theme === "light" ? "opacity-100" : "opacity-0"}`} />
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")} className="justify-between">
+          Dark
+          <Check className={`h-4 w-4 ml-4 ${theme === "dark" ? "opacity-100" : "opacity-0"}`} />
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")} className="justify-between">
+          System
+          <Check className={`h-4 w-4 ml-4 ${theme === "system" ? "opacity-100" : "opacity-0"}`} />
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

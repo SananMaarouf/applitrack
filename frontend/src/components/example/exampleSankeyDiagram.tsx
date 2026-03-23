@@ -1,6 +1,7 @@
 import { ResponsiveSankey } from "@nivo/sankey"
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Mock data
 const mockJobApplications = [
@@ -62,7 +63,8 @@ const statusMap: { [key: number]: string } = {
 };
 
 export function ExampleSankeyDiagram() {
-	const { theme } = useTheme();
+	const { resolvedTheme } = useTheme();
+	const labelTextColor = resolvedTheme === "dark" ? "#ede7e0" : "#231f20";
 
 	// Transform job applications into aggregated status history
 	const aggregatedStatusHistory = mockJobApplications.map(app => ({
@@ -138,49 +140,45 @@ export function ExampleSankeyDiagram() {
 
 	const sankeyData = { nodes, links };
 	return (
-		<div className="w-full mx-auto">
-			<div className="bg-foreground text-background p-3 min-h-96 rounded-lg">
-				{links.length > 1 ? (
-					<ResponsiveSankey
-						data={sankeyData}
-						margin={isNarrow
-							? { top: 20, right: 30, bottom: 20, left: 10 }
-							: { top: 42, right: 84, bottom: 42, left: 70 }}
-						align="justify"
-						colors={{ datum: 'nodeColor' }}
-						nodeThickness={18}
-						nodeSpacing={24}
-						linkOpacity={1}
-						nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
-						enableLinkGradient={true}
-						linkBlendMode="normal"
-						labelPosition='outside'
-						labelOrientation="horizontal"
-						labelPadding={10}
-						labelTextColor={theme === 'light' ? '#ede7e0' : '#231f20' }
-						layout={isNarrow ? 'vertical' : 'horizontal'}
-						theme={{
-							labels: {
-								text: {
-									fontSize: '0.8rem',
-									fontWeight: "bolder",
-								},
+		<Card className="w-full">
+			<CardContent className="p-3 min-h-96">
+				<ResponsiveSankey
+					data={sankeyData}
+					margin={isNarrow
+						? { top: 20, right: 30, bottom: 20, left: 10 }
+						: { top: 42, right: 84, bottom: 42, left: 70 }}
+					align="justify"
+					colors={{ datum: 'nodeColor' }}
+					nodeThickness={18}
+					nodeSpacing={24}
+					linkOpacity={1}
+					nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
+					enableLinkGradient={true}
+					linkBlendMode="normal"
+					labelPosition='outside'
+					labelOrientation="horizontal"
+					labelPadding={10}
+					labelTextColor={labelTextColor}
+					layout={isNarrow ? 'vertical' : 'horizontal'}
+					theme={{
+						labels: {
+							text: {
+								fontSize: '0.8rem',
+								fontWeight: "bolder",
 							},
-							tooltip: {
-								container: {
-									background: '#333',
-									color: '#fff',
-									fontSize: '12px',
-									padding: '5px',
-									borderRadius: '4px',
-								},
+						},
+						tooltip: {
+							container: {
+								background: '#333',
+								color: '#fff',
+								fontSize: '12px',
+								padding: '5px',
+								borderRadius: '4px',
 							},
-						}}
-					/>
-				) : (
-					<p className="text-center py-10 text-background">No application history data available</p>
-				)}
-			</div>
-		</div>
+						},
+					}}
+				/>
+			</CardContent>
+		</Card>
 	);
 }

@@ -122,11 +122,19 @@ export function DataTable() {
 
     const newStatusNum = parseInt(newStatus);
 
-    const originalJobs = [...selectedJobs];
+    const jobsToUpdate = selectedJobs.filter((job) => job.status !== newStatusNum);
+
+    if (jobsToUpdate.length === 0) {
+      table.resetRowSelection();
+      toast.error("All selected rows already have this status");
+      return;
+    }
+
+    const originalJobs = [...jobsToUpdate];
+    const selectedJobIds = new Set(jobsToUpdate.map((job) => job.id));
 
     const updatedJobs = jobApplications.map((job) => {
-      const isSelected = selectedJobs.find((sj) => sj.id === job.id);
-      if (isSelected) {
+      if (selectedJobIds.has(job.id)) {
         return { ...job, status: newStatusNum };
       }
       return job;
@@ -136,11 +144,16 @@ export function DataTable() {
 
     try {
       // Run sequentially to keep failure handling simple
-      for (const job of selectedJobs) {
+      for (const job of jobsToUpdate) {
         await updateApplicationStatus(token, job.id, newStatusNum);
       }
       await refreshStatusFlow(token);
-      toast.success(`Successfully updated ${selectedJobs.length} job application(s)`);
+      const unchangedCount = selectedJobs.length - jobsToUpdate.length;
+      const message =
+        unchangedCount > 0
+          ? `Successfully updated ${jobsToUpdate.length} job application(s). Skipped ${unchangedCount} already in that status.`
+          : `Successfully updated ${jobsToUpdate.length} job application(s)`;
+      toast.success(message);
     } catch (error: any) {
       const restoredJobs = jobApplications.map((job) => {
         const original = originalJobs.find((oj) => oj.id === job.id);
@@ -187,13 +200,13 @@ export function DataTable() {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-foreground text-background px-3 rounded-lg">
+      <div className="bg-card border text-card-foreground px-3 rounded-xl">
         <div className="flex items-center py-4 gap-2">
           <Input
             placeholder="search..."
             value={table.getState().globalFilter ?? ""}
             onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-            className="max-w-sm text-primary-foreground"
+            className="max-w-sm rounded-xl text-primary-foreground"
           />
           {table.getFilteredSelectedRowModel().rows.length > 0 && (
             <>
@@ -211,11 +224,7 @@ export function DataTable() {
                   <SelectItem value={JobStatus.GHOSTED.toString()}>Ghosted</SelectItem>
                 </SelectContent>
               </Select>
-              <Button
-                variant="destructive"
-                onClick={handleBulkDelete}
-                className="flex items-center gap-2"
-              >
+              <Button variant="destructive" onClick={handleBulkDelete} className="flex items-center gap-2">
                 <Trash2 className="h-4 w-4" />
                 Delete ({table.getFilteredSelectedRowModel().rows.length})
               </Button>

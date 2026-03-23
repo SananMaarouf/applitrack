@@ -68,3 +68,5 @@ postgres_data/
 # GitHub instructions and prompts
 .github/instructions/*.md
 .github/prompts/*.md
+.agents/
+skills-lock.json

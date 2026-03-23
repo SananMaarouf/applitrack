@@ -85,7 +85,7 @@ function MetricCard({
           {description}
         </CardDescription>
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-3xl text-card font-bold tabular-nums">
+          <CardTitle className="text-3xl text-card-foreground font-bold tabular-nums">
             {metric.current.toLocaleString()}
           </CardTitle>
           <DirectionBadge metric={metric} />
@@ -130,7 +130,7 @@ export function TrendCards({ trends, period, isLoading, onPeriodChange }: TrendC
   const periodLabel = period === 'week' ? 'This week' : 'This month'
 
   return (
-    <div className="flex flex-col gap-3 h-full bg-card rounded-xl p-4">
+    <div className="flex flex-col gap-3 h-full bg-card border rounded-xl p-4 shadow-lg">
       <div className="flex items-center justify-between">
         <div className='text-card-foreground'>
           <h2 className="text-sm font-semibold">{periodLabel}</h2>

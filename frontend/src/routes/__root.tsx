@@ -1,7 +1,11 @@
 import { Outlet, createRootRoute, Link } from '@tanstack/react-router'
+import { useAuth } from '@clerk/clerk-react'
+
+import { AppSidebar } from '@/components/app-sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import { Navbar } from '@/components/navbar'
 import { Button } from '@/components/ui/button'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 export const Route = createRootRoute({
   component: Root,
@@ -9,6 +13,23 @@ export const Route = createRootRoute({
 })
 
 function Root() {
+  const { isLoaded, userId } = useAuth()
+
+  if (isLoaded && userId) {
+    return (
+      <SidebarProvider defaultOpen className="md:flex-row-reverse">
+        <Toaster />
+        <AppSidebar />
+        <SidebarInset className="min-h-screen">
+          <Navbar />
+          <main className="flex-1 p-4 pb-20 md:pb-4">
+            <Outlet />
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Toaster />

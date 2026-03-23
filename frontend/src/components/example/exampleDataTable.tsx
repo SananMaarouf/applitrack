@@ -2,6 +2,7 @@ import { useState } from "react";
 import { columns } from "./exampleColumns";
 import type { JobApplication } from '../../types/jobApplication';
 import { Table, TableRow, TableBody, TableCell, TableHead, TableHeader } from "../ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { flexRender, SortingState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel } from "@tanstack/react-table";
 
 
@@ -67,9 +68,9 @@ export function ExampleDataTable() {
   });
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-foreground text-background border border-foreground overflow-hidden rounded-2xl -m-3">
-        <Table className=" ">
+    <Card className="w-full p-0 max-w-6xl mx-auto overflow-hidden">
+      <CardContent className="p-0">
+        <Table>
           <TableHeader className="">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -88,9 +89,10 @@ export function ExampleDataTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="bg-foreground">
+          <TableBody className="">
             {table.getRowModel().rows.map((row) => (
               <TableRow
+                className="hover:text-foreground hover:bg-primary/10"
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
@@ -106,7 +108,7 @@ export function ExampleDataTable() {
             ))}
           </TableBody>
         </Table>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -9,11 +9,9 @@ import { useAggregatedStatusHistoryStore } from '@/store/aggregatedStatusHistory
 import { useTrendsStore } from '@/store/trendsStore'
 
 import { Chart } from '@/components/pieChart'
-import { RadarStatusChart } from '@/components/radarChart'
 import { BarStatusChart } from '@/components/barChart'
 import { DataTable } from '@/components/data-table'
 import { SankeyDiagram, type SankeyDiagramHandle } from '@/components/sankey-diagram'
-import { JobApplicationForm } from '@/components/jobApplicationForm'
 import { TrendCards } from '@/components/trendCards'
 import { Button } from '@/components/ui/button'
 import {
@@ -42,7 +40,8 @@ function Dashboard() {
 
   useEffect(() => {
     if (location.hash) {
-      const el = document.getElementById(location.hash)
+      const sectionId = location.hash.replace(/^#/, '')
+      const el = document.getElementById(sectionId)
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' })
       }
@@ -98,8 +97,8 @@ function Dashboard() {
 
   return (
     <div className="space-y-2 max-w-6xl mx-auto my-2">
-      <section className="w-full grid grid-cols-1 lg:grid-cols-10 gap-2 mx-auto">
-        <div className="space-y-2 lg:col-span-7">
+      <section className="w-full grid grid-cols-1 gap-2 mx-auto">
+        <div className="space-y-2">
           <div id="stats-section" className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             <TrendCards
               trends={trends}
@@ -109,7 +108,7 @@ function Dashboard() {
             />
             <Chart />
           </div>
-          <div className="space-y-2 bg-card rounded-xl p-2">
+          <div className="space-y-2 bg-card border rounded-xl p-2 shadow-lg">
             {/* set active chart switch */}
             <div className="flex items-center justify-between gap-1">
               <div className="flex gap-1 rounded-lg bg-muted p-1 w-fit">
@@ -159,12 +158,9 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="hidden lg:block lg:col-span-3">
-          <JobApplicationForm user_id={userId} />
-        </div>
       </section>
 
-      <section id="datatable-section" className='w-full mx-auto scroll-mt-4'>
+      <section id="datatable-section" className='w-full mx-auto scroll-mt-4 shadow-lg rounded-xl'>
         <DataTable />
       </section>
 
