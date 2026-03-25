@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import {
+  SignOutButton,
   useAuth,
 } from "@clerk/clerk-react";
-import { BarChart2, ClipboardList, Home, Plus, User, X } from "lucide-react";
+import { BarChart2, ClipboardList, Home, LogOut, Plus, User, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -44,6 +45,7 @@ export function Navbar() {
   const location = useLocation();
   const [addOpen, setAddOpen] = useState(false);
   const isSignedIn = Boolean(userId);
+  const isMyAccountRoute = location.pathname.startsWith('/my-account');
 
   const scrollToSection = (id: string) => {
     const scroll = () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -61,8 +63,16 @@ export function Navbar() {
         <header className="w-full px-4 pt-4">
           <div className="mx-auto flex w-full max-w-7xl items-center justify-between rounded-xl px-4 py-4 ">
             <AppMark />
-            <div className="md:hidden">
+            <div className="flex items-center gap-2 md:hidden">
               <ThemeSwitcher variant="icon-only" />
+              {isMyAccountRoute && (
+                <SignOutButton redirectUrl="/">
+                  <Button variant="destructive" aria-label="Sign out">
+                    <LogOut className="size-4" />
+                    Sign out
+                  </Button>
+                </SignOutButton>
+              )}
             </div>
           </div>
         </header>
