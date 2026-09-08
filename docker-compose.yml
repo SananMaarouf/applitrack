@@ -6,9 +6,12 @@ services:
     env_file:
       - .env.local
     environment:
-      POSTGRES_USER: ${DATABASE_USER:-sanan}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-password}
-      POSTGRES_DB: ${DATABASE_NAME:-database}
+      # Pinned to the values in .env.local (the backend's DATABASE_URL uses these).
+      # Do NOT interpolate from ./.env here - Compose auto-loads ./.env, which holds
+      # the deployed DB credentials and would desync the local Postgres password.
+      POSTGRES_USER: sanan
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
     ports:
       - "5432:5432"
     volumes:

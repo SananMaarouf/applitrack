@@ -11,19 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.routes import applications, health, status_flow, dashboard
-import sentry_sdk
-
-# Initialize Sentry for error monitoring
-if settings.sentry_dsn:
-    sentry_sdk.init(
-        dsn=settings.sentry_dsn,
-        environment=settings.environment,
-        # Add data like request headers and IP for users,
-        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
-        send_default_pii=True,
-        # Set traces_sample_rate to 1.0 to capture 100% of transactions for performance monitoring.
-        traces_sample_rate=1.0 if settings.environment == "development" else 0.1,
-    )
 
 _ALEMBIC_CFG = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"))
 
