@@ -12,4 +12,4 @@ Disallow: /dashboard/settings
 Disallow: /dashboard/settings/change-password
 Disallow: /forgot-password
 
-Sitemap: https://applitrack.no/sitemap.xml
+Sitemap: https://applitrack.sanan.no/sitemap.xml
