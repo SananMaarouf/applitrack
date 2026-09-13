@@ -25,6 +25,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
+# SQLite database directory. With the ./backend:/app bind mount in
+# docker-compose.yml this surfaces on the host as backend/data/.
+RUN mkdir -p /app/data
+ENV DATABASE_URL="sqlite+aiosqlite:////app/data/applitrack.db"
+
 EXPOSE 8000
 
 # Reset the entrypoint, don't invoke `uv`

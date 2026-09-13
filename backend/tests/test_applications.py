@@ -16,9 +16,9 @@ Run:
     pytest tests/ -v
 
 Requirements:
-    CLERK_SECRET_KEY and DATABASE_URL must be in backend/.env or backend/.env.test.
-    The Clerk instance must be in development mode.
-    The database must be running and migrated.
+    CLERK_SECRET_KEY must be in backend/.env or backend/.env.test, unless
+    ENVIRONMENT=testing (which bypasses Clerk with static tokens).
+    DATABASE_URL defaults to a local SQLite file; run `alembic upgrade head` first.
 """
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from __future__ import annotations
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
+from sqlalchemy import select
 
 # ---------------------------------------------------------------------------
 # Mark all tests in this module as asyncio
@@ -405,3 +406,78 @@ class TestSeededData:
         assert resp.status_code == 200
         # At least some of our seeded apps had history entries
         assert len(resp.json()) > 0
+
+
+# ===========================================================================
+# Status history persistence (DB trigger + foreign key cascade)
+# ===========================================================================
+
+class TestStatusHistoryPersistence:
+    """
+    The status history is maintained by the track_status_change SQLite trigger,
+    and cleaned up by ON DELETE CASCADE. SQLite only enforces foreign keys when
+    PRAGMA foreign_keys=ON is set on the connection, so these tests guard the
+    engine configuration in app/db.py as much as the schema itself.
+    """
+
+    async def _history_rows(self, db_session, application_id: int) -> list:
+        from app.models import ApplicationStatusHistory
+
+        result = await db_session.execute(
+            select(ApplicationStatusHistory).where(
+                ApplicationStatusHistory.application_id == application_id
+            )
+        )
+        return list(result.scalars().all())
+
+    async def test_forward_transition_is_recorded_by_trigger(
+        self,
+        authed_client: AsyncClient,
+        db_session,
+    ):
+        create_resp = await authed_client.post(
+            "/applications",
+            json={
+                "position": "Trigger Test",
+                "company": "Trigger Corp",
+                "applied_at": "2025-06-01T00:00:00",
+            },
+        )
+        app_id = create_resp.json()["id"]
+
+        # No history until the status actually changes.
+        assert await self._history_rows(db_session, app_id) == []
+
+        resp = await authed_client.patch(f"/applications/{app_id}/status", json={"new_status": 2})
+        assert resp.status_code == 200
+
+        rows = await self._history_rows(db_session, app_id)
+        assert len(rows) == 1
+        assert rows[0].from_status == 1
+        assert rows[0].to_status == 2
+
+        await authed_client.delete(f"/applications/{app_id}")
+
+    async def test_deleting_application_cascades_to_history(
+        self,
+        authed_client: AsyncClient,
+        db_session,
+    ):
+        create_resp = await authed_client.post(
+            "/applications",
+            json={
+                "position": "Cascade Test",
+                "company": "Cascade Corp",
+                "applied_at": "2025-06-01T00:00:00",
+            },
+        )
+        app_id = create_resp.json()["id"]
+
+        await authed_client.patch(f"/applications/{app_id}/status", json={"new_status": 2})
+        assert len(await self._history_rows(db_session, app_id)) == 1
+
+        delete_resp = await authed_client.delete(f"/applications/{app_id}")
+        assert delete_resp.status_code == 204
+
+        # Without PRAGMA foreign_keys=ON this leaves an orphaned history row.
+        assert await self._history_rows(db_session, app_id) == []

@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.db import verify_sqlite_writable
 from app.routes import applications, health, status_flow, dashboard
 
 _ALEMBIC_CFG = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"))
@@ -17,6 +18,9 @@ _ALEMBIC_CFG = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Surface an unwritable data volume as a clear error rather than a silent exit.
+    verify_sqlite_writable(settings.async_database_url)
+    # command.upgrade drives its own event loop, so it must run off this one.
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, command.upgrade, _ALEMBIC_CFG, "head")
     yield

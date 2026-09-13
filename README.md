@@ -16,7 +16,7 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 - [Zod](https://zod.dev/)
 - [Zustand](https://zustand-demo.pmnd.rs/)
 - [Clerk](https://clerk.com/)
-- [PostgreSQL](https://www.postgresql.org/)
+- [SQLite](https://www.sqlite.org/)
 
 # Features
 - **Track Job Applications:** Easily add, update, and manage all your job applications in one place.

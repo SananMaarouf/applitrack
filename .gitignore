@@ -49,8 +49,11 @@ next-env.d.ts
 # virtual environment
 .venv/
 
-# Docker volumes data
-postgres_data/
+# SQLite database files (local dev + tests)
+backend/data/
+*.db
+*.db-wal
+*.db-shm
 
 # IDE
 .idea/

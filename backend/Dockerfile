@@ -38,9 +38,14 @@ COPY --from=builder /app/alembic.ini /app/alembic.ini
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+# The SQLite database lives on a volume so it survives container replacement.
+ENV DATABASE_URL="sqlite+aiosqlite:////app/data/applitrack.db"
 
-# Change ownership to non-root user
-RUN chown -R appuser:appgroup /app
+# Create the database directory and hand the whole app to the non-root user.
+# The mounted volume must also be writable by uid 1001.
+RUN mkdir -p /app/data && chown -R appuser:appgroup /app
+
+VOLUME ["/app/data"]
 
 USER appuser
 

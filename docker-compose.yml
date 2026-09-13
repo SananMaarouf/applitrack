@@ -1,30 +1,6 @@
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:17-alpine
-    container_name: applitrack-db-dev
-    env_file:
-      - .env.local
-    environment:
-      # Pinned to the values in .env.local (the backend's DATABASE_URL uses these).
-      # Do NOT interpolate from ./.env here - Compose auto-loads ./.env, which holds
-      # the deployed DB credentials and would desync the local Postgres password.
-      POSTGRES_USER: sanan
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: database
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-sanan} -d ${DATABASE_NAME:-database}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - applitrack-network
-
-  # FastAPI Backend
+  # FastAPI Backend. The SQLite database lives in the container at /app/data,
+  # which the ./backend bind mount surfaces on the host as backend/data/.
   backend:
     build:
       context: ./backend
@@ -32,14 +8,16 @@ services:
     container_name: applitrack-backend-dev
     env_file:
       - .env.local
+    environment:
+      # Pinned here on purpose. Compose auto-loads ./.env, which holds the
+      # deployed configuration, so interpolating DATABASE_URL would risk
+      # pointing local development at a remote database.
+      DATABASE_URL: sqlite+aiosqlite:////app/data/applitrack.db
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
       - /app/.venv
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - applitrack-network
 
@@ -60,10 +38,6 @@ services:
       - backend
     networks:
       - applitrack-network
-
-volumes:
-  postgres_data:
-    driver: local
 
 networks:
   applitrack-network:

@@ -13,7 +13,8 @@ What it does:
   3. Writes the created user IDs / emails to tests/seed_data.json for later reference.
 
 Prerequisites:
-  - CLERK_SECRET_KEY and DATABASE_URL must be set (backend/.env or env vars).
+  - CLERK_SECRET_KEY must be set (backend/.env or env vars). DATABASE_URL is
+    optional and defaults to the local SQLite file.
   - The database must be running and migrated (alembic upgrade head).
   - Clerk instance must be in development mode (create_session requires dev mode).
 """
@@ -43,9 +44,10 @@ load_dotenv(dotenv_path=_BACKEND_DIR / ".env", override=False)
 from clerk_backend_api import Clerk  # noqa: E402
 from clerk_backend_api.models.createsessionop import CreateSessionRequestBody  # noqa: E402
 from sqlalchemy import delete, select  # noqa: E402
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine  # noqa: E402
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker  # noqa: E402
 
 from app.core.config import settings  # noqa: E402
+from app.db import create_app_engine  # noqa: E402
 from app.models import Application, ApplicationStatusHistory  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -208,13 +210,11 @@ def _delete_clerk_users(clerk: Clerk, seed_data: list[dict]) -> None:
 # ---------------------------------------------------------------------------
 
 def _get_engine():
-    url = settings.database_url
+    url = settings.async_database_url
     if not url:
         print("[ERROR] DATABASE_URL is not set.")
         sys.exit(1)
-    if url.startswith("postgresql://"):
-        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    return create_async_engine(url, pool_pre_ping=True)
+    return create_app_engine(url)
 
 
 async def _seed_db_for_user(session: AsyncSession, user_id: str) -> None:

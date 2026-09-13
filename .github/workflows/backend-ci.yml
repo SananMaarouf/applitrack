@@ -18,23 +18,9 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: applitrack_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/applitrack_test
+      # SQLite file created in the backend working directory for this run only.
+      DATABASE_URL: sqlite+aiosqlite:///./ci-test.db
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
       CORS_ORIGINS: http://localhost:5173
       ENVIRONMENT: testing
@@ -60,9 +46,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --frozen --all-groups
-
-      - name: Wait for PostgreSQL
-        run: until pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done
 
       - name: Run database migrations
         run: uv run alembic upgrade head

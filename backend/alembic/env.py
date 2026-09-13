@@ -10,6 +10,7 @@ from alembic import context
 
 # -- project imports --
 from app.core.config import settings
+from app.db import configure_sqlite, ensure_sqlite_dir
 from app.models import Base
 
 config = context.config
@@ -21,10 +22,7 @@ target_metadata = Base.metadata
 
 
 def get_url() -> str:
-    url = settings.database_url
-    if url.startswith("postgresql://"):
-        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    return url
+    return settings.async_database_url
 
 
 # ---------------------------------------------------------------------------
@@ -36,6 +34,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        render_as_batch=True,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -45,13 +44,18 @@ def run_migrations_offline() -> None:
 # Online mode — connect to the DB and apply migrations
 # ---------------------------------------------------------------------------
 def do_run_migrations(connection) -> None:  # noqa: ANN001
-    context.configure(connection=connection, target_metadata=target_metadata)
+    # render_as_batch rewrites ALTER TABLE into SQLite's copy-and-move recipe,
+    # which SQLite needs for most column changes.
+    context.configure(connection=connection, target_metadata=target_metadata, render_as_batch=True)
     with context.begin_transaction():
         context.run_migrations()
 
 
 async def run_async_migrations() -> None:
-    engine = create_async_engine(get_url(), poolclass=pool.NullPool)
+    url = get_url()
+    ensure_sqlite_dir(url)
+    engine = create_async_engine(url, poolclass=pool.NullPool)
+    configure_sqlite(engine)
     async with engine.connect() as conn:
         await conn.run_sync(do_run_migrations)
     await engine.dispose()

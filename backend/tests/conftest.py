@@ -23,7 +23,7 @@ import pytest_asyncio
 from dotenv import load_dotenv
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 # ---------------------------------------------------------------------------
 # Load env vars before importing app modules so settings initialises correctly.
@@ -34,16 +34,17 @@ load_dotenv(dotenv_path=os.path.join(_BACKEND_DIR, ".env.test"), override=True)
 load_dotenv(dotenv_path=os.path.join(_BACKEND_DIR, ".env"), override=False)
 
 # app/db.py creates the SQLAlchemy engine at *import time* using DATABASE_URL.
-# Ensure a syntactically valid placeholder is set so the import doesn't crash
-# when no .env file is present; the real URL must be provided via .env.test for
-# tests that actually hit the database.
+# Default to a local SQLite file so the suite runs without any configuration.
+# A file (not :memory:) is required: the app under test and the db_session
+# fixture use separate engines and must see the same data.
 if not os.environ.get("DATABASE_URL"):
-    os.environ["DATABASE_URL"] = "postgresql://placeholder:placeholder@localhost/placeholder"
+    os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./test.db"
 
 from clerk_backend_api import Clerk  # noqa: E402
 from clerk_backend_api.models.createsessionop import CreateSessionRequestBody  # noqa: E402
 
 from app.core.config import settings  # noqa: E402
+from app.db import create_app_engine  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models import Application, ApplicationStatusHistory  # noqa: E402
 
@@ -108,7 +109,7 @@ def _fresh_jwt(clerk_client: Clerk | None, user_id: str) -> str:
 
 # ---------------------------------------------------------------------------
 # Session-scoped event loop – shared by all async fixtures and tests so that
-# the asyncpg connection pool created inside db_engine is never attached to a
+# the connection pool created inside db_engine is never attached to a
 # different loop than the one the test is running on.
 # ---------------------------------------------------------------------------
 
@@ -221,10 +222,9 @@ def second_clerk_user(clerk_client: Clerk | None) -> Generator[ClerkUserInfo, No
 
 @pytest.fixture(scope="session")
 def db_engine():
-    url = settings.database_url
-    if url.startswith("postgresql://"):
-        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    engine = create_async_engine(url, pool_pre_ping=True)
+    # create_app_engine applies the SQLite PRAGMAs (notably foreign_keys=ON,
+    # which the seeded_applications cleanup relies on for cascade deletes).
+    engine = create_app_engine(settings.async_database_url)
     yield engine
 
 

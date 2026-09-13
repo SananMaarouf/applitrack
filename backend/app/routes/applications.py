@@ -150,7 +150,8 @@ async def update_application_status(
     if not validation.is_valid:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=validation.message)
 
-    # The DB trigger inserts history rows for normal forward transitions.
+    # The SQLite track_status_change trigger inserts history rows for normal
+    # forward transitions (see alembic/versions/001_initial_sqlite.py).
     # To match your Next.js logic, we adjust history for reset/terminal_switch/correction.
     if validation.transition_type == "reset":
         await db.execute(

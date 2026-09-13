@@ -11,6 +11,12 @@ ENV/
 *.egg-info/
 *.egg
 
+# SQLite databases - never bake a local database into an image
+data/
+*.db
+*.db-wal
+*.db-shm
+
 # Testing
 .pytest_cache/
 .coverage
