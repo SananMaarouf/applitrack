@@ -1,5 +1,17 @@
 {
+  "name": "applitrack",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "changeset": "changeset",
+    "version-packages": "changeset version && node scripts/sync-backend-version.mjs",
+    "changeset:status": "changeset status"
+  },
   "devDependencies": {
+    "@changesets/cli": "^3.0.2",
     "shadcn": "^4.0.2"
   }
 }

@@ -1,7 +1,7 @@
 [project]
 name = "backend"
-version = "0.1.0"
-description = "Add your description here"
+version = "6.0.0"
+description = "AppliTrack backend API"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
