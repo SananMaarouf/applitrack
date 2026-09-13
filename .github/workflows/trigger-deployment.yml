@@ -48,7 +48,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
             -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
-            -A "SananMaarouf-GitHub-Actions-Deploy-Script" \
+            -A "applitrack-github-actions-deploy-script" \
             -d '{}' \
             -w "%{http_code}" \
             -o /tmp/backend_response.txt \
@@ -158,7 +158,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
             -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
-            -A "SananMaarouf-GitHub-Actions-Deploy-Script" \
+            -A "applitrack-github-actions-deploy-script" \
             -d '{}' \
             -w "%{http_code}" \
             -o /tmp/frontend_response.txt \
