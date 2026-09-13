@@ -1,0 +1,6 @@
+{
+  "name": "applitrack-backend",
+  "version": "6.0.0",
+  "private": true,
+  "description": "Version-tracking shim so Changesets can manage backend releases; the real package manifest is pyproject.toml, kept in sync by scripts/sync-backend-version.mjs."
+}
