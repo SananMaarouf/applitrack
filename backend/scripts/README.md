@@ -29,38 +29,83 @@ deletes an existing target file (plus its `-wal`/`-shm` sidecars) first; without
 it the script refuses to write into a non-empty database.
 
 If the production database is not reachable from your machine, dump and restore
-it locally first, then point `--source` at the local copy:
+it locally first, then point `--source` at the local copy. `pg_dump`'s default
+output is a **plain SQL script**, restored with `psql -f`, not `pg_restore`
+(that only works with `-Fc`/`-Fd`/`-Ft` dumps):
 
 ```bash
-pg_dump -Fc "$PROD_URL" > applitrack.dump
-docker run -d --name pg-restore -e POSTGRES_PASSWORD=password -p 5432:5432 postgres:17-alpine
-pg_restore -d postgresql://postgres:password@localhost:5432/postgres applitrack.dump
+pg_dump "$PROD_URL" > applitrack_dump.sql
+docker run -d --name pg-restore -e POSTGRES_PASSWORD=password -p 5433:5432 postgres:17-alpine
+# wait for it to accept connections, then:
+PGPASSWORD=password psql -h localhost -p 5433 -U postgres -d postgres -f applitrack_dump.sql
 ```
+
+(If a dump starts with `\restrict ...`, your local `psql` must be version 18+
+to parse it — check with `psql --version`. That directive is a client-side
+guard added in newer `pg_dump`/`psql`; the target server version doesn't need
+to match.) `ALTER ... OWNER TO <role>` errors for a role that doesn't exist in
+the fresh container are harmless — ownership isn't needed for the copy, and the
+`CREATE TABLE`/`COPY` statements around them still succeed. Confirm the restore
+actually worked before moving on:
+
+```bash
+PGPASSWORD=password psql -h localhost -p 5433 -U postgres -d postgres \
+  -c "SELECT count(*) FROM applications; SELECT count(*) FROM application_status_history;"
+```
+
+Then point the migration script at `postgresql://postgres:password@localhost:5433/postgres`
+and clean up the container (`docker rm -f pg-restore`) once you have the verified
+`applitrack.db`.
 
 ## Production cutover
 
-1. Add a persistent volume mounted at `/app/data` to the backend service and set
-   `DATABASE_URL=sqlite+aiosqlite:////app/data/applitrack.db` (four slashes: the
-   path is absolute).
-2. Stop the backend so no further writes reach PostgreSQL.
-3. Produce `applitrack.db` with the script above and check the verification output.
-4. Copy the file into the volume as `applitrack.db`, **then fix ownership of the
-   whole directory**:
+This assumes a single Docker host (e.g. a Dokploy VPS reachable over SSH) where
+the backend runs as a container with a volume or bind mount at `/app/data`.
+
+1. **Stop writes.** In Dokploy (or `docker stop`), stop the backend service, then
+   the PostgreSQL service. No more writes will reach PostgreSQL from this point.
+2. **Produce `applitrack.db`** locally with the script above (dumping/restoring
+   PostgreSQL first if it isn't reachable directly) and confirm the script's own
+   verification step printed no mismatches.
+3. **Find where `/app/data` actually lives on the host.** SSH into the VPS and
+   inspect the stopped backend container — it still exists and can be inspected
+   even though it's stopped:
 
    ```bash
-   chown -R 1001:1001 /var/lib/docker/volumes/<volume>/_data
+   ssh <your-vps-alias>
+   sudo docker ps -a --filter "name=backend"                 # get the container name
+   sudo docker inspect <container> \
+     --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{"\n"}}{{end}}'
+   ```
+
+   The line ending in `-> /app/data` gives you the host path (a directory under
+   `/var/lib/docker/volumes/.../_data` for a named volume, or wherever Dokploy
+   put a bind mount). Use that path in the next two steps.
+4. **Copy the file over and into place.** From your workstation:
+
+   ```bash
+   scp backend/data/applitrack.db <your-vps-alias>:/tmp/applitrack.db
+   ```
+
+   Then on the VPS, move it into the host path found in step 3 and **fix
+   ownership of the whole directory**, not just the file:
+
+   ```bash
+   sudo mv /tmp/applitrack.db <host-path>/applitrack.db
+   sudo chown -R 1001:1001 <host-path>
    ```
 
    The container runs as uid 1001, and SQLite writes `-wal` and `-shm` files
    *next to* the database. Chowning only the copied file leaves the directory
    unwritable and the backend refuses to start. It will tell you so explicitly,
    naming the directory and the uid, but the fix is always this `chown -R`.
-5. Start the backend. Because the copied database already carries the
-   `alembic_version` row, the startup migration is a no-op. Check `/health`, then
-   `/applications` and `/status-flow` for a known user and compare with the
+5. **Start the backend** (via Dokploy's UI, or `sudo docker start <container>`).
+   Because the copied database already carries the `alembic_version` row, the
+   startup migration is a no-op. Check `/health`, then `/applications` and
+   `/status-flow` for a known user, and compare the counts with the migration
    script's verification output.
 6. Keep the PostgreSQL service stopped but present for a few days as a rollback
-   path, then remove it.
+   path, then remove it (and its volume) once you're confident.
 
 ## Backups
 
