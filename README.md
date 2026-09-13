@@ -27,6 +27,36 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 - **Modern UI:** Clean, user-friendly interface built with Tailwind CSS and shadcn/ui. With light/dark mode theme (dark by default to not flashbang your eyes)
 - **Account Management:** Update password or delete your account at any time.
 
+# Database
+
+All data lives in a single SQLite file — no separate database service to run
+or manage. Two tables plus a trigger and a view, created by Alembic migrations
+under `backend/alembic/`:
+
+- **`applications`** — one row per job application (position, company, status,
+  applied/expiry dates, link, attachment key).
+- **`application_status_history`** — one row per status change (`from_status`
+  → `to_status`), inserted automatically.
+- **`track_status_change`** — a trigger on `applications` that writes to
+  `application_status_history` whenever `status` changes on `UPDATE`.
+- **`application_status_flow`** — a view aggregating status transitions per
+  user, used to drive the Sankey diagram.
+
+The database *file* is never committed to git and isn't part of the
+`applitrack-backend` Docker image:
+
+- **Local dev**: `backend/data/applitrack.db` (gitignored), bind-mounted into
+  the dev container by `docker-compose.yml`.
+- **Production**: `/app/data/applitrack.db` inside the backend container,
+  bind-mounted from `/etc/dokploy/volumes/applitrack-backend/data` on the VPS
+  host. It survives redeploys because it lives on the host disk, outside both
+  the container filesystem and the image — nothing published to Docker Hub or
+  checked into this repo contains any application data.
+
+The project migrated off PostgreSQL in September 2026; see
+[`backend/scripts/README.md`](backend/scripts/README.md) for the migration
+script, the production cutover steps, and how to back up the live database.
+
 # Deploying with Dokploy
 
 CI builds and pushes `applitrack-backend` and `applitrack-frontend` images to Docker Hub on every push to `master` (see `.github/workflows/docker-build-push.yml`). Dokploy runs these as two separate services pointed at the published images.
