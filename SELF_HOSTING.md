@@ -2,7 +2,8 @@
 
 This guide walks through running your own instance of Applitrack, either on
 your local machine for evaluation/development, or on a server you control
-(e.g. a VPS running [Dokploy](https://dokploy.com/)).
+(e.g. a VPS running [Dokploy](https://dokploy.com/), [Coolify](https://coolify.io/),
+or any similar Docker-based deployment tool).
 
 Applitrack is licensed under [AGPL-3.0](LICENSE). If you run a modified
 version of it as a network service that other people use, you must make the
@@ -127,6 +128,13 @@ the `.dev` ones used by `docker-compose.yml`. There are two ways to get
 these images running: build them yourself, or let CI build and publish them
 to a Docker Hub account you control.
 
+Dokploy is used throughout this section because it's what the original
+project runs in production, not because it's required — the app is just
+two Docker images behind a reverse proxy, so any similar tool (Coolify,
+CapRover, Portainer, or a hand-rolled Docker Compose + Caddy/nginx/Traefik
+setup) works the same way. Option 1 below is entirely tool-agnostic;
+Option 2 is the Dokploy-specific walkthrough.
+
 ### Option 1: Build the images yourself
 
 This is the simplest path if you don't want to set up CI/CD or a Docker Hub
@@ -168,11 +176,14 @@ docker run -d --name applitrack-frontend \
 Put a reverse proxy (Caddy, nginx, Traefik, or Dokploy's built-in Traefik)
 in front of both with TLS termination for your domain.
 
-### Option 2: Use CI to build and publish images, deploy via Dokploy
+### Option 2: Use CI to build and publish images, deploy via Dokploy (or similar)
 
 This is what this repository's own `.github/workflows/` are set up to do,
 and what the original project uses in production. It's more setup but means
-every push to `master` automatically builds and redeploys.
+every push to `master` automatically builds and redeploys. The steps below
+are written for Dokploy specifically, but the same idea (a webhook that
+triggers a redeploy from the newly-published image) applies to Coolify and
+most other Docker-based PaaS tools — adjust step 4 accordingly.
 
 1. **Fork/host this repo** on GitHub (or your Git host of choice — the
    workflow files assume GitHub Actions).
@@ -203,10 +214,15 @@ every push to `master` automatically builds and redeploys.
    2. Expose port `80` (nginx) and set the domain for your site.
    3. Copy the frontend deploy webhook URL into
       `DOKPLOY_FRONTEND_DEPLOY_HOOK_URL`.
-5. If you want Cloudflare Access sitting in front of the deploy webhooks,
-   also set `CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET`; otherwise
-   leave them blank and simplify `trigger-deployment.yml` to call the
-   webhooks directly.
+5. **Cloudflare Access is optional and not something most self-hosters
+   need.** The original deployment puts Cloudflare Access in front of its
+   Dokploy instance (including the deploy webhooks) as an extra layer of
+   protection, but for a typical single-operator self-hosted instance this
+   is overkill — Dokploy's own auth, plus keeping the deploy webhook URL
+   secret, is normally enough. Only set `CF_ACCESS_CLIENT_ID` /
+   `CF_ACCESS_CLIENT_SECRET` if you've deliberately put Cloudflare Access in
+   front of your own Dokploy webhooks; otherwise leave them blank and
+   simplify `trigger-deployment.yml` to call the webhooks directly.
 
 CI runs Alembic migrations against the deployed volume automatically on
 backend startup — you generally don't need to run `alembic upgrade head`
