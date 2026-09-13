@@ -6,6 +6,12 @@ In addition to tracking, Applitrack provides insightful statistics about your jo
 
 ![Applitrack UI](https://raw.githubusercontent.com/SananMaarouf/applitrack/master/applitrack.png)
 
+# Self-Hosting
+
+Want to run your own instance? See [SELF_HOSTING.md](SELF_HOSTING.md) for a
+step-by-step guide covering Clerk setup, local Docker Compose, and
+production deployment (including Dokploy). Applitrack is licensed under
+[AGPL-3.0](LICENSE).
 
 # Stack
 - [Vite + React](https://vitejs.dev/)
@@ -58,6 +64,8 @@ The project migrated off PostgreSQL in September 2026; see
 script, the production cutover steps, and how to back up the live database.
 
 # Deploying with Dokploy
+
+This section documents the production setup as run by this project's own CI, which assumes you already have a Docker Hub account and GitHub Actions configured. If you're setting up a fresh self-hosted instance from scratch, see [SELF_HOSTING.md](SELF_HOSTING.md) instead — it covers this same Dokploy path plus a build-it-yourself option that doesn't require CI/CD at all.
 
 CI builds and pushes `applitrack-backend` and `applitrack-frontend` images to Docker Hub on every push to `master` (see `.github/workflows/docker-build-push.yml`). Dokploy runs these as two separate services pointed at the published images.
 
