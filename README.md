@@ -63,6 +63,14 @@ The project migrated off PostgreSQL in September 2026; see
 [`backend/scripts/README.md`](backend/scripts/README.md) for the migration
 script, the production cutover steps, and how to back up the live database.
 
+# Deploying on Cloudflare Workers
+
+This branch also contains a Cloudflare Workers port of the whole app — one
+Worker serving the SPA and a Hono API on D1 + R2, with no container to run.
+See [`worker/README.md`](worker/README.md) for local development, D1 migrations,
+data import and the deploy checklist. The Dokploy setup below remains valid
+until the cutover.
+
 # Deploying with Dokploy
 
 This section documents the production setup as run by this project's own CI, which assumes you already have a Docker Hub account and GitHub Actions configured. If you're setting up a fresh self-hosted instance from scratch, see [SELF_HOSTING.md](SELF_HOSTING.md) instead — it covers this same Dokploy path plus a build-it-yourself option that doesn't require CI/CD at all.
