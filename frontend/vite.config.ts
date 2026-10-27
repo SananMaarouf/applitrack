@@ -19,5 +19,10 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    proxy: {
+      // `wrangler dev` (worker/) owns the API locally, so the SPA can keep using
+      // the same relative /api paths it uses in production.
+      '/api': { target: 'http://localhost:8787', changeOrigin: true },
+    },
   },
 })

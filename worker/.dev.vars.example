@@ -1,0 +1,12 @@
+# Copy to worker/.dev.vars (gitignored) for local development.
+# With CLERK_TEST_MODE=1 no Clerk call is made: send
+#   Authorization: Bearer user-a-token      (user_a)
+#   Authorization: Bearer user-b-token      (user_b)
+CLERK_TEST_MODE=1
+ATTACHMENT_SIGNING_KEY=local-dev-signing-key
+APP_ORIGIN=http://localhost:3000
+
+# Real values, used when CLERK_TEST_MODE is unset:
+# CLERK_SECRET_KEY=
+# CLERK_PUBLISHABLE_KEY=
+# CLERK_JWT_KEY=

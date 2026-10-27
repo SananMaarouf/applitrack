@@ -1,0 +1,45 @@
+// Cloudflare Worker that serves the Applitrack SPA and its API from one origin.
+//
+// D1 database "applitrack" and R2 bucket "applitrack" (created in the Cloudflare
+// dashboard). Bindings, not S3 credentials, are how the Worker reaches both.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "applitrack",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  // Only the custom domain serves this Worker; no public *.workers.dev alias and
+  // no preview URLs per version.
+  "workers_dev": false,
+  "preview_urls": false,
+  // The Vite build output. Unknown paths fall back to index.html so TanStack
+  // Router can render client-side routes; /api/* always goes to the Worker.
+  "assets": {
+    "directory": "../frontend/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "applitrack",
+      "database_id": "d01bfa95-e31f-466b-82f8-de13791d6083",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "ATTACHMENTS",
+      "bucket_name": "applitrack"
+    }
+  ],
+  "vars": {
+    // Browser origins allowed by Clerk's authorized-party check (comma
+    // separated: apex + www). Change this before deploying elsewhere.
+    "APP_ORIGIN": "https://www.applitrack.sanan.no,https://applitrack.sanan.no"
+  }
+}

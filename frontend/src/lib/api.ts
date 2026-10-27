@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+// Same-origin by default: the Worker serves the SPA and /api/* together, so the
+// browser never makes a cross-origin request. VITE_API_URL still overrides it.
+const API_URL = import.meta.env.VITE_API_URL ?? '/api'
 
 export type Application = {
   id: number

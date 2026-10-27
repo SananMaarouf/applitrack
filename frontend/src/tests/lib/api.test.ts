@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { apiFetch, apiUpload } from '@/lib/api'
 
-const BASE_URL = 'http://localhost:8000'
+// The SPA calls the Worker on its own origin by default (VITE_API_URL overrides).
+const BASE_URL = '/api'
 
 describe('apiFetch', () => {
   afterEach(() => {

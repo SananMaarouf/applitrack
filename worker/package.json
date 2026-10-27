@@ -1,0 +1,26 @@
+{
+  "name": "applitrack-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types",
+    "db:migrate:local": "wrangler d1 migrations apply applitrack --local",
+    "db:migrate:remote": "wrangler d1 migrations apply applitrack --remote"
+  },
+  "dependencies": {
+    "@clerk/backend": "^3.26.3",
+    "hono": "^4.13.14",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.8",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.153.0"
+  }
+}

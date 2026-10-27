@@ -1,5 +1,23 @@
 {
+  "name": "applitrack",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "worker"
+  ],
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspace worker",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "changeset:status": "changeset status",
+    "worker:dev": "npm run dev --workspace worker",
+    "worker:test": "npm run test --workspace worker",
+    "worker:typecheck": "npm run typecheck --workspace worker",
+    "worker:deploy": "npm run deploy --workspace worker"
+  },
   "devDependencies": {
+    "@changesets/cli": "^3.0.2",
     "shadcn": "^4.0.2"
   }
 }
