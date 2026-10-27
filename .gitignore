@@ -13,6 +13,11 @@
 # testing
 /coverage
 
+# Cloudflare Worker local state, caches and secrets
+worker/.wrangler/
+worker/.dev.vars
+worker/node_modules
+
 # Backend folder
 __pycache__/
 *.pyc
