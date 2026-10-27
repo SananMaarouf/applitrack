@@ -104,16 +104,18 @@ variable in `wrangler.jsonc`; set it to the production URL before deploying.
 
 ## Deploy checklist
 
-1. `npx wrangler d1 create applitrack` → paste the id into
-   `wrangler.jsonc` (`d1_databases[0].database_id`).
-2. `npx wrangler r2 bucket create applitrack-attachments` (or point
-   `r2_buckets[0].bucket_name` at the bucket that already holds the PDFs).
-3. Set `APP_ORIGIN` to the production origin, and the secrets above.
-4. `npm run db:migrate:remote`, then import the data if this is a cutover.
-5. `cd frontend && npm run build`, then `cd ../worker && npm run deploy`.
-6. Add the custom domain to the Worker, then set `VITE_API_URL` unset in the
-   frontend build (the default `/api` is correct once both are one origin) and
+1. D1 database `applitrack` (`d01bfa95-e31f-466b-82f8-de13791d6083`) and R2
+   bucket `applitrack` are already wired into `wrangler.jsonc`.
+2. Set `APP_ORIGIN` to the production origin, and the secrets above.
+3. `npm run db:migrate:remote`, then import the data if this is a cutover.
+4. `cd frontend && npm run build`, then `cd ../worker && npm run deploy`.
+5. Add the custom domain to the Worker, leave `VITE_API_URL` unset in the
+   frontend build (the default `/api` is correct once both are one origin), and
    update Clerk's authorized parties.
+
+The existing attachment objects already live under the `attachments/` prefix
+(`attachments/<user>/<id>/<file>.pdf`), which is exactly the key layout this
+Worker writes, so no R2 re-upload or key rewrite is needed during the cutover.
 
 ## Deliberate differences from the FastAPI backend
 

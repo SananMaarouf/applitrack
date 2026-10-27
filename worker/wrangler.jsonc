@@ -1,7 +1,7 @@
 // Cloudflare Worker that serves the Applitrack SPA and its API from one origin.
 //
-// Before the first deploy, replace d1_databases[0].database_id with the id from
-// `wrangler d1 create applitrack`, and create the R2 bucket named below.
+// D1 database "applitrack" and R2 bucket "applitrack" (created in the Cloudflare
+// dashboard). Bindings, not S3 credentials, are how the Worker reaches both.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "applitrack",
@@ -23,14 +23,14 @@
     {
       "binding": "DB",
       "database_name": "applitrack",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "d01bfa95-e31f-466b-82f8-de13791d6083",
       "migrations_dir": "migrations"
     }
   ],
   "r2_buckets": [
     {
       "binding": "ATTACHMENTS",
-      "bucket_name": "applitrack-attachments"
+      "bucket_name": "applitrack"
     }
   ],
   "vars": {
