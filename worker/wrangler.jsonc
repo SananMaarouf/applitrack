@@ -34,8 +34,8 @@
     }
   ],
   "vars": {
-    // Browser origin allowed by Clerk's authorized-party check. Override per
-    // environment in the dashboard or in wrangler.jsonc before deploying.
-    "APP_ORIGIN": "http://localhost:8787"
+    // Browser origins allowed by Clerk's authorized-party check (comma
+    // separated: apex + www). Change this before deploying elsewhere.
+    "APP_ORIGIN": "https://www.applitrack.sanan.no,https://applitrack.sanan.no"
   }
 }

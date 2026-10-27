@@ -47,7 +47,12 @@ export async function resolveUserId(request: Request, env: Env): Promise<string 
   }
 
   try {
-    const authorizedParties = env.APP_ORIGIN ? [env.APP_ORIGIN] : undefined;
+    // APP_ORIGIN may list several browser origins (apex + www), comma separated.
+    const authorizedParties = env.APP_ORIGIN
+      ? env.APP_ORIGIN.split(",")
+          .map((origin) => origin.trim())
+          .filter(Boolean)
+      : undefined;
     const state = await clerk.authenticateRequest(request, { authorizedParties });
 
     if (!state.isAuthenticated) {
