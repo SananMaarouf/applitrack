@@ -18,13 +18,6 @@ worker/.wrangler/
 worker/.dev.vars
 worker/node_modules
 
-# Backend folder
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-
-
 # Frontend folder
 /frontend/dist/
 /frontend/node_modules
@@ -44,18 +37,11 @@ yarn-error.log*
 .env*.production
 .env.test
 
-# test seed data
-backend/tests/seed_data.json
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-# virtual environment
-.venv/
-
-# SQLite database files (local dev + tests)
-backend/data/
+# SQLite scratch files (exports, dumps)
 *.db
 *.db-wal
 *.db-shm

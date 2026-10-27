@@ -1,6 +1,7 @@
 /**
- * Status transition rules, ported verbatim from
- * backend/app/routes/applications.py::validate_status_transition.
+ * Status transition rules, ported verbatim from the FastAPI backend this
+ * version replaced (backend/app/routes/applications.py::validate_status_transition,
+ * preserved on the `self-host` branch).
  */
 
 export const STATUS_NAMES: Record<number, string> = {

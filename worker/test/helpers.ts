@@ -52,7 +52,8 @@ export type SeedSpec = {
 };
 
 /**
- * Mirrors backend/tests/conftest.py::_SEED_APPS: five applications spread over
+ * Mirrors the old suite's _SEED_APPS (backend/tests/conftest.py, `self-host`
+ * branch): five applications spread over
  * the last 30 days, three of which carry interview-stage statuses.
  */
 export const SEED_APPS: SeedSpec[] = [

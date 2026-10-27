@@ -1,5 +1,6 @@
 /**
- * Port of backend/tests/test_applications.py against the Worker + D1 stack.
+ * Port of the old pytest suite (backend/tests/test_applications.py, `self-host`
+ * branch) against the Worker + D1 stack.
  *
  * Categories mirror the pytest suite: authentication, health, CRUD, status
  * transition rules, user isolation, the status-flow view, and status-history

@@ -3,12 +3,13 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "backend",
     "worker"
   ],
   "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspace worker",
     "changeset": "changeset",
-    "version-packages": "changeset version && node scripts/sync-backend-version.mjs",
+    "version-packages": "changeset version",
     "changeset:status": "changeset status",
     "worker:dev": "npm run dev --workspace worker",
     "worker:test": "npm run test --workspace worker",

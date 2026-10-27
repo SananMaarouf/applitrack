@@ -1,5 +1,6 @@
 /**
- * Port of backend/tests/test_trends.py: unit tests for the trend maths plus
+ * Port of backend/tests/test_trends.py (`self-host` branch): unit tests for the
+ * trend maths plus
  * endpoint tests against seeded D1 data.
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";

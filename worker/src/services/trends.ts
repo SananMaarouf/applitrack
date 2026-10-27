@@ -1,6 +1,6 @@
 /**
- * Trend analytics for the dashboard, ported from
- * backend/app/services/trends.py.
+ * Trend analytics for the dashboard, ported from the FastAPI backend's trends
+ * service (backend/app/services/trends.py, preserved on the `self-host` branch).
  *
  *   week  → current = last 7 days,  previous = the 7 days before that
  *   month → current = last 30 days, previous = the 30 days before that

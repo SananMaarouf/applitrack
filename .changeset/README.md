@@ -1,33 +1,37 @@
 # Changesets
 
-This project uses [Changesets](https://github.com/changesets/changesets) to version `frontend` and `backend` independently and generate changelogs automatically, instead of someone remembering to hand-bump `frontend/package.json` and `backend/pyproject.toml` after a big change.
+This project uses [Changesets](https://github.com/changesets/changesets) to keep
+the `frontend` and `worker` package versions consistent and generate changelogs
+automatically, instead of hand-bumping `package.json` after a big change.
 
 ## Making a change that should ship a new version
 
-When you open a PR that changes behavior in `frontend/` and/or `backend/`, run:
+When you open a PR that changes behaviour in `frontend/` and/or `worker/`, run:
 
 ```bash
 npx changeset
 ```
 
-This asks which package(s) changed, whether it's a `patch`/`minor`/`major` bump, and a one-line summary for the changelog. It writes a small markdown file under `.changeset/` — commit that file alongside your code changes.
+This asks which package(s) changed, whether it's a `patch`/`minor`/`major` bump,
+and a one-line summary for the changelog. It writes a small markdown file under
+`.changeset/` — commit that file alongside your code changes.
 
 Guidelines for picking the bump type:
 
-- **patch** — bug fix, internal refactor, dependency bump with no behavior change
+- **patch** — bug fix, internal refactor, dependency bump with no behaviour change
 - **minor** — new feature, non-breaking API/UI change
-- **major** — breaking change (e.g. removed/renamed API field, changed DB backend, incompatible config format)
+- **major** — breaking change (e.g. removed/renamed API field, changed DB backend,
+  incompatible config format)
 
-If your PR doesn't warrant a version bump (docs, CI, tests only), no changeset is needed.
+If your PR doesn't warrant a version bump (docs, CI, tests only), no changeset is
+needed.
 
 ## What happens next
 
-A GitHub Action (`.github/workflows/release.yml`) watches `master` for changeset files. When one merges, it opens (or updates) a "Version Packages" PR that:
+A GitHub Action (`.github/workflows/release.yml`) watches `master` for changeset
+files. When one merges, it opens (or updates) a "Version Packages" PR that bumps
+the package versions, writes the changelog entries and deletes the consumed
+`.changeset/*.md` files.
 
-1. Bumps `frontend/package.json` and/or `backend/package.json` (and, via `scripts/sync-backend-version.mjs`, the mirrored `version` in `backend/pyproject.toml`)
-2. Writes the changelog entries
-3. Deletes the consumed `.changeset/*.md` files
-
-Merging that PR is the actual release point — CI/Docker builds trigger from `master` as usual.
-
-Backend note: `backend/package.json` is not a real Node package — it exists only so Changesets (a JS-ecosystem tool) can track and bump the backend's version number the same way it does for the frontend. The source of truth for the backend's version at runtime is `backend/pyproject.toml`; the sync script keeps the two in lockstep.
+Both packages are `private`, so nothing is published to npm — the version number
+is only a marker of what is deployed.
