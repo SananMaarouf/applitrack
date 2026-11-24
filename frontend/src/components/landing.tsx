@@ -1,90 +1,115 @@
-"use client";
-import gsap from 'gsap';
-import { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import { Celebrate } from './celebrate';
-import { ArrowDown } from 'lucide-react';
-import { Button } from './ui/button';
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, Check } from "lucide-react";
 
-gsap.registerPlugin(useGSAP);
+import type { DashboardTrends } from "@/types/jobApplication";
+import { TrendCards } from "./trendCards";
+import { Button } from "./ui/button";
+
+// Fixture values only: the preview reuses the dashboard's shared TrendCards
+// component so the layout and states stay accurate.
+const previewTrends: DashboardTrends = {
+  period: "week",
+  ranges: {
+    current_start: "2026-11-17T00:00:00.000Z",
+    current_end: "2026-11-24T00:00:00.000Z",
+    previous_start: "2026-11-10T00:00:00.000Z",
+    previous_end: "2026-11-17T00:00:00.000Z",
+  },
+  applications_sent: {
+    current: 12,
+    previous: 8,
+    difference: 4,
+    percentChange: 50,
+    direction: "up",
+  },
+  interviews: {
+    current: 3,
+    previous: 4,
+    difference: -1,
+    percentChange: -25,
+    direction: "down",
+  },
+};
+
+function DashboardPreview() {
+  return (
+    <figure
+      aria-labelledby="dashboard-preview-title"
+      className="relative min-w-0 rounded-xl border border-border bg-card p-3 shadow-xl sm:p-4"
+    >
+      <figcaption className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+        <span
+          id="dashboard-preview-title"
+          className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+        >
+          Dashboard overview · Sample data
+        </span>
+        <span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Read-only
+        </span>
+      </figcaption>
+
+      <div className="mt-4 min-w-0">
+        <TrendCards trends={previewTrends} period="week" isLoading={false} />
+      </div>
+
+      <p className="mt-3 text-center text-[10px] text-muted-foreground">
+        Sample values shown with the shared dashboard trend cards.
+      </p>
+    </figure>
+  );
+}
 
 export function Landing() {
-	const headlineRef = useRef<HTMLHeadingElement>(null);
-	const subTextRef = useRef<HTMLDivElement>(null);
-	const celebrateContainerRef = useRef<HTMLDivElement>(null);
-	const textColumnRef = useRef<HTMLDivElement>(null);
+  return (
+    <section className="relative overflow-hidden border-b border-border/70">
+      <div className="pointer-events-none absolute -right-24 -top-32 size-80 rounded-full bg-accent/30 blur-3xl" aria-hidden="true" />
+      <div className="relative mx-auto grid w-full max-w-7xl min-w-0 gap-12 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-16 lg:pb-24 lg:pt-20">
+        <div className="min-w-0">
+          <h1 className="max-w-3xl font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl xl:text-7xl">
+            Stay on track with <span className="text-primary">Applitrack</span>
+          </h1>
 
-	useGSAP(() => {
-		gsap.set(subTextRef.current, { y: 20, opacity: 0 });
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Track applications, interviews, offers, rejections, and ghosted leads in one
+            organised workspace. Keep the company, role, job link, status, and timeline for
+            every opportunity together, so you always know what to follow up on next.
+          </p>
 
-		const h1 = headlineRef.current;
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button asChild size="lg" className="h-12 rounded-[8px] px-6 text-base">
+              <Link to="/sign-up">
+                Start tracking for free
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-12 rounded-[8px] border-border bg-background px-6 text-base"
+            >
+              <a href="#how-it-works">See how it works</a>
+            </Button>
+          </div>
 
+          <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            <li className="inline-flex items-center gap-1.5">
+              <Check className="size-4 text-primary" /> Free to start
+            </li>
+            <li className="inline-flex items-center gap-1.5">
+              <Check className="size-4 text-primary" /> Seven clear statuses
+            </li>
+            <li className="inline-flex items-center gap-1.5">
+              <Check className="size-4 text-primary" /> Works on every screen
+            </li>
+          </ul>
+        </div>
 
-		const mm = gsap.matchMedia();
-
-		// Desktop: text column slides in from left
-		mm.add("(min-width: 1024px)", () => {
-			const tl = gsap.timeline();
-			tl.from('header', { y: -100, duration: 0.7, ease: "power2.out" });
-			tl.from(celebrateContainerRef.current, { y: -80, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.2");
-			tl.from(textColumnRef.current, { x: -60, duration: 0.8, ease: "power2.out" }, "-=0.4");
-			tl.from(h1, { y: 60, opacity: 0, duration: 1.3, ease: "power2.out" }, "<");
-			tl.to(subTextRef.current, { y: 0, opacity: 1, duration: 1.1, ease: "power2.out" }, "-=0.2");
-		});
-
-		// Mobile: headline fades in from top
-		mm.add("(max-width: 1023px)", () => {
-			const tl = gsap.timeline();
-			tl.from('header', { y: -100, duration: 0.7, ease: "power2.out" });
-			tl.from(celebrateContainerRef.current, { y: -80, opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.2");
-			tl.from(h1, { y: -60, opacity: 0, duration: 1.3, ease: "power2.out" }, "-=0.4");
-			tl.to(subTextRef.current, { y: 0, opacity: 1, duration: 1.1, ease: "power2.out" }, "-=0.2");
-		});
-	});
-
-	return (
-		<section className="flex flex-col rounded-lg lg:flex-row lg:py-22 max-w-5xl">
-
-			{/* illustration — top on mobile, right column on desktop */}
-			<figure ref={celebrateContainerRef} className="
-					order-2
-					flex justify-center
-					lg:order-last lg:items-center lg:justify-center">
-				<Celebrate />
-			</figure>
-
-			{/* text — below illustration on mobile, left column on desktop */}
-			<article ref={textColumnRef} className="
-				contents
-				lg:order-first lg:flex lg:w-full lg:min-w-0 lg:flex-col
-				lg:place-content-evenly">
-				{/* Headline */}
-				<div className="order-1 grid h-fit items-center lg:relative lg:h-auto lg:order-0">
-					<h2
-						ref={headlineRef}
-						className="
-							col-start-1 row-start-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
-							font-bold px-4 lg:px-0 text-center lg:text-left"
-					>
-						Stay on track with Applitrack
-					</h2>
-				</div> 
-
-				{/* Sub-text - animates in after headline */}
-				<div ref={subTextRef} className="order-3 mt-4 flex flex-col gap-4 lg:order-0 lg:mt-0 lg:items-start">
-					<p
-						className="
-								text-2xl text-center lg:text-left font-bold"
-					>
-						Map your job hunt journey
-					</p>
-
-					<Button size="lg" className="self-center mt-2 hover:scale-125 transition-all duration-300" onClick={() => window.scrollBy({ top: 500, behavior: 'smooth' })}>
-						Learn more
-						<ArrowDown className="ml-2" />
-					</Button>
-				</div>
-			</article>
-		</section>
-	)
+        <div className="min-w-0">
+          <DashboardPreview />
+        </div>
+      </div>
+    </section>
+  );
 }

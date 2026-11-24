@@ -1,189 +1,247 @@
-"use client";
+'use client'
 
-import { ResponsiveSankey } from "@nivo/sankey";
-import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
-import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from "react";
-import { useTheme } from "next-themes";
-import html2canvas from "html2canvas-pro";
-import { toast } from "sonner";
+import { ResponsiveSankey } from '@nivo/sankey'
+import { useAggregatedStatusHistoryStore } from '@/store/aggregatedStatusHistoryStore'
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import { useTheme } from 'next-themes'
+import html2canvas from 'html2canvas-pro'
+import { toast } from 'sonner'
+
+import { JOB_STATUS_OPTIONS } from '@/lib/job-status-ui'
 
 export interface SankeyDiagramHandle {
-  exportCSV: () => void;
-  exportDiagram: () => void;
+  exportCSV: () => void
+  exportDiagram: () => void
+}
+
+type SankeyPalette = {
+  nodes: Record<string, string>
+  background: string
+  foreground: string
+  muted: string
+  tooltipBackground: string
+  tooltipForeground: string
+}
+
+const STATUS_ORDER: Record<string, number> = Object.fromEntries(
+  JOB_STATUS_OPTIONS.map(({ label }, index) => [label, index + 1]),
+)
+
+/**
+ * Nivo/d3 perform colour math (and html2canvas serialises colours), so CSS
+ * custom properties must be resolved to concrete RGB values for the active theme.
+ */
+function toRgb(value: string): string | null {
+  if (typeof document === 'undefined') return null
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 1
+  canvas.height = 1
+  const context = canvas.getContext('2d')
+  if (!context) return null
+
+  context.fillStyle = 'transparent'
+  context.fillStyle = value
+  context.fillRect(0, 0, 1, 1)
+
+  const [red, green, blue, alpha] = context.getImageData(0, 0, 1, 1).data
+  if (alpha === 0) return null
+
+  return alpha === 255
+    ? `rgb(${red}, ${green}, ${blue})`
+    : `rgba(${red}, ${green}, ${blue}, ${Number((alpha / 255).toFixed(3))})`
+}
+
+function resolveCssColor(expression: string): string {
+  if (typeof document === 'undefined') return expression
+
+  const probe = document.createElement('span')
+  probe.style.color = expression
+  probe.style.position = 'absolute'
+  probe.style.visibility = 'hidden'
+  document.body.appendChild(probe)
+  const computed = window.getComputedStyle(probe).color || expression
+  probe.remove()
+
+  return toRgb(computed) ?? toRgb(expression) ?? computed
+}
+
+const SURFACE_BACKGROUND = 'var(--bg-surface)'
+const PRIMARY_FOREGROUND = 'var(--text-primary)'
+const SECONDARY_FOREGROUND = 'var(--text-secondary)'
+const ELEVATED_BACKGROUND = 'var(--bg-elevated)'
+
+function buildPalette(): SankeyPalette {
+  const nodes = JOB_STATUS_OPTIONS.reduce<Record<string, string>>(
+    (acc, { label, color }) => {
+      acc[label] = resolveCssColor(color)
+      return acc
+    },
+    {},
+  )
+
+  return {
+    nodes,
+    background: resolveCssColor(SURFACE_BACKGROUND),
+    foreground: resolveCssColor(PRIMARY_FOREGROUND),
+    muted: resolveCssColor(SECONDARY_FOREGROUND),
+    tooltipBackground: resolveCssColor(ELEVATED_BACKGROUND),
+    tooltipForeground: resolveCssColor(PRIMARY_FOREGROUND),
+  }
 }
 
 export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiagram(_, ref) {
   const aggregatedStatusHistory = useAggregatedStatusHistoryStore(
     (state) => state.aggregatedStatusHistory,
-  );
-  const { theme } = useTheme();
-  const diagramRef = useRef<HTMLDivElement>(null);
+  )
+  const { resolvedTheme } = useTheme()
+  const diagramRef = useRef<HTMLDivElement>(null)
+  const [palette, setPalette] = useState<SankeyPalette | null>(null)
+  const [isNarrow, setIsNarrow] = useState(false)
 
-  const statusOrder: Record<string, number> = {
-    Applied: 1,
-    Interview: 2,
-    "Second Interview": 3,
-    "Third Interview": 4,
-    Offer: 5,
-    Rejected: 6,
-    Ghosted: 7,
-  };
+  const sankeyFlow = useMemo(
+    () =>
+      aggregatedStatusHistory
+        .map((item) => ({
+          from: String(item.From),
+          to: String(item.To),
+          weight: Number(item.Weight),
+        }))
+        // Nivo Sankey requires an acyclic graph, so keep only forward transitions.
+        .filter((item) => {
+          if (!Number.isFinite(item.weight) || item.weight <= 0) return false
+          if (item.from === item.to) return false
 
-  // Nivo Sankey requires an acyclic graph, so keep only forward transitions.
-  const sankeyFlow = aggregatedStatusHistory
-    .map((item) => ({
-      from: String(item.From),
-      to: String(item.To),
-      weight: Number(item.Weight),
-    }))
-    .filter((item) => {
-      if (!Number.isFinite(item.weight) || item.weight <= 0) return false;
-      if (item.from === item.to) return false;
+          const fromOrder = STATUS_ORDER[item.from]
+          const toOrder = STATUS_ORDER[item.to]
+          if (!fromOrder || !toOrder) return false
 
-      const fromOrder = statusOrder[item.from];
-      const toOrder = statusOrder[item.to];
-      if (!fromOrder || !toOrder) return false;
-
-      return fromOrder < toOrder;
-    });
+          return fromOrder < toOrder
+        }),
+    [aggregatedStatusHistory],
+  )
 
   const exportCSV = () => {
-    const headers = ["From", "To", "Weight"];
+    const headers = ['From', 'To', 'Weight']
     const rows = aggregatedStatusHistory.map((item) => [
       String(item.From),
       String(item.To),
       String(item.Weight),
-    ]);
+    ])
     const csvContent = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
-      .join("\n");
+      .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
+      .join('\n')
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const timestamp = new Date().toISOString().split("T")[0];
-    link.download = `sankey-data-${timestamp}.csv`;
-    link.href = url;
-    link.click();
-    URL.revokeObjectURL(url);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    const timestamp = new Date().toISOString().split('T')[0]
+    link.download = `sankey-data-${timestamp}.csv`
+    link.href = url
+    link.click()
+    URL.revokeObjectURL(url)
 
-    toast.success("CSV exported successfully!");
-  };
+    toast.success('CSV exported successfully!')
+  }
 
   const exportDiagram = async () => {
-    if (!diagramRef.current) return;
+    if (!diagramRef.current) return
 
     try {
+      const backgroundColor = resolveCssColor(SURFACE_BACKGROUND)
       const canvas = await html2canvas(diagramRef.current, {
-        backgroundColor: theme === "light" ? "#231f20" : "#ede7e0",
+        backgroundColor,
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
         onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.querySelector(
-            '[class*="bg-foreground"]',
-          );
-          if (clonedElement instanceof HTMLElement) {
-            clonedElement.style.backgroundColor =
-              theme === "light" ? "#231f20" : "#ede7e0";
+          const clonedElement = clonedDoc.querySelector<HTMLElement>('[data-sankey-canvas]')
+          if (clonedElement) {
+            clonedElement.style.backgroundColor = backgroundColor
           }
         },
-      });
+      })
 
       canvas.toBlob((blob) => {
-        if (!blob) return;
+        if (!blob) return
 
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        const timestamp = new Date().toISOString().split("T")[0];
-        link.download = `sankey-diagram-${timestamp}.png`;
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        const timestamp = new Date().toISOString().split('T')[0]
+        link.download = `sankey-diagram-${timestamp}.png`
+        link.href = url
+        link.click()
+        URL.revokeObjectURL(url)
 
-        toast.success("Diagram exported successfully!");
-      });
+        toast.success('Diagram exported successfully!')
+      })
     } catch (error) {
-      console.error("Error exporting diagram:", error);
-      toast.error("Failed to export diagram");
+      console.error('Error exporting diagram:', error)
+      toast.error('Failed to export diagram')
     }
-  };
-
-  const rawNodes = sankeyFlow.map((item) => ({
-    source: item.from,
-    target: item.to,
-  }));
-
-  const allNodeIds = rawNodes.reduce((acc, curr) => {
-    acc.push(curr.source);
-    acc.push(curr.target);
-    return acc;
-  }, [] as string[]);
-
-  const uniqueNodeIds = Array.from(new Set(allNodeIds));
-
-  const nodes = uniqueNodeIds.map((id) => {
-    let nodeColor = "";
-    switch (id) {
-      case "Applied":
-        nodeColor = "hsl(224, 100%, 58%)";
-        break;
-      case "Interview":
-        nodeColor = "hsl(33, 100%, 50%)";
-        break;
-      case "Second Interview":
-        nodeColor = "hsl(191, 100%, 52%)";
-        break;
-      case "Third Interview":
-        nodeColor = "hsl(275, 100%, 50%)";
-        break;
-      case "Offer":
-        nodeColor = "hsl(83, 90%, 40%)";
-        break;
-      case "Rejected":
-        nodeColor = "hsl(339, 100%, 50%)";
-        break;
-      case "Ghosted":
-        nodeColor = "hsl(195, 9%, 64%)";
-        break;
-      default:
-        nodeColor = "hsl(0, 0%, 70%)";
-        break;
-    }
-    return { id, nodeColor };
-  });
-
-  const [isNarrow, setIsNarrow] = useState(false);
+  }
 
   useEffect(() => {
     const updatePosition = () => {
-      setIsNarrow(window.innerWidth < 768);
-    };
+      setIsNarrow(window.innerWidth < 768)
+    }
 
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    return () => window.removeEventListener("resize", updatePosition);
-  }, []);
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    return () => window.removeEventListener('resize', updatePosition)
+  }, [])
+
+  // Re-resolve the shared status palette whenever the active theme changes.
+  useEffect(() => {
+    setPalette(buildPalette())
+  }, [resolvedTheme])
+
+  const uniqueNodeIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          sankeyFlow.reduce<string[]>((ids, item) => {
+            ids.push(item.from, item.to)
+            return ids
+          }, []),
+        ),
+      ),
+    [sankeyFlow],
+  )
+
+  const nodes = uniqueNodeIds.map((id) => ({
+    id,
+    nodeColor:
+      palette?.nodes[id] ?? palette?.muted ?? 'var(--muted-foreground)',
+  }))
 
   const links = sankeyFlow.map((item) => ({
     source: item.from,
     target: item.to,
     value: item.weight,
-  }));
+  }))
 
-  const sankeyData = { nodes, links };
+  const sankeyData = { nodes, links }
 
-  useImperativeHandle(ref, () => ({ exportCSV, exportDiagram }));
+  useImperativeHandle(ref, () => ({ exportCSV, exportDiagram }))
 
   return (
-    <div className="w-full mx-auto">
-      <div className="bg-foreground rounded-xl overflow-hidden">
+    <div className="mx-auto w-full min-w-0">
+      <div className="overflow-hidden rounded-xl bg-surface">
         <div
           ref={diagramRef}
-          className="bg-foreground text-background min-h-96 md:min-h-0 md:h-72 rounded-lg"
+          data-sankey-canvas
+          className="min-h-96 rounded-lg bg-surface text-foreground md:h-72 md:min-h-0"
         >
-          {links.length > 0 ? (
+          {links.length > 0 && palette ? (
             <ResponsiveSankey
               data={sankeyData}
               margin={
@@ -192,43 +250,46 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
                   : { top: 10, right: 84, bottom: 10, left: 70 }
               }
               align="justify"
-              colors={{ datum: "nodeColor" }}
+              colors={{ datum: 'nodeColor' }}
               nodeThickness={18}
               nodeSpacing={24}
               linkOpacity={1}
-              nodeBorderColor={{ from: "color", modifiers: [["darker", 0.8]] }}
+              nodeBorderColor={{ from: 'color', modifiers: [['darker', 0.8]] }}
               enableLinkGradient={true}
               linkBlendMode="normal"
               labelPosition="outside"
               labelOrientation="horizontal"
               labelPadding={10}
-              labelTextColor={theme === "light" ? "#ede7e0" : "#231f20"}
-              layout={isNarrow ? "vertical" : "horizontal"}
+              labelTextColor={palette.foreground}
+              layout={isNarrow ? 'vertical' : 'horizontal'}
               theme={{
                 labels: {
                   text: {
-                    fontSize: "0.7rem",
-                    fontWeight: "bolder",
+                    fontSize: '0.7rem',
+                    fontWeight: 'bolder',
                   },
                 },
                 tooltip: {
                   container: {
-                    background: "#333",
-                    color: "#fff",
-                    fontSize: "12px",
-                    padding: "5px",
-                    borderRadius: "4px",
+                    background: palette.tooltipBackground,
+                    color: palette.tooltipForeground,
+                    fontSize: '12px',
+                    padding: '5px',
+                    borderRadius: '4px',
+                    border: `1px solid ${palette.muted}`,
                   },
                 },
               }}
             />
           ) : (
-            <p className="text-center py-10 text-background">
-              No application history data available
+            <p className="py-10 text-center text-muted-foreground">
+              {links.length > 0
+                ? 'Preparing status flow…'
+                : 'No application history data available yet.'}
             </p>
           )}
         </div>
       </div>
     </div>
-  );
-});
+  )
+})

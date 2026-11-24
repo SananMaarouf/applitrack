@@ -14,6 +14,7 @@ import { createApplication } from "@/api/applications";
 import { uploadAttachment } from "@/api/applications";
 import { useAuth } from "@clerk/clerk-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -104,37 +105,41 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
   }
 
   return (
-    <div className="bg-foreground w-full rounded-md p-3 text-background sm:p-4">
-      <div className="mb-2 flex items-center justify-between sm:mb-3">
-        <h2 className="text-base font-bold sm:text-lg">Register application</h2>
+    <div className="w-full rounded-xl bg-card p-4 text-card-foreground sm:p-6">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <DialogTitle className="text-base font-semibold sm:text-lg">
+            Register application
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Add a role and keep its progress up to date.
+          </DialogDescription>
+        </div>
         {onClose && (
           <Button
             type="button"
             variant="ghost"
-            size="icon"
-            className="hidden text-background/80 hover:text-background md:inline-flex"
+            size="icon-sm"
+            className="inline-flex text-muted-foreground hover:text-foreground"
             onClick={onClose}
             aria-label="Close form"
           >
-            <XIcon className="size-5" />
+            <XIcon className="size-4" />
           </Button>
         )}
       </div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="position"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs sm:text-sm">Position*</FormLabel>
+                <FormLabel>Position*</FormLabel>
                 <FormControl>
-                  <input
-                    {...field}
-                    className="mt-1 block w-full rounded-md border-gray-300 bg-primary p-1.5 text-sm text-primary-foreground shadow-xs focus:ring-3 focus:ring-opacity-50 sm:p-2"
-                  />
+                  <Input placeholder="e.g. Frontend Developer" {...field} />
                 </FormControl>
-                <FormMessage className="text-red-400" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -143,14 +148,11 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs sm:text-sm">Company*</FormLabel>
+                <FormLabel>Company*</FormLabel>
                 <FormControl>
-                  <input
-                    {...field}
-                    className="mt-1 block w-full rounded-md border-gray-300 bg-primary p-1.5 text-sm text-primary-foreground shadow-xs focus:ring-3 focus:ring-opacity-50 sm:p-2"
-                  />
+                  <Input placeholder="e.g. Acme Corp" {...field} />
                 </FormControl>
-                <FormMessage className="text-red-400" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -159,8 +161,8 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
             name="applied_at"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs sm:text-sm">Date Applied*</FormLabel>
-                <div className="flex gap-1.5 sm:gap-2">
+                <FormLabel>Date Applied*</FormLabel>
+                <div className="flex gap-2">
                   <FormControl>
                     <Input
                       type="text"
@@ -185,16 +187,21 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
                           setAppliedDateText("");
                         }
                       }}
-                      className="h-9 bg-primary text-sm text-primary-foreground sm:h-10"
                     />
                   </FormControl>
                   <Popover open={appliedDateOpen} onOpenChange={setAppliedDateOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="default" size="icon" type="button" className="h-9 w-9 sm:h-10 sm:w-10">
-                        <CalendarIcon className="h-5 w-5" />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        type="button"
+                        className="shrink-0"
+                        aria-label="Choose date applied"
+                      >
+                        <CalendarIcon className="size-4" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-full p-1">
+                    <PopoverContent className="w-auto p-1" align="start">
                       <Calendar
                         mode="single"
                         selected={field.value}
@@ -211,7 +218,7 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
                     </PopoverContent>
                   </Popover>
                 </div>
-                <FormMessage className="text-red-400" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -221,8 +228,8 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
             name="expires_at"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs sm:text-sm">Date Expires (optional)</FormLabel>
-                <div className="flex gap-1.5 sm:gap-2">
+                <FormLabel>Date Expires (optional)</FormLabel>
+                <div className="flex gap-2">
                   <FormControl>
                     <Input
                       type="text"
@@ -247,16 +254,21 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
                           setExpiresDateText("");
                         }
                       }}
-                      className="h-9 bg-primary text-sm text-primary-foreground sm:h-10"
                     />
                   </FormControl>
                   <Popover open={expiresDateOpen} onOpenChange={setExpiresDateOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="default" size="icon" type="button" className="h-9 w-9 sm:h-10 sm:w-10">
-                        <CalendarIcon className="h-5 w-5" />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        type="button"
+                        className="shrink-0"
+                        aria-label="Choose expiry date"
+                      >
+                        <CalendarIcon className="size-4" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-full p-1">
+                    <PopoverContent className="w-auto p-1" align="start">
                       <Calendar
                         mode="single"
                         selected={field.value}
@@ -273,7 +285,7 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
                     </PopoverContent>
                   </Popover>
                 </div>
-                <FormMessage className="text-red-400" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -283,11 +295,12 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
             name="link"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs sm:text-sm">Link (optional)</FormLabel>
+                <FormLabel>Link (optional)</FormLabel>
                 <FormControl>
-                  <input
+                  <Input
+                    type="url"
+                    placeholder="https://…"
                     {...field}
-                    className="block w-full rounded-md border-gray-300 bg-primary p-1.5 text-sm text-primary-foreground shadow-xs focus:ring-3 focus:ring-opacity-50 sm:p-2"
                   />
                 </FormControl>
                 <FormMessage />
@@ -296,22 +309,20 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
           />
 
           {/* PDF attachment */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium leading-none sm:text-sm">Attachment (optional, PDF)</label>
+          <div className="space-y-2">
+            <label
+              htmlFor="pdf-attachment"
+              className="text-sm font-medium leading-none"
+            >
+              Attachment (optional, PDF)
+            </label>
             <div className="flex items-center gap-2">
-              <label
-                htmlFor="pdf-attachment"
-                className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-2.5 py-1.5 text-xs text-primary-foreground transition-opacity hover:opacity-80 sm:px-3 sm:py-2 sm:text-sm"
-              >
-                <PaperclipIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {attachmentFile ? attachmentFile.name : "Choose PDF…"}
-              </label>
               <input
                 id="pdf-attachment"
                 ref={fileInputRef}
                 type="file"
                 accept="application/pdf"
-                className="hidden"
+                className="peer sr-only"
                 onChange={(e) => {
                   const file = e.target.files?.[0] ?? null;
                   if (file && file.type !== "application/pdf") {
@@ -322,26 +333,37 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
                   setAttachmentFile(file);
                 }}
               />
+              <label
+                htmlFor="pdf-attachment"
+                className="flex h-10 max-w-[240px] cursor-pointer items-center gap-2 rounded-lg border border-input bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:bg-accent peer-focus-visible:ring-2 peer-focus-visible:ring-ring"
+              >
+                <PaperclipIcon className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">
+                  {attachmentFile ? attachmentFile.name : "Choose PDF…"}
+                </span>
+              </label>
               {attachmentFile && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => {
                     setAttachmentFile(null);
                     if (fileInputRef.current) fileInputRef.current.value = "";
                   }}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground"
                   aria-label="Remove attachment"
                 >
-                  <XIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                </button>
+                  <XIcon className="size-4" />
+                </Button>
               )}
             </div>
           </div>
 
-          <div className="flex flex-row justify-between">
+          <div className="flex items-center justify-between pt-1">
             <Button
               type="button"
-              variant="destructive"
+              variant="outline"
               size="icon"
               onClick={() => {
                 form.reset();
@@ -350,11 +372,13 @@ export function JobApplicationForm({ user_id, onClose }: { user_id: string; onCl
                 setAttachmentFile(null);
                 if (fileInputRef.current) fileInputRef.current.value = "";
               }}
+              aria-label="Reset form"
             >
-              <Trash2Icon className="size-5" />
+              <Trash2Icon className="size-4" />
             </Button>
-            <Button className="px-8 sm:px-10" type="submit" variant="default" size="icon">
-              <SquarePlusIcon className="size-6" />
+            <Button type="submit">
+              <SquarePlusIcon className="size-4" aria-hidden="true" />
+              Save application
             </Button>
           </div>
         </form>

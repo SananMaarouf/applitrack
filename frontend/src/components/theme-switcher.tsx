@@ -14,9 +14,10 @@ import {
 
 type ThemeSwitcherProps = {
   variant?: "icon" | "icon-only" | "dropdown-menu";
+  className?: string;
 };
 
-export function ThemeSwitcher({ variant = "icon-only" }: ThemeSwitcherProps) {
+export function ThemeSwitcher({ variant = "icon-only", className }: ThemeSwitcherProps) {
   const { theme, resolvedTheme, setTheme } = useTheme();
 
   const currentTheme = resolvedTheme ?? theme ?? "light";
@@ -27,7 +28,7 @@ export function ThemeSwitcher({ variant = "icon-only" }: ThemeSwitcherProps) {
   if (variant === "dropdown-menu") {
     return (
       <Select value={isDark ? "dark" : "light"} onValueChange={setTheme}>
-        <SelectTrigger>
+        <SelectTrigger className={className}>
           <SelectValue placeholder="Select theme" />
         </SelectTrigger>
         <SelectContent className="w-full" position="item-aligned">
@@ -40,12 +41,18 @@ export function ThemeSwitcher({ variant = "icon-only" }: ThemeSwitcherProps) {
 
   return (
     <Button
-      variant="default"
-      size="icon"
+      variant="outline"
+      size={variant === "icon" ? "icon" : "icon-sm"}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
+      className={
+        variant === "icon"
+          ? className
+          : `rounded-[8px] border-border bg-background ${className ?? ""}`
+      }
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="size-4" />
     </Button>
   );
 }

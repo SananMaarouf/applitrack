@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import { useState } from 'react'
 import { SignOutButton, useAuth } from '@clerk/clerk-react'
 import { BarChart2, ClipboardList, Home, Laptop, LogOut, Moon, Plus, Sun, User } from 'lucide-react'
@@ -34,7 +34,6 @@ export function AppSidebar() {
   const { state, isMobile } = useSidebar()
   const { theme, setTheme } = useTheme()
   const location = useLocation()
-  const navigate = useNavigate()
   const [addOpen, setAddOpen] = useState(false)
 
   if (!userId || isMobile) {
@@ -42,29 +41,32 @@ export function AppSidebar() {
   }
 
   const isDashboard = location.pathname === '/dashboard'
+  const activeSection = location.hash.replace(/^#/, '')
   const isCollapsed = state === 'collapsed'
   const ThemeIcon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Laptop
 
-  const goToDashboardSection = (sectionId: 'stats-section' | 'datatable-section') => {
-    if (isDashboard) {
-      window.history.replaceState(null, '', `#${sectionId}`)
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      return
-    }
-
-    navigate({
-      to: '/dashboard',
-      hash: sectionId,
+  const scrollToSectionIfCurrent = (sectionId: string) => {
+    if (!isDashboard || activeSection !== sectionId) return
+    const element = document.getElementById(sectionId)
+    if (!element) return
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    element.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
     })
   }
 
   return (
     <>
-      <Sidebar side="right" collapsible="icon" variant="inset">
+      <Sidebar side="left" collapsible="icon" variant="inset">
         <SidebarHeader className="border-b border-sidebar-border">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarTrigger className="mx-auto" size={"icon-lg"}  aria-label="Expand sidebar" />
+              <SidebarTrigger
+                className="mx-auto"
+                size={"icon-lg"}
+                aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
@@ -75,8 +77,16 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Dashboard overview">
-                    <Link to="/dashboard">
+                  <SidebarMenuButton
+                    asChild
+                    tooltip="Dashboard overview"
+                    isActive={isDashboard && !activeSection}
+                  >
+                    <Link
+                      to="/dashboard"
+                      activeOptions={{ exact: true, includeHash: true }}
+                      aria-label="Dashboard"
+                    >
                       <Home />
                       <span>Dashboard</span>
                     </Link>
@@ -85,27 +95,53 @@ export function AppSidebar() {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => goToDashboardSection('stats-section')}
+                    asChild
                     tooltip="Jump to dashboard stats"
+                    isActive={isDashboard && activeSection === 'stats-section'}
                   >
-                    <BarChart2 />
-                    <span>Stats</span>
+                    <Link
+                      to="/dashboard"
+                      hash="stats-section"
+                      activeOptions={{ exact: true, includeHash: true }}
+                      onClick={() => scrollToSectionIfCurrent('stats-section')}
+                      aria-label="Stats"
+                    >
+                      <BarChart2 />
+                      <span>Stats</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => goToDashboardSection('datatable-section')}
+                    asChild
                     tooltip="Jump to application table"
+                    isActive={isDashboard && activeSection === 'datatable-section'}
                   >
-                    <ClipboardList />
-                    <span>Applications</span>
+                    <Link
+                      to="/dashboard"
+                      hash="datatable-section"
+                      activeOptions={{ exact: true, includeHash: true }}
+                      onClick={() => scrollToSectionIfCurrent('datatable-section')}
+                      aria-label="Applications"
+                    >
+                      <ClipboardList />
+                      <span>Applications</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Your profile">
-                    <Link to={'/my-account' as any}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip="Your profile"
+                    isActive={location.pathname.startsWith('/my-account')}
+                  >
+                    <Link
+                      to={'/my-account' as any}
+                      activeOptions={{ exact: true, includeHash: true }}
+                      aria-label="Profile"
+                    >
                       <User />
                       <span>Profile</span>
                     </Link>
@@ -121,6 +157,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     onClick={() => setAddOpen(true)}
                     tooltip="Register application"
+                    aria-label="Register application"
                     className="h-12 bg-primary font-semibold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 [&>svg]:size-7"
                   >
                     <Plus />
@@ -142,12 +179,12 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton tooltip="Theme settings">
+                  <SidebarMenuButton tooltip="Theme settings" aria-label="Theme">
                     <ThemeIcon />
                     <span>Theme</span>
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side={isCollapsed ? 'left' : 'bottom'}>
+                <DropdownMenuContent align="end" side={isCollapsed ? 'right' : 'bottom'}>
                   <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
@@ -159,7 +196,7 @@ export function AppSidebar() {
 
         <SidebarFooter className="border-t border-sidebar-border">
           <SignOutButton redirectUrl="/">
-            <SidebarMenuButton tooltip="Sign out" className="bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground">
+            <SidebarMenuButton tooltip="Sign out" aria-label="Sign out" className="bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground">
               <LogOut />
               <span>Sign out</span>
             </SidebarMenuButton>

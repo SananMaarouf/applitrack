@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select2";
-import { JobStatus } from "@/types/jobStatus";
+import { JOB_STATUS_OPTIONS, getJobStatusUi } from "@/lib/job-status-ui";
 
 interface Row {
   original: JobApplication;
@@ -33,6 +33,7 @@ export function StatusSelect({ row }: { row: Row }) {
   const status = currentJobApplication
     ? currentJobApplication.status
     : row.original.status;
+  const statusUi = getJobStatusUi(status);
 
   const updateJobStatus = async (jobApplication: JobApplication, newStatus: number) => {
     try {
@@ -57,38 +58,29 @@ export function StatusSelect({ row }: { row: Row }) {
   };
 
   return (
-    <span>
-      <Select
-        value={status.toString()}
-        onValueChange={(value) => updateJobStatus(row.original, parseInt(value))}
+    <Select
+      value={status.toString()}
+      onValueChange={(value) => updateJobStatus(row.original, parseInt(value))}
+    >
+      <SelectTrigger
+        className="status-tint w-44 cursor-pointer font-medium shadow-none"
+        data-status={statusUi.key}
+        aria-label={`Status: ${statusUi.label}`}
       >
-        <SelectTrigger className="bg-primary cursor-pointer text-primary-foreground">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="cursor-pointer">
-          <SelectItem className="cursor-pointer" value={JobStatus.APPLIED.toString()}>
-            Applied
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {JOB_STATUS_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value.toString()}>
+            <span
+              className="status-dot size-2.5 shrink-0 rounded-full"
+              data-status={option.key}
+              aria-hidden="true"
+            />
+            {option.label}
           </SelectItem>
-          <SelectItem className="cursor-pointer" value={JobStatus.INTERVIEW.toString()}>
-            Interview
-          </SelectItem>
-          <SelectItem className="cursor-pointer" value={JobStatus.SECOND_INTERVIEW.toString()}>
-            Second Interview
-          </SelectItem>
-          <SelectItem className="cursor-pointer" value={JobStatus.THIRD_INTERVIEW.toString()}>
-            Third Interview
-          </SelectItem>
-          <SelectItem className="cursor-pointer" value={JobStatus.OFFER.toString()}>
-            Offer
-          </SelectItem>
-          <SelectItem className="cursor-pointer" value={JobStatus.REJECTED.toString()}>
-            Rejected
-          </SelectItem>
-          <SelectItem className="cursor-pointer" value={JobStatus.GHOSTED.toString()}>
-            Ghosted
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    </span>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
