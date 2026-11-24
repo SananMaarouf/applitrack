@@ -18,25 +18,80 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }))
 
+vi.mock('@/components/sankey-diagram', () => ({
+  SankeyDiagram: ({
+    data,
+    heightClassName,
+    layout,
+    ariaLabel,
+  }: {
+    data: readonly { from: string; to: string; weight: number }[]
+    heightClassName?: string
+    layout?: string
+    ariaLabel?: string
+  }) => (
+    <div
+      role="img"
+      aria-label={ariaLabel}
+      data-height={heightClassName}
+      data-layout={layout}
+    >
+      {data.map((edge) => (
+        <span key={`${edge.from}-${edge.to}`}>
+          {`${edge.from} → ${edge.to}: ${edge.weight}`}
+        </span>
+      ))}
+    </div>
+  ),
+}))
+
 import { Landing } from '@/components/landing'
 
 describe('Landing dashboard preview', () => {
-  it('uses the shared trend cards as a clearly labelled read-only sample', () => {
+  it('uses the shared status flow renderer with clearly labelled sample data', () => {
     render(<Landing />)
 
     const figure = screen.getByRole('figure')
 
+    expect(within(figure).getByText('Status flow')).toBeInTheDocument()
+    expect(within(figure).getByText('Sample data')).toBeInTheDocument()
     expect(
-      within(figure).getByText('Dashboard overview · Sample data'),
+      within(figure).getByText('Illustrative flow only — not your application data.'),
     ).toBeInTheDocument()
-    expect(within(figure).getByText('Read-only')).toBeInTheDocument()
-    expect(within(figure).getByText('Week')).toBeInTheDocument()
-    expect(within(figure).getByText('12')).toBeInTheDocument()
-    expect(within(figure).getByText('3')).toBeInTheDocument()
 
-    // The sample must stay read-only: no period select or retry button.
+    const chart = within(figure).getByRole('img', {
+      name: /sample status flow/i,
+    })
+    expect(chart).toHaveAttribute(
+      'data-height',
+      expect.stringContaining('min-h-[26rem]'),
+    )
+    expect(chart).toHaveAttribute('data-layout', 'vertical')
+    expect(chart).toHaveAccessibleName(/Applied 22: Interview 12/i)
+
+    const totals = within(figure).getByLabelText('Sample status totals')
+    expect(within(totals).getByText('Applied')).toBeInTheDocument()
+    expect(within(totals).getByText('22')).toBeInTheDocument()
+    expect(within(totals).getByText('Second Interview')).toBeInTheDocument()
+    expect(within(totals).getByText('13')).toBeInTheDocument()
+
+    for (const edge of [
+      'Applied → Interview: 12',
+      'Applied → Rejected: 6',
+      'Applied → Ghosted: 4',
+      'Interview → Second Interview: 6',
+      'Interview → Rejected: 4',
+      'Interview → Ghosted: 2',
+      'Second Interview → Offer: 3',
+      'Second Interview → Rejected: 3',
+    ]) {
+      expect(within(chart).getByText(edge)).toBeInTheDocument()
+    }
+
+    // The preview must stay read-only and free of dashboard export controls.
     expect(within(figure).queryByRole('combobox')).not.toBeInTheDocument()
     expect(within(figure).queryByRole('button')).not.toBeInTheDocument()
+    expect(within(figure).queryByText(/export/i)).not.toBeInTheDocument()
   })
 
   it('removes the inaccurate fake sidebar, offer count, table, and graph', () => {

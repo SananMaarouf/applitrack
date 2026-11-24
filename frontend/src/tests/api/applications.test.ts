@@ -3,6 +3,7 @@ import * as apiLib from '@/lib/api'
 import {
   listApplications,
   createApplication,
+  updateApplication,
   deleteApplication,
   updateApplicationStatus,
   getStatusFlow,
@@ -80,6 +81,25 @@ describe('api/applications', () => {
         body: JSON.stringify(payload),
       })
       expect(result).toEqual(created)
+    })
+  })
+
+  // ── updateApplication ─────────────────────────────────────────────────────
+
+  describe('updateApplication', () => {
+    it('calls PATCH /applications/:id with only the provided metadata', async () => {
+      const payload = { position: 'Staff Engineer', expires_at: null }
+      const updated = makeApplication({ position: 'Staff Engineer', expires_at: null })
+      apiFetchSpy.mockResolvedValue(updated)
+
+      const result = await updateApplication(TOKEN, 42, payload)
+
+      expect(apiFetchSpy).toHaveBeenCalledWith('/applications/42', {
+        method: 'PATCH',
+        token: TOKEN,
+        body: JSON.stringify(payload),
+      })
+      expect(result).toEqual(updated)
     })
   })
 

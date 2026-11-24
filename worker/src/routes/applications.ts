@@ -30,6 +30,39 @@ const dateTimeString = z
   .string()
   .refine((value) => normalizeDateTime(value) !== null, { message: "must be an ISO 8601 datetime" });
 
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * `new Date` rolls impossible days (for example 2025-02-30) into the next
+ * month, so metadata edits check the literal calendar components as well.
+ */
+function isStrictDateTime(value: string): boolean {
+  if (normalizeDateTime(value) === null) return false;
+  const match = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ]|$)/);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+  );
+}
+
+const patchDateTimeString = z
+  .string()
+  .refine(isStrictDateTime, { message: "must be an ISO 8601 datetime with a valid calendar date" });
+
 const createSchema = z.object({
   position: z.string(),
   company: z.string(),
@@ -37,6 +70,23 @@ const createSchema = z.object({
   expires_at: dateTimeString.nullish(),
   link: z.string().nullish(),
 });
+
+const updateSchema = z
+  .object({
+    position: z.string().min(1, { message: "must not be empty" }).optional(),
+    company: z.string().min(1, { message: "must not be empty" }).optional(),
+    applied_at: patchDateTimeString.optional(),
+    expires_at: patchDateTimeString.nullable().optional(),
+    link: z
+      .string()
+      .nullable()
+      .optional()
+      .refine((value) => value == null || isHttpUrl(value), {
+        message: "must be an absolute http(s) URL",
+      }),
+  })
+  .strict()
+  .refine((value) => Object.keys(value).length > 0, { message: "At least one field is required" });
 
 const statusSchema = z.object({
   new_status: z.coerce.number().int().min(1).max(7),
@@ -92,6 +142,57 @@ applications.post("/api/applications", async (c) => {
     .first<ApplicationRow>();
 
   return c.json(row, 201);
+});
+
+applications.patch("/api/applications/:id", async (c) => {
+  const id = parseId(c.req.param("id"));
+  if (id === null) return unprocessable(c, "id: must be an integer");
+
+  const userId = c.get("userId");
+  const application = await findApplication(c.env.DB, id, userId);
+  if (!application) return notFound(c, "Application not found");
+
+  const body = await readJson(c.req.raw);
+  if (!body.ok) return badRequest(c, "Invalid JSON body");
+
+  const parsed = updateSchema.safeParse(body.value);
+  if (!parsed.success) return unprocessable(c, validationMessage(parsed.error));
+
+  const assignments: string[] = [];
+  const values: (string | null)[] = [];
+
+  // Static assignment fragments only: user input is always bound as a value.
+  if (parsed.data.position !== undefined) {
+    assignments.push("position = ?");
+    values.push(parsed.data.position);
+  }
+  if (parsed.data.company !== undefined) {
+    assignments.push("company = ?");
+    values.push(parsed.data.company);
+  }
+  if (parsed.data.applied_at !== undefined) {
+    assignments.push("applied_at = ?");
+    values.push(normalizeDateTime(parsed.data.applied_at));
+  }
+  if (parsed.data.expires_at !== undefined) {
+    assignments.push("expires_at = ?");
+    values.push(parsed.data.expires_at === null ? null : normalizeDateTime(parsed.data.expires_at));
+  }
+  if (parsed.data.link !== undefined) {
+    assignments.push("link = ?");
+    values.push(parsed.data.link);
+  }
+
+  const row = await c.env.DB.prepare(
+    `UPDATE applications SET ${assignments.join(", ")}
+     WHERE id = ? AND user_id = ?
+     RETURNING ${COLUMNS}`,
+  )
+    .bind(...values, id, userId)
+    .first<ApplicationRow>();
+
+  if (!row) return notFound(c, "Application not found");
+  return c.json(row);
 });
 
 applications.patch("/api/applications/:id/status", async (c) => {
@@ -211,15 +312,11 @@ applications.post("/api/applications/:id/attachment", async (c) => {
   if (file.type !== ALLOWED_CONTENT_TYPE) return c.json({ detail: "Only PDF files are allowed" }, 415);
   if (file.size > MAX_ATTACHMENT_SIZE) return c.json({ detail: "File exceeds the 10 MB limit" }, 413);
 
-  if (application.attachment_key) {
-    try {
-      await c.env.ATTACHMENTS.delete(application.attachment_key);
-    } catch (error) {
-      console.warn("Failed to replace attachment in R2", error);
-    }
-  }
-
   const key = attachmentKey(userId, id, file.name || "attachment.pdf");
+
+  // Write the replacement first. The old object stays readable until the new
+  // one is safely stored and the row points at it, so a failed R2 write cannot
+  // destroy the user's existing PDF.
   await c.env.ATTACHMENTS.put(key, await file.arrayBuffer(), {
     httpMetadata: { contentType: ALLOWED_CONTENT_TYPE },
   });
@@ -229,6 +326,16 @@ applications.post("/api/applications/:id/attachment", async (c) => {
   )
     .bind(key, id, userId)
     .first<ApplicationRow>();
+
+  const previousKey = application.attachment_key;
+  if (previousKey && previousKey !== key && row?.attachment_key === key) {
+    try {
+      await c.env.ATTACHMENTS.delete(previousKey);
+    } catch (error) {
+      // Cleanup is best effort; the new attachment and row are already valid.
+      console.warn("Failed to delete replaced attachment from R2", error);
+    }
+  }
 
   return c.json(row);
 });

@@ -1,35 +1,33 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 
-import type { DashboardTrends } from "@/types/jobApplication";
-import { TrendCards } from "./trendCards";
+import { JOB_STATUS_UI } from "@/lib/job-status-ui";
+import { JobStatus } from "@/types/jobStatus";
+import type { SankeyFlowItem } from "./sankey-diagram";
+import { SankeyDiagram } from "./sankey-diagram";
 import { Button } from "./ui/button";
 
-// Fixture values only: the preview reuses the dashboard's shared TrendCards
-// component so the layout and states stay accurate.
-const previewTrends: DashboardTrends = {
-  period: "week",
-  ranges: {
-    current_start: "2026-11-17T00:00:00.000Z",
-    current_end: "2026-11-24T00:00:00.000Z",
-    previous_start: "2026-11-10T00:00:00.000Z",
-    previous_end: "2026-11-17T00:00:00.000Z",
-  },
-  applications_sent: {
-    current: 12,
-    previous: 8,
-    difference: 4,
-    percentChange: 50,
-    direction: "up",
-  },
-  interviews: {
-    current: 3,
-    previous: 4,
-    difference: -1,
-    percentChange: -25,
-    direction: "down",
-  },
-};
+// Read-only fixture values only: the preview reuses the dashboard's shared
+// Sankey renderer, theme palette, and status names/order.
+const sampleStatusFlow: readonly SankeyFlowItem[] = [
+  { from: "Applied", to: "Interview", weight: 12 },
+  { from: "Applied", to: "Rejected", weight: 6 },
+  { from: "Applied", to: "Ghosted", weight: 4 },
+  { from: "Interview", to: "Second Interview", weight: 6 },
+  { from: "Interview", to: "Rejected", weight: 4 },
+  { from: "Interview", to: "Ghosted", weight: 2 },
+  { from: "Second Interview", to: "Offer", weight: 3 },
+  { from: "Second Interview", to: "Rejected", weight: 3 },
+];
+
+const sampleStatusTotals = [
+  { status: JobStatus.APPLIED, count: 22 },
+  { status: JobStatus.INTERVIEW, count: 12 },
+  { status: JobStatus.SECOND_INTERVIEW, count: 6 },
+  { status: JobStatus.OFFER, count: 3 },
+  { status: JobStatus.REJECTED, count: 13 },
+  { status: JobStatus.GHOSTED, count: 6 },
+] as const;
 
 function DashboardPreview() {
   return (
@@ -42,19 +40,46 @@ function DashboardPreview() {
           id="dashboard-preview-title"
           className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
         >
-          Dashboard overview · Sample data
+          Status flow
         </span>
-        <span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Read-only
+        <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+          Sample data
         </span>
       </figcaption>
 
       <div className="mt-4 min-w-0">
-        <TrendCards trends={previewTrends} period="week" isLoading={false} />
+        <SankeyDiagram
+          data={sampleStatusFlow}
+          layout="vertical"
+          heightClassName="min-h-[26rem] rounded-lg bg-surface text-foreground sm:min-h-[28rem] md:h-80 md:min-h-0"
+          ariaLabel="Sample status flow. Applied 22: Interview 12, Rejected 6, Ghosted 4. Interview 12: Second Interview 6, Rejected 4, Ghosted 2. Second Interview 6: Offer 3, Rejected 3."
+        />
       </div>
 
-      <p className="mt-3 text-center text-[10px] text-muted-foreground">
-        Sample values shown with the shared dashboard trend cards.
+      <dl
+        aria-label="Sample status totals"
+        className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px] sm:grid-cols-3"
+      >
+        {sampleStatusTotals.map(({ status, count }) => {
+          const { label, color } = JOB_STATUS_UI[status];
+          return (
+            <div key={status} className="flex min-w-0 items-center justify-between gap-2">
+              <dt className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                <span
+                  aria-hidden="true"
+                  className="size-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="truncate">{label}</span>
+              </dt>
+              <dd className="font-semibold text-foreground">{count}</dd>
+            </div>
+          );
+        })}
+      </dl>
+
+      <p className="mt-4 text-center text-[10px] text-muted-foreground">
+        Illustrative flow only — not your application data.
       </p>
     </figure>
   );

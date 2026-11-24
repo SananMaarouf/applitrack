@@ -47,7 +47,7 @@ import {
 const LOCAL_STORAGE_KEY = "tableVisibilityState";
 
 export function DataTable() {
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState<string>("");
@@ -64,8 +64,16 @@ export function DataTable() {
     (state) => state.setAggregatedStatusHistory,
   );
 
+  // Late refreshes from a delete/status request must not write into the store
+  // after the dashboard has switched to another account.
+  const isCurrentOwner = () => {
+    const owner = useJobsStore.getState().activeJobsOwnerId;
+    return !owner || owner === userId;
+  };
+
   const refreshStatusFlow = async (token: string) => {
     const flow = await getStatusFlow(token);
+    if (!isCurrentOwner()) return;
     setAggregatedStatusHistory(flow);
   };
 
@@ -84,7 +92,11 @@ export function DataTable() {
       return;
     }
 
-    const jobsToDelete = selectedRows.map((row) => row.original);
+    // Track the whole optimistic bulk delete as one pending transaction so a
+    // partial result can never be mistaken for a fully emptied account.
+    const transactionId = useJobsStore
+      .getState()
+      .beginDelete(userId ?? null, selectedIds);
 
     const remainingJobs = jobApplications.filter(
       (job) => !selectedIds.includes(job.id),
@@ -92,15 +104,55 @@ export function DataTable() {
     setJobApplications(remainingJobs);
     table.resetRowSelection();
 
-    try {
-      await Promise.all(selectedIds.map((id) => deleteApplication(token, id)));
-      await refreshStatusFlow(token);
-      toast.success(`Successfully deleted ${selectedIds.length} job application(s)`);
-    } catch (error: any) {
-      setJobApplications([...remainingJobs, ...jobsToDelete]);
-      toast.error(error?.message || "Failed to delete applications");
-      console.error(error);
+    const results = await Promise.allSettled(
+      selectedIds.map((id) => deleteApplication(token, id)),
+    );
+    const failedJobs = selectedRows
+      .filter((_, index) => results[index]?.status === "rejected")
+      .map((row) => row.original);
+    const succeededCount = selectedIds.length - failedJobs.length;
+    const firstFailure = results.find((result) => result.status === "rejected");
+    const reason = firstFailure?.status === "rejected" ? firstFailure.reason : null;
+
+    if (failedJobs.length > 0 && isCurrentOwner()) {
+      // Re-read the store: rows saved while the deletes were in flight must
+      // survive. Restore only failed rows that are missing, never overwrite.
+      const currentJobs = useJobsStore.getState().jobApplications;
+      const currentIds = new Set(currentJobs.map((job) => job.id));
+      const missingFailedJobs = failedJobs.filter((job) => !currentIds.has(job.id));
+      setJobApplications([...currentJobs, ...missingFailedJobs]);
     }
+
+    // Resolve the transaction only after failed rows are restored, so an
+    // all-succeeded bulk delete (and only that) leaves the account empty.
+    const succeededIds = selectedIds.filter(
+      (_, index) => results[index]?.status === "fulfilled",
+    );
+    const jobsStore = useJobsStore.getState();
+    if (succeededIds.length > 0) {
+      jobsStore.confirmDelete(userId ?? null, transactionId, succeededIds);
+    } else {
+      jobsStore.failDelete(userId ?? null, transactionId);
+    }
+
+    if (succeededCount > 0) {
+      // A partial delete still changed server state, so refresh best-effort.
+      try {
+        await refreshStatusFlow(token);
+      } catch (error) {
+        console.warn("Deleted applications but failed to refresh status flow", error);
+      }
+    }
+
+    if (failedJobs.length > 0) {
+      toast.error(
+        reason instanceof Error ? reason.message : "Failed to delete applications",
+      );
+      console.error(reason);
+      return;
+    }
+
+    toast.success(`Successfully deleted ${selectedIds.length} job application(s)`);
   };
 
   const handleBulkStatusUpdate = async (newStatus: string) => {
@@ -153,11 +205,13 @@ export function DataTable() {
           : `Successfully updated ${jobsToUpdate.length} job application(s)`;
       toast.success(message);
     } catch (error: any) {
-      const restoredJobs = jobApplications.map((job) => {
-        const original = originalJobs.find((oj) => oj.id === job.id);
-        return original || job;
-      });
-      setJobApplications(restoredJobs);
+      if (isCurrentOwner()) {
+        const restoredJobs = jobApplications.map((job) => {
+          const original = originalJobs.find((oj) => oj.id === job.id);
+          return original || job;
+        });
+        setJobApplications(restoredJobs);
+      }
       toast.error(error?.message || "Failed to update applications");
       console.error(error);
     }

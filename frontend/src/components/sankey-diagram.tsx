@@ -11,7 +11,6 @@ import {
   useState,
 } from 'react'
 import { useTheme } from 'next-themes'
-import html2canvas from 'html2canvas-pro'
 import { toast } from 'sonner'
 
 import { JOB_STATUS_OPTIONS } from '@/lib/job-status-ui'
@@ -19,6 +18,28 @@ import { JOB_STATUS_OPTIONS } from '@/lib/job-status-ui'
 export interface SankeyDiagramHandle {
   exportCSV: () => void
   exportDiagram: () => void
+}
+
+export type SankeyFlowItem = {
+  from: string
+  to: string
+  weight: number
+}
+
+type SankeyDiagramProps = {
+  /**
+   * Optional read-only flow data. When omitted, the dashboard's aggregated
+   * status history store is used instead.
+   */
+  data?: readonly SankeyFlowItem[]
+  /** Optional height override so embeds can size the chart for their layout. */
+  heightClassName?: string
+  /**
+   * Optional layout override. Without it the dashboard keeps its existing
+   * viewport-based horizontal/vertical switch.
+   */
+  layout?: 'horizontal' | 'vertical'
+  ariaLabel?: string
 }
 
 type SankeyPalette = {
@@ -97,44 +118,58 @@ function buildPalette(): SankeyPalette {
   }
 }
 
-export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiagram(_, ref) {
-  const aggregatedStatusHistory = useAggregatedStatusHistoryStore(
-    (state) => state.aggregatedStatusHistory,
-  )
-  const { resolvedTheme } = useTheme()
-  const diagramRef = useRef<HTMLDivElement>(null)
-  const [palette, setPalette] = useState<SankeyPalette | null>(null)
-  const [isNarrow, setIsNarrow] = useState(false)
-
-  const sankeyFlow = useMemo(
-    () =>
-      aggregatedStatusHistory
-        .map((item) => ({
+export const SankeyDiagram = forwardRef<SankeyDiagramHandle, SankeyDiagramProps>(
+  function SankeyDiagram(
+    {
+      data,
+      heightClassName = 'min-h-96 rounded-lg bg-surface text-foreground md:h-72 md:min-h-0',
+      layout,
+      ariaLabel = 'Status flow diagram',
+    },
+    ref,
+  ) {
+    const aggregatedStatusHistory = useAggregatedStatusHistoryStore(
+      (state) => state.aggregatedStatusHistory,
+    )
+    const flowSource = useMemo<readonly SankeyFlowItem[]>(
+      () =>
+        data ??
+        aggregatedStatusHistory.map((item) => ({
           from: String(item.From),
           to: String(item.To),
           weight: Number(item.Weight),
-        }))
-        // Nivo Sankey requires an acyclic graph, so keep only forward transitions.
-        .filter((item) => {
-          if (!Number.isFinite(item.weight) || item.weight <= 0) return false
-          if (item.from === item.to) return false
+        })),
+      [data, aggregatedStatusHistory],
+    )
+    const { resolvedTheme } = useTheme()
+    const diagramRef = useRef<HTMLDivElement>(null)
+    const [palette, setPalette] = useState<SankeyPalette | null>(null)
+    const [isNarrow, setIsNarrow] = useState(false)
 
-          const fromOrder = STATUS_ORDER[item.from]
-          const toOrder = STATUS_ORDER[item.to]
-          if (!fromOrder || !toOrder) return false
+    const sankeyFlow = useMemo(
+      () =>
+        flowSource
+          // Nivo Sankey requires an acyclic graph, so keep only forward transitions.
+          .filter((item) => {
+            if (!Number.isFinite(item.weight) || item.weight <= 0) return false
+            if (item.from === item.to) return false
 
-          return fromOrder < toOrder
-        }),
-    [aggregatedStatusHistory],
-  )
+            const fromOrder = STATUS_ORDER[item.from]
+            const toOrder = STATUS_ORDER[item.to]
+            if (!fromOrder || !toOrder) return false
 
-  const exportCSV = () => {
-    const headers = ['From', 'To', 'Weight']
-    const rows = aggregatedStatusHistory.map((item) => [
-      String(item.From),
-      String(item.To),
-      String(item.Weight),
-    ])
+            return fromOrder < toOrder
+          }),
+      [flowSource],
+    )
+
+    const exportCSV = () => {
+      const headers = ['From', 'To', 'Weight']
+      const rows = flowSource.map((item) => [
+        String(item.from),
+        String(item.to),
+        String(item.weight),
+      ])
     const csvContent = [headers, ...rows]
       .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
       .join('\n')
@@ -155,6 +190,9 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
     if (!diagramRef.current) return
 
     try {
+      // Keep the canvas renderer out of landing's shared chunk; export is
+      // only exposed on the dashboard.
+      const { default: html2canvas } = await import('html2canvas-pro')
       const backgroundColor = resolveCssColor(SURFACE_BACKGROUND)
       const canvas = await html2canvas(diagramRef.current, {
         backgroundColor,
@@ -231,6 +269,18 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
 
   const sankeyData = { nodes, links }
 
+  // Vertical layouts place outside labels above/below the nodes, so embeds
+  // that force vertical (e.g. the landing preview) need generous top/bottom
+  // margins. The dashboard's viewport-based default stays untouched.
+  const margin =
+    layout === 'vertical'
+      ? { top: 36, right: 20, bottom: 36, left: 20 }
+      : layout === 'horizontal'
+        ? { top: 10, right: 84, bottom: 10, left: 70 }
+        : isNarrow
+          ? { top: 15, right: 20, bottom: 20, left: 10 }
+          : { top: 10, right: 84, bottom: 10, left: 70 }
+
   useImperativeHandle(ref, () => ({ exportCSV, exportDiagram }))
 
   return (
@@ -239,16 +289,14 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
         <div
           ref={diagramRef}
           data-sankey-canvas
-          className="min-h-96 rounded-lg bg-surface text-foreground md:h-72 md:min-h-0"
+          role="img"
+          aria-label={ariaLabel}
+          className={heightClassName}
         >
           {links.length > 0 && palette ? (
             <ResponsiveSankey
               data={sankeyData}
-              margin={
-                isNarrow
-                  ? { top: 15, right: 20, bottom: 20, left: 10 }
-                  : { top: 10, right: 84, bottom: 10, left: 70 }
-              }
+              margin={margin}
               align="justify"
               colors={{ datum: 'nodeColor' }}
               nodeThickness={18}
@@ -261,7 +309,7 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle>(function SankeyDiag
               labelOrientation="horizontal"
               labelPadding={10}
               labelTextColor={palette.foreground}
-              layout={isNarrow ? 'vertical' : 'horizontal'}
+              layout={layout ?? (isNarrow ? 'vertical' : 'horizontal')}
               theme={{
                 labels: {
                   text: {

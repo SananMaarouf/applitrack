@@ -9,6 +9,21 @@ export type CreateApplicationPayload = {
   link?: string | null
 }
 
+/** Editable metadata only. Omitted keys are preserved by the Worker. */
+export type UpdateApplicationPayload = Partial<CreateApplicationPayload>
+
+export async function updateApplication(
+  token: string,
+  applicationId: number,
+  payload: UpdateApplicationPayload,
+) {
+  return apiFetch<Application>(`/applications/${applicationId}`, {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify(payload),
+  })
+}
+
 export async function listApplications(token: string) {
   return apiFetch<Application[]>('/applications', { token })
 }

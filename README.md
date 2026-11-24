@@ -44,14 +44,36 @@ assets are unmetered, and the API fits in the Workers free tier.
 
 # Development
 
+Requires Node 22+ (the version CI uses).
+
 ```sh
 npm install                 # repo root; installs the frontend and worker workspaces
+npm run dev                 # SPA on :3000 and Worker on :8787, one Ctrl-C
+```
 
-# API: http://localhost:8787 (needs worker/.dev.vars, see worker/README.md)
-npm run worker:dev
+`npm run dev` first applies any pending local D1 migrations (idempotent,
+`--local` only), then starts Vite and Wrangler together with `concurrently`.
+Vite serves the SPA with HMR and proxies `/api` to the Worker, so the frontend
+and API share an origin. The Worker runs with `../frontend/public` as its assets
+directory in this combined mode, so a production frontend build is not needed.
+Stopping either process (Ctrl-C, a crash or a failed startup) stops the other.
+Ports are fixed: Vite uses 3000 with `strictPort`, Wrangler uses 8787, and
+either command fails rather than silently picking another port.
 
-# SPA with HMR: http://localhost:3000 (proxies /api to :8787)
-npm run dev --workspace frontend
+Local Clerk values belong in `frontend/.env.local` or the environment. For
+convenience, dev mode also falls back to the repo-root `.env.local` for the five
+`VITE_CLERK_*` values (only those keys; nothing else from the root env is
+exposed). Frontend env files and the explicit process environment take
+precedence. Leave `VITE_API_URL` unset for combined development so the `/api`
+proxy is used. Worker secrets live in `worker/.dev.vars` (see
+[`worker/README.md`](worker/README.md)).
+
+Standalone commands, unchanged:
+
+```sh
+npm run build --workspace frontend # creates frontend/dist for the assets binding
+npm run worker:dev                 # Worker only, :8787, uses production assets
+npm run dev --workspace frontend   # Vite only, :3000, proxies /api to :8787
 ```
 
 Tests and checks:

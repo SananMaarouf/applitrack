@@ -1,0 +1,91 @@
+.stage {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 19rem;
+  overflow: visible;
+}
+
+.beat {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 340ms ease-out,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.beat[data-visible='true'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.routePath {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  transition: stroke-dashoffset 820ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.routePath[data-visible='true'] {
+  stroke-dashoffset: 0;
+}
+
+.milestone {
+  opacity: 0;
+  transform: scale(0.7);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 260ms ease-out,
+    transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.milestone[data-visible='true'] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.milestoneLabel {
+  fill: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.sparkle {
+  opacity: 0;
+  transform: scale(0.35) rotate(-18deg);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 220ms ease-out,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sparkleLarge {
+  transition-duration: 260ms, 520ms;
+}
+
+.sparkle[data-visible='true'] {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beat,
+  .routePath,
+  .milestone,
+  .sparkle {
+    transition: none;
+  }
+
+  .beat,
+  .milestone,
+  .sparkle {
+    transform: none;
+  }
+
+  .routePath {
+    stroke-dashoffset: 0;
+  }
+}

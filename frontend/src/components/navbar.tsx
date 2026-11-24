@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { SignOutButton, useAuth } from "@clerk/clerk-react";
 import { BarChart2, ClipboardList, Home, LogOut, Plus, User } from "lucide-react";
@@ -8,6 +8,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { JobApplicationForm } from "@/components/jobApplicationForm";
 import { cn } from "@/lib/utils";
+import { useFirstRunNavigation } from "@/store/dashboardModeStore";
 
 const landingSections = [
   { id: "features", label: "Features" },
@@ -48,6 +49,12 @@ export function Navbar() {
   const isDashboard = location.pathname === "/dashboard";
   const isMyAccountRoute = location.pathname.startsWith("/my-account");
   const activeSection = location.hash.replace(/^#/, "");
+  const firstRunMode = useFirstRunNavigation(userId);
+  const isFirstRun = isDashboard && firstRunMode;
+
+  useEffect(() => {
+    if (isFirstRun) setAddOpen(false);
+  }, [isFirstRun]);
 
   const scrollToSectionIfCurrent = (sectionId: string) => {
     if (location.hash !== `#${sectionId}`) return;
@@ -101,40 +108,46 @@ export function Navbar() {
             <span>Home</span>
           </Link>
 
-          <Link
-            to="/dashboard"
-            hash="stats-section"
-            activeOptions={{ exact: true, includeHash: true }}
-            onClick={() => scrollToSectionIfCurrent("stats-section")}
-            className={bottomItem(isDashboard && activeSection === "stats-section")}
-          >
-            <BarChart2 className="size-5" />
-            <span>Stats</span>
-          </Link>
+          {!isFirstRun && (
+            <Link
+              to="/dashboard"
+              hash="stats-section"
+              activeOptions={{ exact: true, includeHash: true }}
+              onClick={() => scrollToSectionIfCurrent("stats-section")}
+              className={bottomItem(isDashboard && activeSection === "stats-section")}
+            >
+              <BarChart2 className="size-5" />
+              <span>Stats</span>
+            </Link>
+          )}
 
-          <button
-            type="button"
-            onClick={() => setAddOpen((prev) => !prev)}
-            aria-label={addOpen ? "Close register application" : "Register application"}
-            aria-expanded={addOpen}
-            className="flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-[8px] px-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          >
-            <span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm ring-4 ring-card">
-              <Plus className={cn("size-5 transition-transform", addOpen && "rotate-45")} />
-            </span>
-            <span>Add</span>
-          </button>
+          {!isFirstRun && (
+            <button
+              type="button"
+              onClick={() => setAddOpen((prev) => !prev)}
+              aria-label={addOpen ? "Close register application" : "Register application"}
+              aria-expanded={addOpen}
+              className="flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-[8px] px-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm ring-4 ring-card">
+                <Plus className={cn("size-5 transition-transform", addOpen && "rotate-45")} />
+              </span>
+              <span>Add</span>
+            </button>
+          )}
 
-          <Link
-            to="/dashboard"
-            hash="datatable-section"
-            activeOptions={{ exact: true, includeHash: true }}
-            onClick={() => scrollToSectionIfCurrent("datatable-section")}
-            className={bottomItem(isDashboard && activeSection === "datatable-section")}
-          >
-            <ClipboardList className="size-5" />
-            <span>Applications</span>
-          </Link>
+          {!isFirstRun && (
+            <Link
+              to="/dashboard"
+              hash="datatable-section"
+              activeOptions={{ exact: true, includeHash: true }}
+              onClick={() => scrollToSectionIfCurrent("datatable-section")}
+              className={bottomItem(isDashboard && activeSection === "datatable-section")}
+            >
+              <ClipboardList className="size-5" />
+              <span>Applications</span>
+            </Link>
+          )}
 
           <Link
             to={"/my-account" as any}

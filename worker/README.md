@@ -35,17 +35,25 @@ per day, 5 GB storage).
 
 ## Local development
 
+From the repo root, start Vite (:3000) and the Worker (:8787) together:
+
 ```sh
-npm install                       # from the repo root (workspaces)
-cd frontend && npm run build      # produces frontend/dist for the assets binding
-cd ../worker
-npx wrangler d1 migrations apply applitrack --local
-npm run dev                       # http://localhost:8787
+npm install
+npm run dev       # applies local D1 migrations first; one Ctrl-C stops both
 ```
 
-`npm run dev` serves the built SPA and the API. To iterate on the frontend with
-HMR, run `npm run dev` in `frontend/` too (port 3000); its Vite proxy forwards
-`/api` to `localhost:8787`.
+Combined dev does not need a frontend build: Wrangler serves
+`frontend/public` as its assets directory for that session. To run the Worker
+on its own against the production assets binding:
+
+```sh
+npm run db:migrate:local --workspace worker
+npm run build --workspace frontend   # creates frontend/dist for the assets binding
+npm run worker:dev                   # http://localhost:8787
+```
+
+For frontend HMR against the standalone Worker, run `npm run dev` in
+`frontend/` too; its Vite proxy forwards `/api` to `localhost:8787`.
 
 Without Clerk keys the API rejects every request. For local work, put this in
 `worker/.dev.vars` (gitignored) and use `Authorization: Bearer user-a-token`:

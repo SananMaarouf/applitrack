@@ -1,10 +1,11 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SignOutButton, useAuth } from '@clerk/clerk-react'
 import { BarChart2, ClipboardList, Home, Laptop, LogOut, Moon, Plus, Sun, User } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 import { JobApplicationForm } from '@/components/jobApplicationForm'
+import { useFirstRunNavigation } from '@/store/dashboardModeStore'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
   DropdownMenu,
@@ -35,6 +36,12 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme()
   const location = useLocation()
   const [addOpen, setAddOpen] = useState(false)
+  const firstRunMode = useFirstRunNavigation(userId)
+  const isFirstRun = location.pathname === '/dashboard' && firstRunMode
+
+  useEffect(() => {
+    if (isFirstRun) setAddOpen(false)
+  }, [isFirstRun])
 
   if (!userId || isMobile) {
     return null
@@ -93,43 +100,47 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip="Jump to dashboard stats"
-                    isActive={isDashboard && activeSection === 'stats-section'}
-                  >
-                    <Link
-                      to="/dashboard"
-                      hash="stats-section"
-                      activeOptions={{ exact: true, includeHash: true }}
-                      onClick={() => scrollToSectionIfCurrent('stats-section')}
-                      aria-label="Stats"
-                    >
-                      <BarChart2 />
-                      <span>Stats</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {!isFirstRun && (
+                  <>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip="Jump to dashboard stats"
+                        isActive={isDashboard && activeSection === 'stats-section'}
+                      >
+                        <Link
+                          to="/dashboard"
+                          hash="stats-section"
+                          activeOptions={{ exact: true, includeHash: true }}
+                          onClick={() => scrollToSectionIfCurrent('stats-section')}
+                          aria-label="Stats"
+                        >
+                          <BarChart2 />
+                          <span>Stats</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip="Jump to application table"
-                    isActive={isDashboard && activeSection === 'datatable-section'}
-                  >
-                    <Link
-                      to="/dashboard"
-                      hash="datatable-section"
-                      activeOptions={{ exact: true, includeHash: true }}
-                      onClick={() => scrollToSectionIfCurrent('datatable-section')}
-                      aria-label="Applications"
-                    >
-                      <ClipboardList />
-                      <span>Applications</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip="Jump to application table"
+                        isActive={isDashboard && activeSection === 'datatable-section'}
+                      >
+                        <Link
+                          to="/dashboard"
+                          hash="datatable-section"
+                          activeOptions={{ exact: true, includeHash: true }}
+                          onClick={() => scrollToSectionIfCurrent('datatable-section')}
+                          aria-label="Applications"
+                        >
+                          <ClipboardList />
+                          <span>Applications</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </>
+                )}
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
@@ -150,23 +161,25 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => setAddOpen(true)}
-                    tooltip="Register application"
-                    aria-label="Register application"
-                    className="h-12 bg-primary font-semibold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 [&>svg]:size-7"
-                  >
-                    <Plus />
-                    <span>Register application</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {!isFirstRun && (
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => setAddOpen(true)}
+                      tooltip="Register application"
+                      aria-label="Register application"
+                      className="h-12 bg-primary font-semibold text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 [&>svg]:size-7"
+                    >
+                      <Plus />
+                      <span>Register application</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
         </SidebarContent>
 
         <div
