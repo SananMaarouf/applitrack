@@ -1,42 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 
-import { useMediaQuery } from "@/hooks/use-media-query";
-import type { SankeyFlowItem } from "./sankey-diagram";
-import { SankeyDiagram } from "./sankey-diagram";
+import { LandingStatusFlow } from "./landing-status-flow";
 import { Button } from "./ui/button";
-
-// Read-only fixture values only: the preview reuses the dashboard's shared
-// Sankey renderer, theme palette, and status names/order.
-const sampleStatusFlow: readonly SankeyFlowItem[] = [
-  { from: "Applied", to: "Interview", weight: 12 },
-  { from: "Applied", to: "Rejected", weight: 6 },
-  { from: "Applied", to: "Ghosted", weight: 4 },
-  { from: "Interview", to: "Second Interview", weight: 6 },
-  { from: "Interview", to: "Rejected", weight: 4 },
-  { from: "Interview", to: "Ghosted", weight: 2 },
-  { from: "Second Interview", to: "Offer", weight: 3 },
-  { from: "Second Interview", to: "Rejected", weight: 3 },
-];
-
-function DashboardPreview() {
-  // Keep the vertical flow on tablets, including wide touch-first iPads, and
-  // switch to horizontal only on desktop-sized fine-pointer screens. This
-  // matches Tailwind's `xl` breakpoint plus an explicit fine-pointer check.
-  const isDesktopHorizontal = useMediaQuery(
-    "(min-width: 80rem) and (pointer: fine)",
-  );
-
-  return (
-    <SankeyDiagram
-      data={sampleStatusFlow}
-      layout={isDesktopHorizontal ? "horizontal" : "vertical"}
-      heightClassName="min-h-[18rem] rounded-lg text-foreground sm:min-h-[28rem] md:h-80 md:min-h-0 lg:h-auto lg:min-h-80"
-      transparentBackground
-      ariaLabel="Sample status flow. Applied 22: Interview 12, Rejected 6, Ghosted 4. Interview 12: Second Interview 6, Rejected 4, Ghosted 2. Second Interview 6: Offer 3, Rejected 3."
-    />
-  );
-}
 
 export function Landing() {
   return (
@@ -56,7 +22,7 @@ export function Landing() {
         </div>
 
         <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:grid lg:self-stretch">
-          <DashboardPreview />
+          <LandingStatusFlow />
         </div>
 
         <div className="min-w-0 lg:col-start-1 lg:row-start-2 lg:self-start">

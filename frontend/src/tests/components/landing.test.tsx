@@ -2,6 +2,17 @@ import type { ReactNode } from 'react'
 import { act, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// The public landing page must never pull the interactive dashboard chart into
+// its startup path. These factories throw if either module is imported, so a
+// regression fails here instead of silently mounting @nivo/sankey again.
+vi.mock('@/components/sankey-diagram', () => {
+  throw new Error('Landing must not import the interactive SankeyDiagram')
+})
+
+vi.mock('@nivo/sankey', () => {
+  throw new Error('Landing must not import @nivo/sankey')
+})
+
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
     to,
@@ -18,78 +29,184 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }))
 
-vi.mock('@/components/sankey-diagram', () => ({
-  SankeyDiagram: ({
-    data,
-    heightClassName,
-    layout,
-    ariaLabel,
-    transparentBackground,
-  }: {
-    data: readonly { from: string; to: string; weight: number }[]
-    heightClassName?: string
-    layout?: string
-    ariaLabel?: string
-    transparentBackground?: boolean
-  }) => (
-    <div
-      role="img"
-      aria-label={ariaLabel}
-      data-height={heightClassName}
-      data-layout={layout}
-      data-transparent={transparentBackground}
-    >
-      {data.map((edge) => (
-        <span key={`${edge.from}-${edge.to}`}>
-          {`${edge.from} → ${edge.to}: ${edge.weight}`}
-        </span>
-      ))}
-    </div>
-  ),
-}))
-
 import { Landing } from '@/components/landing'
 
-const DESKTOP_QUERY = '(min-width: 80rem) and (pointer: fine)'
+const DESKTOP_QUERY = '(min-width: 64rem)'
+const TABLET_QUERY = '(min-width: 48rem)'
+const PHONE_VIEW_BOX = '0 0 360 270'
+const TABLET_VIEW_BOX = '0 0 900 320'
+const DESKTOP_VIEW_BOX = '0 0 500 300'
+
+type Viewport = 'phone' | 'tablet' | 'desktop'
+type Orientation = 'horizontal' | 'vertical'
+
+const STATUS_LABELS = [
+  'Applied',
+  'Interview',
+  'Second Interview',
+  'Offer',
+  'Rejected',
+  'Ghosted',
+] as const
+
+const SAMPLE_FLOWS = [
+  { from: 'Applied', to: 'Interview', weight: 12 },
+  { from: 'Applied', to: 'Rejected', weight: 6 },
+  { from: 'Applied', to: 'Ghosted', weight: 4 },
+  { from: 'Interview', to: 'Second Interview', weight: 6 },
+  { from: 'Interview', to: 'Rejected', weight: 4 },
+  { from: 'Interview', to: 'Ghosted', weight: 2 },
+  { from: 'Second Interview', to: 'Offer', weight: 3 },
+  { from: 'Second Interview', to: 'Rejected', weight: 3 },
+] as const
 
 /**
- * Install a controllable `matchMedia` so the real `useMediaQuery` hook drives
- * the preview. Returns a setter that also emits a change event, which lets a
- * test exercise the hook's live listener.
+ * Install a controllable `matchMedia` for the two breakpoints the preview
+ * uses. The same spy drives the real `useMediaQuery` hooks, so tests can assert
+ * the live layout switch without any element measurement.
  */
-function installMatchMedia(initialMatches: boolean) {
-  const listeners = new Set<(event: MediaQueryListEvent) => void>()
-  let matches = initialMatches
-
-  const mediaQueryList = {
-    get matches() {
-      return matches
-    },
-    media: DESKTOP_QUERY,
-    onchange: null,
-    addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
-      listeners.add(listener)
-    },
-    removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
-      listeners.delete(listener)
-    },
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }
+function installMatchMedia(initialViewport: Viewport) {
+  const listeners = new Map<
+    string,
+    Set<(event: MediaQueryListEvent) => void>
+  >()
+  const matches = new Map<string, boolean>([
+    [DESKTOP_QUERY, initialViewport === 'desktop'],
+    [TABLET_QUERY, initialViewport !== 'phone'],
+  ])
 
   const matchMedia = vi
     .spyOn(window, 'matchMedia')
-    .mockReturnValue(mediaQueryList as unknown as MediaQueryList)
+    .mockImplementation((query: string) => {
+      if (!listeners.has(query)) listeners.set(query, new Set())
+      const queryListeners = listeners.get(query)!
 
-  return {
-    matchMedia,
-    setMatches(next: boolean) {
-      matches = next
-      const event = { matches, media: mediaQueryList.media } as MediaQueryListEvent
-      for (const listener of listeners) listener(event)
-    },
+      return {
+        get matches() {
+          return matches.get(query) ?? false
+        },
+        media: query,
+        onchange: null,
+        addEventListener: (
+          _type: string,
+          listener: (event: MediaQueryListEvent) => void,
+        ) => {
+          queryListeners.add(listener)
+        },
+        removeEventListener: (
+          _type: string,
+          listener: (event: MediaQueryListEvent) => void,
+        ) => {
+          queryListeners.delete(listener)
+        },
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      } as unknown as MediaQueryList
+    })
+
+  function setViewport(next: Viewport) {
+    const nextMatches: Record<string, boolean> = {
+      [DESKTOP_QUERY]: next === 'desktop',
+      [TABLET_QUERY]: next !== 'phone',
+    }
+
+    for (const [query, nextMatch] of Object.entries(nextMatches)) {
+      if (matches.get(query) === nextMatch) continue
+      matches.set(query, nextMatch)
+      const event = {
+        matches: nextMatch,
+        media: query,
+      } as MediaQueryListEvent
+      for (const listener of listeners.get(query) ?? []) listener(event)
+    }
   }
+
+  return { matchMedia, setViewport }
+}
+
+function getChart() {
+  return screen.getByRole('img', { name: /sample status flow/i })
+}
+
+function pathPoints(d: string) {
+  const numbers = (d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
+  return {
+    startX: numbers[0],
+    startY: numbers[1],
+    endX: numbers[numbers.length - 2],
+    endY: numbers[numbers.length - 1],
+  }
+}
+
+function expectStaticStatusFlow(
+  viewBox: string,
+  orientation: Orientation,
+  labelFontSize: string,
+) {
+  const chart = getChart()
+
+  // The chart is a real, synchronously rendered SVG — not the mocked/async
+  // interactive component and not a canvas fallback.
+  expect(chart.tagName.toLowerCase()).toBe('svg')
+  expect(chart).toHaveAttribute('viewBox', viewBox)
+  expect(chart.querySelector('canvas')).toBeNull()
+  expect(chart.querySelector('foreignObject')).toBeNull()
+
+  for (const label of STATUS_LABELS) {
+    const text = within(chart).getByText(label)
+    expect(text).toBeInTheDocument()
+    expect(text).toHaveAttribute('font-size', labelFontSize)
+  }
+
+  const flowPaths = Array.from(
+    chart.querySelectorAll<SVGPathElement>('[data-flow]'),
+  )
+  expect(flowPaths).toHaveLength(SAMPLE_FLOWS.length)
+  expect(
+    new Set(flowPaths.map((path) => path.getAttribute('d'))).size,
+  ).toBe(SAMPLE_FLOWS.length)
+
+  for (const flow of SAMPLE_FLOWS) {
+    const path = chart.querySelector(
+      `[data-flow][data-from="${flow.from}"][data-to="${flow.to}"][data-weight="${flow.weight}"]`,
+    )
+    expect(path).not.toBeNull()
+
+    const points = pathPoints(path!.getAttribute('d')!)
+    // Every ribbon moves forward through the status stage order.
+    if (orientation === 'horizontal') {
+      expect(points.endX).toBeGreaterThan(points.startX)
+    } else {
+      expect(points.endY).toBeGreaterThan(points.startY)
+    }
+  }
+
+  // Flows sharing a source node must not collapse onto one centre point.
+  const appliedStarts = flowPaths
+    .filter((path) => path.getAttribute('data-from') === 'Applied')
+    .map((path) => {
+      const { startX, startY } = pathPoints(path.getAttribute('d')!)
+      return `${startX},${startY}`
+    })
+  expect(appliedStarts).toHaveLength(3)
+  expect(new Set(appliedStarts).size).toBe(3)
+
+  // Node colours come from the same theme tokens as the dashboard charts.
+  expect(chart.querySelector('[data-status="Applied"] rect')).toHaveAttribute(
+    'fill',
+    'var(--status-applied-chart)',
+  )
+  expect(
+    chart.querySelector('[data-status="Second Interview"] rect'),
+  ).toHaveAttribute('fill', 'var(--status-second-interview-chart)')
+
+  expect(chart).toHaveAccessibleName(/Applied 22: Interview 12/i)
+  expect(chart).toHaveAccessibleName(
+    /Second Interview 6: Offer 3, Rejected 3/i,
+  )
+
+  return chart
 }
 
 afterEach(() => {
@@ -97,36 +214,16 @@ afterEach(() => {
 })
 
 describe('Landing dashboard preview', () => {
-  it('renders only the shared status flow chart with clearly labelled sample data', () => {
-    installMatchMedia(false)
+  it('renders the real static SVG flow synchronously on phones without excess height', () => {
+    installMatchMedia('phone')
     render(<Landing />)
 
-    const chart = screen.getByRole('img', {
-      name: /sample status flow/i,
-    })
+    const chart = expectStaticStatusFlow(PHONE_VIEW_BOX, 'vertical', '13')
 
-    expect(chart).toHaveAttribute(
-      'data-height',
-      expect.stringContaining('min-h-[18rem]'),
-    )
-    expect(chart).toHaveAttribute(
-      'data-height',
-      expect.stringContaining('sm:min-h-[28rem]'),
-    )
-    expect(chart).toHaveAttribute(
-      'data-height',
-      expect.stringContaining('md:h-80'),
-    )
-    // On desktop the chart fills the hero grid row (inside its padding) while
-    // keeping a 20rem minimum; narrow/tablet sizing above is unchanged.
-    expect(chart).toHaveAttribute(
-      'data-height',
-      expect.stringContaining('lg:h-auto'),
-    )
-    expect(chart).toHaveAttribute(
-      'data-height',
-      expect.stringContaining('lg:min-h-80'),
-    )
+    expect(chart).toHaveClass('mx-auto', 'w-full', 'h-[18rem]', 'md:h-[20rem]')
+    expect(chart).toHaveAttribute('fill', 'none')
+    expect(chart).not.toHaveClass('bg-surface')
+
     expect(chart.parentElement).toHaveClass(
       'lg:grid',
       'lg:self-stretch',
@@ -144,38 +241,14 @@ describe('Landing dashboard preview', () => {
       'lg:grid-cols-[1.02fr_0.98fr]',
     )
     expect(chart.parentElement?.parentElement).not.toHaveClass('gap-y-12')
-    expect(chart).toHaveAttribute('data-layout', 'vertical')
-    expect(chart).toHaveAttribute('data-transparent', 'true')
-    expect(chart).not.toHaveAttribute(
-      'data-height',
-      expect.stringContaining('bg-surface'),
-    )
-    expect(chart).toHaveAccessibleName(/Applied 22: Interview 12/i)
-
-    for (const edge of [
-      'Applied → Interview: 12',
-      'Applied → Rejected: 6',
-      'Applied → Ghosted: 4',
-      'Interview → Second Interview: 6',
-      'Interview → Rejected: 4',
-      'Interview → Ghosted: 2',
-      'Second Interview → Offer: 3',
-      'Second Interview → Rejected: 3',
-    ]) {
-      expect(within(chart).getByText(edge)).toBeInTheDocument()
-    }
 
     // The preview shows the chart alone, without the former card chrome,
     // totals list, or explanatory footer.
     expect(screen.queryByRole('figure')).not.toBeInTheDocument()
     expect(screen.queryByText('Status flow')).not.toBeInTheDocument()
     expect(screen.queryByText('Sample data')).not.toBeInTheDocument()
-    expect(
-      screen.queryByText('Sample status totals'),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByText(/illustrative flow only/i),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText('Sample status totals')).not.toBeInTheDocument()
+    expect(screen.queryByText(/illustrative flow only/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('definition')).not.toBeInTheDocument()
 
     // The preview must stay read-only and free of dashboard export controls.
@@ -184,8 +257,29 @@ describe('Landing dashboard preview', () => {
     expect(screen.queryByText(/export/i)).not.toBeInTheDocument()
   })
 
+  it('keeps a capped wide chart on 955px tablets', () => {
+    installMatchMedia('tablet')
+    render(<Landing />)
+
+    const chart = expectStaticStatusFlow(TABLET_VIEW_BOX, 'horizontal', '14')
+
+    expect(chart).toHaveClass('h-[18rem]', 'md:h-[20rem]')
+    expect(chart).not.toHaveClass('min-h-[28rem]')
+  })
+
+  it('renders a distinct desktop SVG geometry with readable labels', () => {
+    installMatchMedia('desktop')
+    render(<Landing />)
+
+    const chart = expectStaticStatusFlow(DESKTOP_VIEW_BOX, 'horizontal', '14')
+
+    expect(chart).not.toHaveAttribute('viewBox', PHONE_VIEW_BOX)
+    expect(chart).not.toHaveAttribute('viewBox', TABLET_VIEW_BOX)
+    expect(chart).toHaveClass('h-[18rem]', 'md:h-[20rem]')
+  })
+
   it('keeps the preview between the intro copy and calls to action in document order', () => {
-    const media = installMatchMedia(false)
+    const media = installMatchMedia('phone')
     render(<Landing />)
 
     const follows = (first: Element, second: Element) =>
@@ -201,7 +295,7 @@ describe('Landing dashboard preview', () => {
     const intro = screen.getByText(
       /track applications, interviews, offers, rejections/i,
     )
-    const chart = screen.getByRole('img', { name: /sample status flow/i })
+    const chart = getChart()
     const primaryCta = screen.getByRole('link', {
       name: /start tracking for free/i,
     })
@@ -212,30 +306,30 @@ describe('Landing dashboard preview', () => {
 
     // The single chart stays in the same semantic position when the hero
     // switches to its two-column layout.
-    act(() => media.setMatches(true))
+    act(() => media.setViewport('desktop'))
     expect(follows(intro, chart)).toBe(true)
     expect(follows(chart, primaryCta)).toBe(true)
   })
 
-  it('uses the horizontal flow only on desktop-sized fine-pointer screens and switches live', () => {
-    const media = installMatchMedia(false)
+  it('switches layout live without remounting the chart or changing content', () => {
+    const media = installMatchMedia('phone')
     render(<Landing />)
 
     expect(media.matchMedia).toHaveBeenCalledWith(DESKTOP_QUERY)
+    expect(media.matchMedia).toHaveBeenCalledWith(TABLET_QUERY)
+    expect(getChart()).toHaveAttribute('viewBox', PHONE_VIEW_BOX)
 
-    expect(
-      screen.getByRole('img', { name: /sample status flow/i }),
-    ).toHaveAttribute('data-layout', 'vertical')
+    act(() => media.setViewport('tablet'))
+    expect(getChart()).toHaveAttribute('viewBox', TABLET_VIEW_BOX)
 
-    act(() => media.setMatches(true))
-    expect(
-      screen.getByRole('img', { name: /sample status flow/i }),
-    ).toHaveAttribute('data-layout', 'horizontal')
+    act(() => media.setViewport('desktop'))
+    expect(getChart()).toHaveAttribute('viewBox', DESKTOP_VIEW_BOX)
+    expect(getChart().querySelectorAll('[data-flow]')).toHaveLength(
+      SAMPLE_FLOWS.length,
+    )
 
-    act(() => media.setMatches(false))
-    expect(
-      screen.getByRole('img', { name: /sample status flow/i }),
-    ).toHaveAttribute('data-layout', 'vertical')
+    act(() => media.setViewport('phone'))
+    expect(getChart()).toHaveAttribute('viewBox', PHONE_VIEW_BOX)
   })
 
   it('removes the inaccurate fake sidebar, offer count, table, and graph', () => {
