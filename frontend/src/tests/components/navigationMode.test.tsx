@@ -1,9 +1,15 @@
 import type { ReactNode } from 'react'
 import { act, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const authState = vi.hoisted(() => ({ userId: 'user_nav' as string | null }))
 const locationState = vi.hoisted(() => ({ pathname: '/dashboard', hash: '' }))
+const themeState = vi.hoisted(() => ({
+  theme: 'light' as string | undefined,
+  resolvedTheme: 'light' as string | undefined,
+  setTheme: vi.fn(),
+}))
 
 vi.mock('@clerk/clerk-react', () => ({
   useAuth: () => authState,
@@ -28,7 +34,7 @@ vi.mock('@tanstack/react-router', () => ({
 }))
 
 vi.mock('next-themes', () => ({
-  useTheme: () => ({ theme: 'light', resolvedTheme: 'light', setTheme: vi.fn() }),
+  useTheme: () => themeState,
 }))
 
 vi.mock('@/components/jobApplicationForm', () => ({
@@ -106,6 +112,9 @@ beforeEach(() => {
   authState.userId = 'user_nav'
   locationState.pathname = '/dashboard'
   locationState.hash = ''
+  themeState.theme = 'light'
+  themeState.resolvedTheme = 'light'
+  themeState.setTheme.mockClear()
   useDashboardModeStore.setState({ userId: null, mode: 'unknown' })
 })
 
@@ -145,6 +154,40 @@ describe('mobile navbar first-run mode', () => {
     setMode('unknown')
     rerender(<Navbar />)
     expectNavActionsVisible()
+  })
+})
+
+describe('desktop sidebar theme toggle', () => {
+  it('switches directly between light and dark without opening a menu', async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(<AppSidebar />)
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
+    expect(themeState.setTheme).toHaveBeenCalledTimes(1)
+    expect(themeState.setTheme).toHaveBeenCalledWith('dark')
+
+    themeState.theme = 'dark'
+    themeState.resolvedTheme = 'dark'
+    themeState.setTheme.mockClear()
+    rerender(<AppSidebar />)
+
+    await user.click(screen.getByRole('button', { name: 'Switch to light mode' }))
+    expect(themeState.setTheme).toHaveBeenCalledTimes(1)
+    expect(themeState.setTheme).toHaveBeenCalledWith('light')
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
+  it('falls back to the persisted theme until the resolved theme is ready', () => {
+    themeState.theme = 'system'
+    themeState.resolvedTheme = undefined
+
+    render(<AppSidebar />)
+
+    expect(
+      screen.getByRole('button', { name: 'Switch to dark mode' }),
+    ).toBeInTheDocument()
   })
 })
 

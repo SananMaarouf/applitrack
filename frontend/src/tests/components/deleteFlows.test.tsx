@@ -151,6 +151,27 @@ describe('single application delete', () => {
   })
 })
 
+describe('table toolbar layout', () => {
+  it('keeps the columns trigger beside search when bulk actions appear', async () => {
+    const user = userEvent.setup()
+    resetStore([makeApplication()])
+
+    render(<DataTable />)
+
+    await user.click(await screen.findByLabelText('Select row'))
+
+    const search = screen.getByLabelText('Search applications')
+    const columns = screen.getByRole('button', { name: /Columns/ })
+    const toolbar = search.parentElement?.parentElement
+    const bulkActions = (await screen.findByText('1 selected')).parentElement
+
+    expect(toolbar).not.toBeNull()
+    expect(toolbar).toBe(columns.parentElement)
+    expect(bulkActions?.parentElement).toBe(toolbar)
+    expect(bulkActions).not.toContain(columns)
+  })
+})
+
 describe('bulk application delete', () => {
   it('keeps deleted rows gone when status-flow refresh fails', async () => {
     const user = userEvent.setup()

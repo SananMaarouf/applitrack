@@ -40,6 +40,12 @@ type SankeyDiagramProps = {
    */
   layout?: 'horizontal' | 'vertical'
   ariaLabel?: string
+  /**
+   * Drop the shared surface background so the chart can sit directly on the
+   * page. Used by the landing hero; the dashboard and PNG export keep their
+   * opaque surface.
+   */
+  transparentBackground?: boolean
 }
 
 type SankeyPalette = {
@@ -125,6 +131,7 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle, SankeyDiagramProps>
       heightClassName = 'min-h-96 rounded-lg bg-surface text-foreground md:h-72 md:min-h-0',
       layout,
       ariaLabel = 'Status flow diagram',
+      transparentBackground = false,
     },
     ref,
   ) {
@@ -284,8 +291,10 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle, SankeyDiagramProps>
   useImperativeHandle(ref, () => ({ exportCSV, exportDiagram }))
 
   return (
-    <div className="mx-auto w-full min-w-0">
-      <div className="overflow-hidden rounded-xl bg-surface">
+    <div className="mx-auto grid w-full min-w-0">
+      <div
+        className={`grid overflow-hidden rounded-xl${transparentBackground ? '' : ' bg-surface'}`}
+      >
         <div
           ref={diagramRef}
           data-sankey-canvas
@@ -308,13 +317,28 @@ export const SankeyDiagram = forwardRef<SankeyDiagramHandle, SankeyDiagramProps>
               labelPosition="outside"
               labelOrientation="horizontal"
               labelPadding={10}
-              labelTextColor={palette.foreground}
+              labelTextColor={
+                // currentColor inherits the embed's text-foreground and avoids
+                // React Spring resolving a CSS variable to a stale concrete
+                // colour when the theme changes.
+                transparentBackground ? 'currentColor' : palette.foreground
+              }
               layout={layout ?? (isNarrow ? 'vertical' : 'horizontal')}
               theme={{
                 labels: {
                   text: {
-                    fontSize: '0.7rem',
+                    fontSize: transparentBackground ? '0.78rem' : '0.7rem',
                     fontWeight: 'bolder',
+                    // Keep landing labels on live CSS variables so they repaint
+                    // with the active theme immediately; the dashboard keeps
+                    // concrete palette values.
+                    ...(transparentBackground
+                      ? {
+                          paintOrder: 'stroke',
+                          stroke: 'var(--background)',
+                          strokeWidth: 3,
+                        }
+                      : {}),
                   },
                 },
                 tooltip: {

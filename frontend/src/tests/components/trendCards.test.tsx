@@ -57,6 +57,23 @@ describe('TrendCards', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
+  it('scopes both populated and loading card grids to the light palette', () => {
+    const { container, rerender } = render(
+      <TrendCards trends={makeTrends()} period="week" isLoading={false} />,
+    )
+
+    const metricGrid = screen.getByTestId('trend-metric-grid')
+    expect(metricGrid).toHaveAttribute('data-color-palette', 'light')
+    expect(metricGrid.querySelectorAll('[data-slot="card"]')).toHaveLength(2)
+    expect(container.firstChild).not.toHaveAttribute('data-color-palette')
+
+    rerender(<TrendCards trends={null} period="week" isLoading />)
+
+    const skeletonGrid = screen.getByTestId('trend-skeleton-grid')
+    expect(skeletonGrid).toHaveAttribute('data-color-palette', 'light')
+    expect(skeletonGrid.querySelectorAll('[data-slot="card"]')).toHaveLength(2)
+  })
+
   it('renders successful zero counts plus a selected-period empty message', () => {
     render(
       <TrendCards

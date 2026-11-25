@@ -255,8 +255,8 @@ export function DataTable() {
   return (
     <div className="mx-auto w-full max-w-6xl">
       <div className="overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
-          <div className="relative w-full sm:max-w-xs">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border p-3 sm:flex sm:flex-row sm:items-center sm:justify-between sm:p-4">
+          <div className="relative w-full min-w-0 sm:max-w-xs">
             <Search
               className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden="true"
@@ -271,60 +271,62 @@ export function DataTable() {
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {selectedCount > 0 && (
-              <>
-                <span className="text-sm text-muted-foreground">
-                  {selectedCount} selected
-                </span>
-                <Select onValueChange={handleBulkStatusUpdate}>
-                  <SelectTrigger
-                    className="w-44"
-                    aria-label="Update status for selected rows"
-                  >
-                    <SelectValue placeholder="Update status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {JOB_STATUS_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value.toString()}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-                  <Trash2 className="size-4" aria-hidden="true" />
-                  Delete ({selectedCount})
-                </Button>
-              </>
-            )}
+          {selectedCount > 0 && (
+            <div className="col-span-2 flex flex-wrap items-center gap-2 sm:ml-auto">
+              <span className="text-sm text-muted-foreground">
+                {selectedCount} selected
+              </span>
+              <Select onValueChange={handleBulkStatusUpdate}>
+                <SelectTrigger
+                  className="w-44"
+                  aria-label="Update status for selected rows"
+                >
+                  <SelectValue placeholder="Update status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {JOB_STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value.toString()}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+                <Trash2 className="size-4" aria-hidden="true" />
+                Delete ({selectedCount})
+              </Button>
+            </div>
+          )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="ml-auto sm:ml-0">
-                  <SlidersHorizontal className="size-4" aria-hidden="true" />
-                  Columns
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-44" align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="cursor-pointer capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                      >
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="col-start-2 row-start-1 justify-self-end"
+              >
+                <SlidersHorizontal className="size-4" aria-hidden="true" />
+                Columns
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-44" align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="cursor-pointer capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {loading ? (

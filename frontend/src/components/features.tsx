@@ -1,12 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  CalendarDays,
-  ChartNoAxesColumnIncreasing,
-  CircleDotDashed,
-  ListFilter,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { JOB_STATUS_OPTIONS } from "@/lib/job-status-ui";
@@ -38,19 +31,10 @@ const steps = [
   },
 ] as const;
 
-function SectionIntro({
-  eyebrow,
-  title,
-  description,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-}) {
+function SectionIntro({ title, description }: { title: string; description: string }) {
   return (
     <div className="max-w-2xl">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
-      <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+      <h2 className="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
         {title}
       </h2>
       <p className="mt-4 text-base leading-relaxed text-muted-foreground">{description}</p>
@@ -68,7 +52,7 @@ function BentoCard({
   return (
     <article
       className={cn(
-        "flex min-w-0 flex-col rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6",
+        "flex min-w-0 flex-col rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5",
         className,
       )}
     >
@@ -78,50 +62,44 @@ function BentoCard({
 }
 
 function CardHeading({
-  icon: Icon,
   title,
   children,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
   title: string;
   children: React.ReactNode;
 }) {
   return (
     <>
-      <span className="grid size-10 shrink-0 place-items-center rounded-[8px] border border-border bg-muted/60 text-primary">
-        <Icon className="size-5" />
-      </span>
-      <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{children}</p>
+      <h3 className="text-lg font-semibold tracking-tight text-foreground">{title}</h3>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{children}</p>
     </>
   );
 }
 
 export function Features() {
   return (
-    <section id="features" className="scroll-mt-20 border-b border-border/70 py-16 sm:py-20 lg:py-24">
+    <section id="features" className="scroll-mt-20 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
         <SectionIntro
-          eyebrow="Features"
           title="A clearer view of every moving part"
           description="Applitrack keeps the details of your job search readable: what you applied to, where each application stands, and how the search is trending over time."
         />
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="landing-card-stack landing-card-stack--features mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <BentoCard className="sm:col-span-2">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="max-w-md">
-                <CardHeading icon={CalendarDays} title="Every application, complete in one record">
+              <div className="max-w-md md:max-xl:min-w-0 md:max-xl:flex-1">
+                <CardHeading title="Every application, complete in one record">
                   Keep the position, company, applied date, and job link together, plus an
                   optional expiry date and PDF attachment. The saved record stays complete when
                   you come back to it.
                 </CardHeading>
               </div>
-              <div className="w-full max-w-xs rounded-lg border border-border bg-background p-3 sm:w-auto sm:min-w-64">
+              <div className="w-full max-w-xs rounded-lg border border-border bg-background p-2.5 sm:w-auto sm:min-w-64 md:max-xl:shrink-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                   Saved application record
                 </p>
-                <dl className="mt-3 space-y-2.5">
+                <dl className="mt-2.5 space-y-2">
                   {[
                     { label: "Position", value: "Product Designer" },
                     { label: "Company", value: "Northwind Studio" },
@@ -143,11 +121,11 @@ export function Features() {
           </BentoCard>
 
           <BentoCard>
-            <CardHeading icon={CircleDotDashed} title="Seven statuses, clearly labelled">
+            <CardHeading title="Seven statuses, clearly labelled">
               Move an application from applied through interview rounds to an offer, rejection,
               or ghosted — without losing the history.
             </CardHeading>
-            <ul className="mt-5 flex flex-wrap gap-1.5">
+            <ul className="mt-4 flex flex-wrap gap-1.5">
               {JOB_STATUS_OPTIONS.map((status) => (
                 <li
                   key={status.key}
@@ -169,11 +147,11 @@ export function Features() {
           </BentoCard>
 
           <BentoCard>
-            <CardHeading icon={ChartNoAxesColumnIncreasing} title="Trends and status flow">
+            <CardHeading title="Trends and status flow">
               Review applications over time, interview momentum, and where applications tend to
               end up with the dashboard charts.
             </CardHeading>
-            <div className="mt-5 flex h-24 items-end gap-1.5" aria-hidden="true">
+            <div className="mt-4 flex h-20 items-end gap-1.5" aria-hidden="true">
               {chartBars.map((height, index) => (
                 <span
                   key={index}
@@ -188,17 +166,17 @@ export function Features() {
           </BentoCard>
 
           <BentoCard className="sm:col-span-2">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="max-w-md">
-                <CardHeading icon={ListFilter} title="Find and update in place">
+            <div className="flex flex-1 flex-wrap items-center justify-center gap-4 sm:gap-6">
+              <div className="max-w-md md:max-xl:min-w-0 md:max-xl:flex-1">
+                <CardHeading title="Find and update in place">
                   Search, sort, and filter your applications in the data table, then update a
                   status or remove a record without leaving the page. Export the status flow when
                   you want a copy.
                 </CardHeading>
               </div>
-              <div className="w-full space-y-1.5 rounded-lg border border-border bg-background p-3 sm:w-64">
+              <div className="w-full space-y-1 rounded-lg border border-border bg-background p-2.5 sm:w-64 md:max-xl:shrink-0">
                 {tableRows.map((row) => (
-                  <div key={row.company} className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
+                  <div key={row.company} className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1">
                     <span className="grid size-7 shrink-0 place-items-center rounded-md bg-muted text-[10px] font-semibold text-muted-foreground">
                       {row.company.slice(0, 1)}
                     </span>
@@ -226,18 +204,17 @@ export function HowItWorks() {
     <section id="how-it-works" className="scroll-mt-20 border-b border-border/70 py-16 sm:py-20 lg:py-24">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
         <SectionIntro
-          eyebrow="How it works"
           title="Three steps from first application to clear next move"
           description="Log each opportunity, keep its status and follow-up current, and use the dashboard to see how the search is trending."
         />
 
-        <ol className="mt-10 grid gap-4 md:grid-cols-3">
+        <ol className="landing-card-stack landing-card-stack--steps mt-10 grid gap-4 md:grid-cols-3 md:gap-x-10">
           {steps.map((step, index) => (
             <li
               key={step.title}
               className="relative flex min-w-0 flex-col rounded-xl border border-border bg-card p-6 shadow-sm"
             >
-              <span className="font-serif text-4xl font-semibold leading-none text-primary/30" aria-hidden="true">
+              <span className="font-serif text-4xl font-semibold leading-none text-primary" aria-hidden="true">
                 0{index + 1}
               </span>
               <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">
@@ -246,7 +223,10 @@ export function HowItWorks() {
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
               {index < steps.length - 1 && (
-                <ArrowRight className="absolute -right-2.5 top-1/2 hidden size-5 -translate-y-1/2 text-border md:block" aria-hidden="true" />
+                <ArrowRight
+                  className="absolute top-1/2 hidden size-5 -translate-y-1/2 text-foreground md:right-[-30px] md:block"
+                  aria-hidden="true"
+                />
               )}
             </li>
           ))}

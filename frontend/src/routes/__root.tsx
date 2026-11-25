@@ -34,7 +34,7 @@ function Root() {
     <div className="flex min-h-svh flex-col bg-background text-foreground">
       <Toaster />
       <Navbar />
-      <main className="min-w-0 flex-1">
+      <main className="flex min-w-0 flex-1 flex-col">
         <Outlet />
       </main>
     </div>

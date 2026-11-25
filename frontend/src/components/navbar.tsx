@@ -162,7 +162,7 @@ export function Navbar() {
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogContent
             showCloseButton={false}
-            className="top-auto bottom-[calc(5rem+env(safe-area-inset-bottom))] max-h-[calc(100dvh-6rem-env(safe-area-inset-bottom))] translate-y-0 overflow-y-auto p-0 md:top-[50%] md:bottom-auto md:max-h-[90dvh] md:translate-y-[-50%]"
+            className="mobile-add-dialog top-auto bottom-[calc(7rem+env(safe-area-inset-bottom))] max-h-[calc(100dvh-8rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] translate-y-0 overflow-y-auto p-0 md:top-[50%] md:bottom-auto md:max-h-[90dvh] md:translate-y-[-50%]"
           >
             {userId && <JobApplicationForm user_id={userId} onClose={() => setAddOpen(false)} />}
           </DialogContent>
@@ -178,7 +178,7 @@ export function Navbar() {
 
         <nav
           aria-label="Landing page"
-          className="order-3 flex w-full items-center justify-center gap-5 text-sm font-medium text-muted-foreground sm:order-none sm:ml-3 sm:w-auto sm:justify-start"
+          className="hidden items-center gap-5 text-sm font-medium text-muted-foreground sm:ml-3 sm:flex"
         >
           {landingSections.map((section) => (
             <Link

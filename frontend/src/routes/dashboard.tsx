@@ -600,7 +600,7 @@ function DashboardForUser({ userId }: { userId: string }) {
         >
           {greeting.title}
         </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
+        <p className="hidden max-w-2xl text-sm text-muted-foreground md:block md:text-base">
           {greeting.subtitle}
         </p>
       </header>
@@ -614,7 +614,7 @@ function DashboardForUser({ userId }: { userId: string }) {
           <h2 id="stats-heading" className="text-lg font-semibold text-foreground">
             Overview
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="hidden text-sm text-muted-foreground md:block">
             Key application metrics for the selected comparison period.
           </p>
         </div>
@@ -633,7 +633,7 @@ function DashboardForUser({ userId }: { userId: string }) {
           <h2 id="analytics-heading" className="text-lg font-semibold text-foreground">
             Analytics
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="hidden text-sm text-muted-foreground md:block">
             Understand your pipeline and how applications progress over time.
           </p>
         </div>
@@ -727,7 +727,7 @@ function DashboardForUser({ userId }: { userId: string }) {
           <h2 id="applications-heading" className="text-lg font-semibold text-foreground">
             Applications
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="hidden text-sm text-muted-foreground md:block">
             Review, filter, and manage every application in one place.
           </p>
         </div>

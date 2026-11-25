@@ -1,18 +1,12 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { SignOutButton, useAuth } from '@clerk/clerk-react'
-import { BarChart2, ClipboardList, Home, Laptop, LogOut, Moon, Plus, Sun, User } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { BarChart2, ClipboardList, Home, LogOut, Moon, Plus, Sun, User } from 'lucide-react'
 
 import { JobApplicationForm } from '@/components/jobApplicationForm'
 import { useFirstRunNavigation } from '@/store/dashboardModeStore'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { useThemeToggle } from '@/components/theme-switcher'
 import {
   Sidebar,
   SidebarContent,
@@ -33,7 +27,7 @@ import { cn } from '@/lib/utils'
 export function AppSidebar() {
   const { userId } = useAuth()
   const { state, isMobile } = useSidebar()
-  const { theme, setTheme } = useTheme()
+  const { isDark, toggleTheme } = useThemeToggle()
   const location = useLocation()
   const [addOpen, setAddOpen] = useState(false)
   const firstRunMode = useFirstRunNavigation(userId)
@@ -50,7 +44,8 @@ export function AppSidebar() {
   const isDashboard = location.pathname === '/dashboard'
   const activeSection = location.hash.replace(/^#/, '')
   const isCollapsed = state === 'collapsed'
-  const ThemeIcon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Laptop
+  const ThemeIcon = isDark ? Moon : Sun
+  const nextThemeLabel = isDark ? 'Switch to light mode' : 'Switch to dark mode'
 
   const scrollToSectionIfCurrent = (sectionId: string) => {
     if (!isDashboard || activeSection !== sectionId) return
@@ -190,19 +185,14 @@ export function AppSidebar() {
         >
           <SidebarMenu>
             <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton tooltip="Theme settings" aria-label="Theme">
-                    <ThemeIcon />
-                    <span>Theme</span>
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side={isCollapsed ? 'right' : 'bottom'}>
-                  <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <SidebarMenuButton
+                onClick={toggleTheme}
+                tooltip={nextThemeLabel}
+                aria-label={nextThemeLabel}
+              >
+                <ThemeIcon />
+                <span>Theme</span>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </div>

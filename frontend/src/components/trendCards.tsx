@@ -282,6 +282,7 @@ export function TrendCards({
       {isLoading ? (
         <div
           data-testid="trend-skeleton-grid"
+          data-color-palette="light"
           className="grid grid-cols-1 gap-3 @md:grid-cols-2"
         >
           <SkeletonCard />
@@ -297,7 +298,11 @@ export function TrendCards({
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-3 @md:grid-cols-2">
+          <div
+            data-testid="trend-metric-grid"
+            data-color-palette="light"
+            className="grid grid-cols-1 gap-3 @md:grid-cols-2"
+          >
             <MetricCard
               description="Applications sent"
               icon={SendHorizonal}

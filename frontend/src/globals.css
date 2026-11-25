@@ -2,7 +2,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
+:root,
+[data-color-palette="light"] {
   /* Canonical semantic palette (light) */
   --bg-primary: #F7F5F0;
   --bg-surface: #EFEBE3;
@@ -198,6 +199,12 @@
   --shadow-2xl: 0px 16px 32px -8px hsl(0 0% 5% / 0.52);
 }
 
+/* An explicitly light subtree stays light for native controls and scrollbars
+   without changing the document-level color scheme in dark mode. */
+[data-color-palette="light"] {
+  color-scheme: light;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -349,4 +356,112 @@
 .status-dot[data-status="ghosted"],
 .status-dot-ghosted {
   --status-chart: var(--status-ghosted-chart);
+}
+
+/* Landing card stacks: only while a section is single-column do its cards stay
+   in normal flow (so DOM and focus order are unchanged) and stick below the
+   landing navbar as the page scrolls. Each later card paints above the previous
+   one, forming a deck. No scroll handlers or animation. Larger viewports keep
+   the original multi-column layouts with their Tailwind grid classes, and short
+   viewports or reduced-motion users keep the static layout with natural card
+   heights. */
+@media (min-height: 36rem) and (prefers-reduced-motion: no-preference) and (max-width: 39.999rem) {
+  .landing-card-stack--features {
+    /* Equal 1fr rows keep every card as tall as the tallest one, so a shorter
+       later card never lets the previous card's content peek out below it. */
+    grid-auto-rows: 1fr;
+  }
+
+  .landing-card-stack--features > *:nth-child(1) {
+    --landing-stack-index: 0;
+    --landing-stack-offset: 0rem;
+  }
+
+  .landing-card-stack--features > *:nth-child(2) {
+    --landing-stack-index: 1;
+    --landing-stack-offset: 0.5rem;
+  }
+
+  .landing-card-stack--features > *:nth-child(3) {
+    --landing-stack-index: 2;
+    --landing-stack-offset: 1rem;
+  }
+
+  .landing-card-stack--features > *:nth-child(4) {
+    --landing-stack-index: 3;
+    --landing-stack-offset: 1.5rem;
+  }
+
+  .landing-card-stack--features > * {
+    position: sticky;
+    top: calc(5rem + var(--landing-stack-offset, 0rem));
+    z-index: calc(var(--landing-stack-index, 0) + 1);
+  }
+}
+
+@media (min-height: 36rem) and (prefers-reduced-motion: no-preference) and (max-width: 47.999rem) {
+  .landing-card-stack--steps {
+    grid-auto-rows: 1fr;
+  }
+
+  .landing-card-stack--steps > *:nth-child(1) {
+    --landing-stack-index: 0;
+    --landing-stack-offset: 0rem;
+  }
+
+  .landing-card-stack--steps > *:nth-child(2) {
+    --landing-stack-index: 1;
+    --landing-stack-offset: 0.5rem;
+  }
+
+  .landing-card-stack--steps > *:nth-child(3) {
+    --landing-stack-index: 2;
+    --landing-stack-offset: 1rem;
+  }
+
+  .landing-card-stack--steps > * {
+    position: sticky;
+    top: calc(5rem + var(--landing-stack-offset, 0rem));
+    z-index: calc(var(--landing-stack-index, 0) + 1);
+  }
+}
+
+/* Mobile "Register application" sheet: a short rise/fade on entry and the
+   reverse on exit. Scoped to .mobile-add-dialog so desktop dialogs are
+   untouched, and the distinct keyframe names let Radix Presence keep the
+   content mounted until the closing animation ends. The transform composes
+   with Tailwind's translate utilities, which use the separate `translate`
+   property. */
+@media (max-width: 47.999rem) and (prefers-reduced-motion: no-preference) {
+  .mobile-add-dialog[data-state="open"] {
+    animation: mobile-add-dialog-in 200ms ease-out both;
+  }
+
+  .mobile-add-dialog[data-state="closed"] {
+    animation: mobile-add-dialog-out 160ms ease-in both;
+  }
+}
+
+@keyframes mobile-add-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobile-add-dialog-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
 }

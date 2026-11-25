@@ -10,6 +10,8 @@ vi.mock('@nivo/sankey', () => ({
     data,
     layout,
     margin,
+    labelTextColor,
+    theme,
   }: {
     data: {
       nodes: { id: string }[]
@@ -17,11 +19,27 @@ vi.mock('@nivo/sankey', () => ({
     }
     layout: string
     margin: { top: number; right: number; bottom: number; left: number }
+    labelTextColor: string
+    theme: {
+      labels: {
+        text: {
+          fontSize: string
+          paintOrder?: string
+          stroke?: string
+          strokeWidth?: number
+        }
+      }
+    }
   }) => (
     <div
       data-testid="sankey"
       data-layout={layout}
       data-margin={JSON.stringify(margin)}
+      data-label-color={labelTextColor}
+      data-label-font-size={theme.labels.text.fontSize}
+      data-label-paint-order={theme.labels.text.paintOrder}
+      data-label-stroke={theme.labels.text.stroke}
+      data-label-stroke-width={theme.labels.text.strokeWidth}
     >
       {data.links.map((link) => (
         <span key={`${link.source}-${link.target}`} data-testid="sankey-link">
@@ -102,10 +120,58 @@ describe('SankeyDiagram', () => {
     render(<SankeyDiagram />)
 
     expect(await screen.findByText('Applied->Interview:5')).toBeInTheDocument()
-    expect(await screen.findByTestId('sankey')).toHaveAttribute(
-      'data-layout',
-      'horizontal',
+    const sankey = await screen.findByTestId('sankey')
+    expect(sankey).toHaveAttribute('data-layout', 'horizontal')
+
+    // The default dashboard chart keeps its opaque surface and plain labels.
+    expect(screen.getByRole('img').parentElement).toHaveClass('bg-surface')
+    expect(sankey).not.toHaveAttribute('data-label-paint-order')
+
+    // The default dashboard chart keeps its explicit height/min-height.
+    expect(screen.getByRole('img')).toHaveClass(
+      'min-h-96',
+      'md:h-72',
+      'md:min-h-0',
     )
+  })
+
+  it('drops the shared surface and haloes labels for the transparent landing chart', async () => {
+    render(
+      <SankeyDiagram
+        data={sampleFlow}
+        layout="vertical"
+        transparentBackground
+      />,
+    )
+
+    const chart = await screen.findByRole('img')
+    expect(chart.parentElement).not.toHaveClass('bg-surface')
+
+    const sankey = await screen.findByTestId('sankey')
+    expect(sankey).toHaveAttribute('data-label-paint-order', 'stroke')
+    expect(sankey).toHaveAttribute('data-label-stroke-width', '3')
+    expect(sankey).toHaveAttribute('data-label-font-size', '0.78rem')
+    // currentColor keeps the fill tied to the embed's themed text colour, and
+    // the halo stroke is an ordinary style that can stay a live CSS variable.
+    expect(sankey).toHaveAttribute('data-label-color', 'currentColor')
+    expect(sankey).toHaveAttribute('data-label-stroke', 'var(--background)')
+  })
+
+  it('passes grid stretch through its wrappers for embedding layouts', async () => {
+    render(
+      <SankeyDiagram
+        data={sampleFlow}
+        heightClassName="lg:h-auto lg:min-h-80"
+      />,
+    )
+
+    const chart = await screen.findByRole('img')
+    expect(chart).toHaveClass('lg:h-auto', 'lg:min-h-80')
+
+    // Both wrappers must be grid containers so a stretched grid item can
+    // propagate its full height down to the chart.
+    expect(chart.parentElement).toHaveClass('grid')
+    expect(chart.parentElement?.parentElement).toHaveClass('grid')
   })
 
   it('filters backward transitions so Nivo still receives an acyclic graph', async () => {
