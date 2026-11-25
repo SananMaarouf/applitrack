@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Navigate, useLocation } from '@tanstack/react-router'
+import { useLocation } from '@tanstack/react-router'
 import { useAuth, useUser } from '@clerk/clerk-react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 
@@ -15,6 +15,7 @@ import {
 } from '@/lib/dashboard-greeting'
 import type { JobApplication } from '@/types/jobApplication'
 
+import { AuthRedirect } from '@/components/auth-redirect'
 import { Chart } from '@/components/pieChart'
 import { BarStatusChart } from '@/components/barChart'
 import { DataTable } from '@/components/data-table'
@@ -140,7 +141,7 @@ function Dashboard() {
   const { isLoaded, userId } = useAuth()
 
   if (!isLoaded) return <DashboardLoading />
-  if (!userId) return <Navigate to={'/sign-in' as any} />
+  if (!userId) return <AuthRedirect to="/sign-in" />
 
   // Remounting for each Clerk id clears local views, refs, timers, and any
   // status/row data that belonged to a different signed-in account.

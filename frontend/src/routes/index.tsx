@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
-import { Link, Navigate, createFileRoute, useLocation } from '@tanstack/react-router'
+import { Link, createFileRoute, useLocation } from '@tanstack/react-router'
 import { useAuth } from '@clerk/clerk-react'
 import { ArrowRight } from 'lucide-react'
 
+import { AuthRedirect } from '../components/auth-redirect'
 import { Landing } from '../components/landing'
 import { Features, HowItWorks, SiteFooter } from '../components/features'
 import { Celebrate } from '../components/celebrate'
@@ -25,12 +26,13 @@ function Home() {
     }
   }, [hash])
 
-  if (isLoaded && userId) {
-    return <Navigate to="/dashboard" replace />
-  }
+  const isSignedIn = isLoaded && Boolean(userId)
 
   return (
     <div className="flex min-w-0 flex-col overflow-x-clip">
+      {/* Keep the public page rendered while Clerk restores a session and the
+          dashboard chunk loads; the redirect still happens automatically. */}
+      {isSignedIn && <AuthRedirect to="/dashboard" replace />}
       <Landing />
       <Features />
       <HowItWorks />

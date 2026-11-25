@@ -1,6 +1,8 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { UserProfile, useAuth } from '@clerk/clerk-react'
 import { Scale } from 'lucide-react'
+
+import { AuthRedirect } from '@/components/auth-redirect'
 
 export const Route = createFileRoute('/my-account')({
   component: MyAccount,
@@ -99,7 +101,7 @@ function MyAccount() {
   const { isLoaded, userId } = useAuth()
 
   if (!isLoaded) return <div>Loading...</div>
-  if (!userId) return <Navigate to={'/sign-in' as any} />
+  if (!userId) return <AuthRedirect to="/sign-in" />
 
   return (
     <div className="mx-auto max-w-4xl">
