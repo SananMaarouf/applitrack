@@ -9,7 +9,8 @@ import { deleteApplication, getStatusFlow, getAttachmentUrl } from "@/api/applic
 import { ColumnDef, Row } from "@tanstack/react-table";
 import type { JobApplication, AggregatedStatusHistory } from "@/types/jobApplication";
 import { StatusSelect } from "@/components/statusSelect";
-import { ArrowUpDown, Trash2, ExternalLink, Link2Off, Paperclip, X, FileQuestion, CircleQuestionMark, CalendarX2 } from "lucide-react";
+import { EditApplicationAction } from "@/components/edit-application-action";
+import { ArrowUpDown, CalendarX2, ExternalLink, FileQuestion, Link2Off, Paperclip, Trash2 } from "lucide-react";
 import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistoryStore";
 import { useAuth } from "@clerk/clerk-react";
 
@@ -27,17 +28,30 @@ const handleDelete = async (
   setJobApplications: (jobs: JobApplication[]) => void,
   setAggregatedStatusHistory: (statusChanges: AggregatedStatusHistory[]) => void,
   getToken: () => Promise<string | null>,
+  userId: string | null,
 ) => {
   const { id } = row.original;
 
   const jobApplications = getJobsSnapshot();
   const jobToDelete = jobApplications.find((job) => job.id === id);
 
+  // The row disappears optimistically, but the transaction stays pending (and
+  // blocks the first-run reset) until the server confirms or rejects it.
+  const transactionId = useJobsStore.getState().beginDelete(userId, [id]);
+
   setJobApplications(jobApplications.filter((job) => job.id !== id));
 
+  // Late Undo/failure callbacks must never write into another account's store
+  // after the dashboard has switched owners.
+  const isCurrentOwner = () => {
+    const owner = useJobsStore.getState().activeJobsOwnerId;
+    return !owner || owner === userId;
+  };
+
   const restoreJobApplication = () => {
-    if (!jobToDelete) return;
-    const currentJobs = getJobsSnapshot().filter((job) => job.id !== jobToDelete.id);
+    if (!jobToDelete || !isCurrentOwner()) return;
+    const currentJobs = getJobsSnapshot();
+    if (currentJobs.some((job) => job.id === jobToDelete.id)) return;
     setJobApplications([...currentJobs, jobToDelete]);
   };
 
@@ -61,7 +75,7 @@ const handleDelete = async (
     return (
       <div className="w-full space-y-2">
         <p>This action will complete in 5 seconds</p>
-        <Progress value={progress} className="w-full bg-red-700 h-2" />
+        <Progress value={progress} className="w-full bg-destructive/20" />
       </div>
     );
   };
@@ -75,7 +89,10 @@ const handleDelete = async (
       label: "Undo",
       onClick: () => {
         cancelDeletion = true;
+        // Restore first so the dashboard never observes an empty list while a
+        // still-pending transaction is being settled.
         restoreJobApplication();
+        useJobsStore.getState().cancelDelete(userId, transactionId);
         toast.dismiss(toastId);
       },
     },
@@ -85,34 +102,53 @@ const handleDelete = async (
     if (cancelDeletion) return;
 
     (async () => {
+      let token: string | null = null;
       try {
-        const token = await getToken();
-        if (!token) {
-          toast.error("Error", {
-            description: "Authentication token not available",
-          });
-          restoreJobApplication();
-          return;
-        }
+        token = await getToken();
+      } catch (err: unknown) {
+        console.error(err);
+      }
 
-        await deleteApplication(token, id);
-        const flow = await getStatusFlow(token);
-        setAggregatedStatusHistory(flow);
-
-        toast.success("Success ✅", {
-          description: "Job application deleted successfully 🗑️",
-          duration: 3000,
+      if (!token) {
+        restoreJobApplication();
+        useJobsStore.getState().failDelete(userId, transactionId);
+        toast.error("Error", {
+          description: "Authentication token not available",
         });
+        return;
+      }
+
+      try {
+        await deleteApplication(token, id);
       } catch (err: unknown) {
         console.error(err);
         restoreJobApplication();
+        useJobsStore.getState().failDelete(userId, transactionId);
         toast.error("Error", {
           description:
             err instanceof Error
               ? err.message
               : "Could not delete job application",
         });
+        return;
       }
+
+      // Confirmed by the server: only now may an empty list reset the
+      // dashboard. The analytics revision refreshes overview/status data.
+      useJobsStore.getState().confirmDelete(userId, transactionId, [id]);
+
+      // The row is gone on the server. A failed refresh must not resurrect it.
+      try {
+        const flow = await getStatusFlow(token);
+        if (isCurrentOwner()) setAggregatedStatusHistory(flow);
+      } catch (err: unknown) {
+        console.warn("Deleted application but failed to refresh status flow", err);
+      }
+
+      toast.success("Success ✅", {
+        description: "Job application deleted successfully 🗑️",
+        duration: 3000,
+      });
     })();
   }, 5000);
 };
@@ -141,12 +177,27 @@ function AttachmentCell({ row }: { row: Row<JobApplication> }) {
   };
 
   if (!row.original.attachment_key) {
-    return <FileQuestion className="h-5 w-5 mx-auto" />;
+    return (
+      <span
+        className="flex justify-center text-muted-foreground"
+        title="No attachment"
+        aria-label="No attachment"
+      >
+        <FileQuestion className="size-5" aria-hidden="true" />
+      </span>
+    );
   }
 
   return (
-    <Button variant="default" size="sm" onClick={handleView} disabled={loading} className="mx-auto flex">
-      <Paperclip className="h-4 w-4 mr-1" />
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleView}
+      disabled={loading}
+      className="mx-auto flex"
+      aria-label={`View attachment for ${row.original.position}`}
+    >
+      <Paperclip className="size-4" aria-hidden="true" />
       {loading ? "Loading…" : "View"}
     </Button>
   );
@@ -157,15 +208,28 @@ function ActionsCell({ row }: { row: Row<JobApplication> }) {
   const setAggregatedStatusHistory = useAggregatedStatusHistoryStore(
     (state) => state.setAggregatedStatusHistory,
   );
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
 
   return (
-    <Button
-      variant="destructive"
-      onClick={() => handleDelete(row, setJobApplications, setAggregatedStatusHistory, getToken)}
-    >
-      <Trash2 className="h-6 w-6" />
-    </Button>
+    <div className="flex items-center justify-end gap-2">
+      <EditApplicationAction application={row.original} />
+      <Button
+        variant="destructive"
+        size="icon-sm"
+        aria-label={`Delete application for ${row.original.position}`}
+        onClick={() =>
+          handleDelete(
+            row,
+            setJobApplications,
+            setAggregatedStatusHistory,
+            getToken,
+            userId ?? null,
+          )
+        }
+      >
+        <Trash2 className="size-4" aria-hidden="true" />
+      </Button>
+    </div>
   );
 }
 
@@ -175,7 +239,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     header: ({ table }) => (
       <input
         type="checkbox"
-        className="h-4 w-4 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="size-4 cursor-pointer rounded border-input accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         checked={table.getIsAllPageRowsSelected()}
         onChange={(e) => table.toggleAllPageRowsSelected(!!e.target.checked)}
         aria-label="Select all"
@@ -184,7 +248,7 @@ export const columns: ColumnDef<JobApplication>[] = [
     cell: ({ row }) => (
       <input
         type="checkbox"
-        className="h-4 w-4 cursor-pointer accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="size-4 cursor-pointer rounded border-input accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         checked={row.getIsSelected()}
         onChange={(e) => row.toggleSelected(!!e.target.checked)}
         aria-label="Select row"
@@ -199,6 +263,8 @@ export const columns: ColumnDef<JobApplication>[] = [
       return (
         <Button
           variant="ghost"
+          size="sm"
+          className="-ml-2 h-8 gap-1 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Position
@@ -214,6 +280,8 @@ export const columns: ColumnDef<JobApplication>[] = [
       return (
         <Button
           variant="ghost"
+          size="sm"
+          className="-ml-2 h-8 gap-1 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Company
@@ -231,6 +299,8 @@ export const columns: ColumnDef<JobApplication>[] = [
       return (
         <Button
           variant="ghost"
+          size="sm"
+          className="-ml-2 h-8 gap-1 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Applied
@@ -261,6 +331,8 @@ export const columns: ColumnDef<JobApplication>[] = [
       return (
         <Button
           variant="ghost"
+          size="sm"
+          className="-ml-2 h-8 gap-1 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Expires
@@ -279,9 +351,12 @@ export const columns: ColumnDef<JobApplication>[] = [
           </div>
         );
       }
-      return <div>
-        <CalendarX2 className="h-5 w-5 mx-auto" />
-      </div>;
+      return (
+        <div className="flex justify-center text-muted-foreground">
+          <CalendarX2 className="size-5" aria-hidden="true" />
+          <span className="sr-only">No expiry date</span>
+        </div>
+      );
     },
   },
   {
@@ -291,6 +366,8 @@ export const columns: ColumnDef<JobApplication>[] = [
       return (
         <Button
           variant="ghost"
+          size="sm"
+          className="-ml-2 h-8 gap-1 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Status
@@ -310,6 +387,8 @@ export const columns: ColumnDef<JobApplication>[] = [
       return (
         <Button
           variant="ghost"
+          size="sm"
+          className="-ml-2 h-8 gap-1 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Link
@@ -320,15 +399,19 @@ export const columns: ColumnDef<JobApplication>[] = [
     cell: ({ row }) => {
       return row.original && row.original.link ? (
         <a
-          className="flex bg-link_btn text-link_btn-text w-fit p-1.5 rounded-md mx-auto"
+          className="mx-auto flex w-fit rounded-lg bg-accent p-2 text-accent-foreground transition-colors hover:bg-accent/80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           href={row.original.link}
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={`Open job posting for ${row.original.position}`}
         >
-          <ExternalLink className="h-6 w-6" />
+          <ExternalLink className="size-5" aria-hidden="true" />
         </a>
       ) : (
-        <Link2Off className="h-6 w-6 mx-auto " />
+        <Link2Off
+          className="mx-auto size-5 text-muted-foreground"
+          aria-label="No link"
+        />
       );
     },
   },

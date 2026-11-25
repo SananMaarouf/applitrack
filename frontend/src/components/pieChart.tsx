@@ -1,154 +1,154 @@
-"use client";
+'use client'
 
-import type { JobApplication } from "@/types/jobApplication";
-import { useJobsStore } from "@/store/jobsStore";
-import { Label, Pie, PieChart } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useMemo, useState } from 'react'
+import { Label, Pie, PieChart } from 'recharts'
+
+import type { JobApplication } from '@/types/jobApplication'
+import { useJobsStore } from '@/store/jobsStore'
+import { JOB_STATUS_OPTIONS } from '@/lib/job-status-ui'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
-import { useState, useEffect } from "react";
-import { JobStatus } from "@/types/jobStatus";
+} from '@/components/ui/chart'
 
-const statusColors: { [key in JobStatus]: string } = {
-  [JobStatus.APPLIED]: "var(--chart-1)",
-  [JobStatus.INTERVIEW]: "var(--chart-2)",
-  [JobStatus.SECOND_INTERVIEW]: "var(--chart-3)",
-  [JobStatus.THIRD_INTERVIEW]: "var(--chart-4)",
-  [JobStatus.OFFER]: "var(--chart-5)",
-  [JobStatus.REJECTED]: "var(--chart-6)",
-  [JobStatus.GHOSTED]: "var(--chart-7)",
-};
-
-const chartConfig: ChartConfig = {
-  jobs: {
-    label: "Job applications",
+const chartConfig: ChartConfig = JOB_STATUS_OPTIONS.reduce<ChartConfig>(
+  (config, { key, label, color }) => {
+    config[key] = { label, color }
+    return config
   },
-  applied: {
-    label: "applied",
-    color: statusColors[JobStatus.APPLIED],
-  },
-  interview: {
-    label: "interview",
-    color: statusColors[JobStatus.INTERVIEW],
-  },
-  second_interview: {
-    label: "second interview",
-    color: statusColors[JobStatus.SECOND_INTERVIEW],
-  },
-  third_interview: {
-    label: "third interview",
-    color: statusColors[JobStatus.THIRD_INTERVIEW],
-  },
-  offer: {
-    label: "offer",
-    color: statusColors[JobStatus.OFFER],
-  },
-  rejected: {
-    label: "rejected",
-    color: statusColors[JobStatus.REJECTED],
-  },
-  ghosted: {
-    label: "ghosted",
-    color: statusColors[JobStatus.GHOSTED],
-  },
-};
+  {},
+)
 
 export function Chart() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true)
   const jobApplications: JobApplication[] = useJobsStore(
     (state) => state.jobApplications,
-  );
+  )
 
   useEffect(() => {
     if (jobApplications.length > 0 || loading) {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [jobApplications, loading]);
+  }, [jobApplications, loading])
 
-  const statusCounts: { [key: number]: number } = jobApplications.reduce(
-    (acc, job) => {
-      acc[job.status] = (acc[job.status] || 0) + 1;
-      return acc;
-    },
-    {} as { [key: number]: number },
-  );
+  const statusCounts = useMemo(
+    () =>
+      jobApplications.reduce<Record<number, number>>((acc, job) => {
+        acc[job.status] = (acc[job.status] || 0) + 1
+        return acc
+      }, {}),
+    [jobApplications],
+  )
 
-  const chartData = Object.values(JobStatus)
-    .filter((status): status is JobStatus => typeof status === "number")
-    .map((status) => ({
-      jobs: JobStatus[status].toLowerCase(),
-      applications: statusCounts[status] || 0,
-      fill: statusColors[status],
-    }));
+  const chartData = useMemo(
+    () =>
+      JOB_STATUS_OPTIONS.map(({ value, key, label, color }) => ({
+        key,
+        label,
+        applications: statusCounts[value] || 0,
+        fill: color,
+      })),
+    [statusCounts],
+  )
+
+  const visibleLegendItems = chartData.filter((item) => item.applications > 0)
 
   return (
-    <div className="h-full grow">
-      <Card className="flex h-full max-h-64 lg:max-h-full grow flex-col gap-2">
+    <Card className="flex h-full min-w-0 flex-col gap-3 bg-card">
+      <CardHeader className="px-4 pt-4">
+        <CardTitle className="text-sm font-semibold text-card-foreground">
+          Applications by status
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          Distribution across your pipeline
+        </p>
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col p-4 pt-0">
         {loading ? (
-          <div className="text-center min-h-60 text-background font-bold flex items-center justify-center">
-            <p>Loading job applications...</p>
+          <div className="flex min-h-48 flex-1 items-center justify-center">
+            <div className="h-40 w-40 animate-pulse rounded-full bg-muted motion-reduce:animate-none" />
+            <span className="sr-only">Loading job applications</span>
           </div>
+        ) : jobApplications.length === 0 ? (
+          <p className="flex min-h-40 flex-1 items-center justify-center text-center text-sm text-muted-foreground">
+            You have no job applications yet.
+          </p>
         ) : (
           <>
-            <CardHeader className="items-center hidden md:flex">
-              <CardTitle className="font-bold text-sm lg:text-lg">Applications</CardTitle>
-            </CardHeader>
-            <CardContent className="h-full p-0">
-              {jobApplications.length === 0 ? (
-                <p className="text-center text-background my-10">You have no job applications </p>
-              ) : (
-                <ChartContainer
-                  config={chartConfig}
-                  className="mx-auto h-full w-full px-0"
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto aspect-square w-full max-w-56"
+              role="img"
+              aria-label={`Application status distribution across ${jobApplications.length} applications`}
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel nameKey="key" />}
+                />
+                <Pie
+                  data={chartData}
+                  dataKey="applications"
+                  nameKey="key"
+                  innerRadius={38}
+                  outerRadius="88%"
+                  strokeWidth={4}
                 >
-                  <PieChart className="mx-0 h-full w-full px-0">
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />}
-                    />
-                    <Pie
-                      data={chartData}
-                      dataKey="applications"
-                      nameKey="jobs"
-                      innerRadius={30}
-                      outerRadius="88%"
-                      strokeWidth={6}
-                    >
-                      <Label
-                        content={({ viewBox }) => {
-                          if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                            return (
-                              <text
-                                x={viewBox.cx}
-                                y={viewBox.cy}
-                                textAnchor="middle"
-                                dominantBaseline="middle"
-                              >
-                                <tspan
-                                  x={viewBox.cx}
-                                  y={viewBox.cy}
-                                    className="fill-current text-2xl font-bold"
-                                >
-                                  {jobApplications.length}
-                                </tspan>
-                              </text>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                    </Pie>
-                  </PieChart>
-                </ChartContainer>
-              )}
-            </CardContent>
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-2xl font-bold"
+                            >
+                              {jobApplications.length}
+                            </tspan>
+                          </text>
+                        )
+                      }
+                      return null
+                    }}
+                  />
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+            <ul
+              aria-label="Applications by status legend"
+              className="grid grid-cols-2 gap-x-3 gap-y-1.5"
+            >
+              {visibleLegendItems.map((item) => (
+                <li
+                  key={item.key}
+                  className="flex min-w-0 items-center gap-1.5 text-xs"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 shrink-0 rounded-[2px]"
+                    style={{ backgroundColor: item.fill }}
+                  />
+                  <span className="truncate text-muted-foreground">
+                    {item.label}
+                  </span>
+                  <span className="ml-auto font-medium tabular-nums text-foreground">
+                    {item.applications}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </>
         )}
-      </Card>
-    </div>
-  );
+      </CardContent>
+    </Card>
+  )
 }

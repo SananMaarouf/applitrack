@@ -42,6 +42,7 @@ describe("authentication", () => {
     ["GET", "/applications"],
     ["GET", "/status-flow"],
     ["GET", "/dashboard/trends"],
+    ["PATCH", "/applications/999"],
     ["PATCH", "/applications/999/status"],
     ["DELETE", "/applications/999"],
   ])("%s %s requires a bearer token", async (method, path) => {
@@ -153,6 +154,212 @@ describe("application CRUD", () => {
 
   it("rejects malformed JSON", async () => {
     const response = await api("/applications", { method: "POST", token: TOKEN_A, body: "{oops" });
+    expect(response.status).toBe(400);
+  });
+});
+
+describe("metadata update", () => {
+  async function patch(
+    id: number,
+    body: unknown,
+    token = TOKEN_A,
+  ): Promise<Response> {
+    return api(`/applications/${id}`, {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(body),
+    });
+  }
+
+  async function readApplication(id: number): Promise<ApplicationBody | undefined> {
+    const rows = (await (await api("/applications", { token: TOKEN_A })).json()) as ApplicationBody[];
+    return rows.find((row) => row.id === id);
+  }
+
+  it("updates every editable metadata field", async () => {
+    const id = await createApplication(TOKEN_A, {
+      position: "Old position",
+      company: "Old company",
+      applied_at: "2025-01-15T10:00:00Z",
+      expires_at: "2025-02-15T10:00:00Z",
+      link: "https://old.example.com/job",
+    });
+    const before = (await readApplication(id))!;
+
+    const response = await patch(id, {
+      position: "New position",
+      company: "New company",
+      applied_at: "2025-03-01T09:30:00Z",
+      expires_at: "2025-04-01",
+      link: "https://new.example.com/job",
+    });
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as ApplicationBody;
+    expect(body).toMatchObject({
+      id,
+      user_id: USER_A,
+      position: "New position",
+      company: "New company",
+      applied_at: "2025-03-01T09:30:00.000Z",
+      expires_at: "2025-04-01T00:00:00.000Z",
+      link: "https://new.example.com/job",
+      status: 1,
+      created_at: before.created_at,
+      attachment_key: null,
+    });
+    expect(await readApplication(id)).toEqual(body);
+  });
+
+  it("accepts a genuine partial payload and preserves omitted fields", async () => {
+    const id = await createApplication(TOKEN_A, {
+      position: "Keep me",
+      company: "Keep Corp",
+      applied_at: "2025-01-15T10:00:00Z",
+      expires_at: "2025-02-15T12:34:56Z",
+      link: "https://keep.example.com/job",
+    });
+    const before = (await readApplication(id))!;
+
+    const response = await patch(id, { position: "Only position" });
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as ApplicationBody;
+    expect(body.position).toBe("Only position");
+    expect(body.company).toBe(before.company);
+    expect(body.applied_at).toBe(before.applied_at);
+    expect(body.expires_at).toBe(before.expires_at);
+    expect(body.link).toBe(before.link);
+    expect(body.status).toBe(before.status);
+    expect(body.created_at).toBe(before.created_at);
+  });
+
+  it("leaves an omitted legacy non-http link untouched", async () => {
+    const legacyLink = "mailto:legacy@example.com";
+    const id = await createApplication(TOKEN_A, { link: legacyLink });
+
+    const response = await patch(id, { position: "Changed" });
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as ApplicationBody;
+    expect(body.position).toBe("Changed");
+    expect(body.link).toBe(legacyLink);
+  });
+
+  it("clears optional values with an explicit null", async () => {
+    const id = await createApplication(TOKEN_A, {
+      expires_at: "2025-02-15T10:00:00Z",
+      link: "https://remove.example.com/job",
+    });
+    const before = (await readApplication(id))!;
+
+    const response = await patch(id, { expires_at: null, link: null });
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as ApplicationBody;
+    expect(body.expires_at).toBeNull();
+    expect(body.link).toBeNull();
+    expect(body.applied_at).toBe(before.applied_at);
+  });
+
+  it("retains status, history, and the attachment when metadata changes", async () => {
+    const id = await createApplication(TOKEN_A);
+    await api(`/applications/${id}/status`, {
+      method: "PATCH",
+      token: TOKEN_A,
+      body: JSON.stringify({ new_status: 2 }),
+    });
+    const form = new FormData();
+    form.append("file", new File([new Uint8Array(16).fill(0x25)], "cv.pdf", { type: "application/pdf" }));
+    const upload = await api(`/applications/${id}/attachment`, {
+      method: "POST",
+      token: TOKEN_A,
+      body: form,
+    });
+    expect(upload.status).toBe(200);
+    const uploaded = (await upload.json()) as ApplicationBody;
+    expect(uploaded.attachment_key).not.toBeNull();
+
+    const beforeHistory = await historyRows(id);
+    const response = await patch(id, { position: "Changed", company: "Changed Corp" });
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as ApplicationBody;
+    expect(body.status).toBe(2);
+    expect(body.attachment_key).toBe(uploaded.attachment_key);
+    expect(await historyRows(id)).toEqual(beforeHistory);
+    expect(await applicationStatus(id)).toBe(2);
+  });
+
+  it.each([
+    ["empty", {}],
+    ["invalid applied_at", { applied_at: "not-a-date" }],
+    ["impossible applied_at day", { applied_at: "2025-02-30T10:00:00Z" }],
+    ["invalid expires_at", { expires_at: "2025-13-45" }],
+    ["impossible expires_at day", { expires_at: "2025-04-31" }],
+    ["non-http link", { link: "javascript:alert(1)" }],
+    ["relative link", { link: "/jobs/1" }],
+    ["empty link", { link: "" }],
+    ["blank position", { position: "" }],
+    ["blank company", { company: "" }],
+  ])("rejects %s payloads without changing the row", async (_label, payload) => {
+    const id = await createApplication(TOKEN_A);
+    const before = (await readApplication(id))!;
+
+    const response = await patch(id, payload);
+
+    expect(response.status).toBe(422);
+    expect(await readApplication(id)).toEqual(before);
+  });
+
+  it.each([
+    ["status", { status: 5 }],
+    ["user_id", { user_id: USER_B }],
+    ["attachment_key", { attachment_key: "attachments/evil.pdf" }],
+    ["created_at", { created_at: "2020-01-01T00:00:00.000Z" }],
+    ["id", { id: 999 }],
+    ["unknown", { nickname: "anything" }],
+  ])("rejects forbidden %s updates", async (_label, payload) => {
+    const id = await createApplication(TOKEN_A);
+    const before = (await readApplication(id))!;
+
+    const response = await patch(id, payload);
+
+    expect(response.status).toBe(422);
+    expect(await readApplication(id)).toEqual(before);
+  });
+
+  it("returns 404 for an unknown application", async () => {
+    const response = await patch(999999999, { position: "Nope" });
+    expect(response.status).toBe(404);
+  });
+
+  it("returns 404 and keeps another user's row unchanged", async () => {
+    const id = await createApplication(TOKEN_A);
+    const before = (await readApplication(id))!;
+
+    const response = await patch(id, { position: "Hacked" }, TOKEN_B);
+
+    expect(response.status).toBe(404);
+    expect(await readApplication(id)).toEqual(before);
+  });
+
+  it("returns 422 for a non-numeric application id", async () => {
+    const response = await api("/applications/abc", {
+      method: "PATCH",
+      token: TOKEN_A,
+      body: JSON.stringify({ position: "Nope" }),
+    });
+    expect(response.status).toBe(422);
+  });
+
+  it("rejects malformed JSON", async () => {
+    const id = await createApplication(TOKEN_A);
+    const response = await api(`/applications/${id}`, {
+      method: "PATCH",
+      token: TOKEN_A,
+      body: "{oops",
+    });
     expect(response.status).toBe(400);
   });
 });

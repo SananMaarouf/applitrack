@@ -1,7 +1,12 @@
-import { Link, Navigate, createFileRoute } from '@tanstack/react-router'
-import { Landing } from '../components/landing'
-import { Features } from '../components/features'
+import { useEffect } from 'react'
+import { Link, Navigate, createFileRoute, useLocation } from '@tanstack/react-router'
 import { useAuth } from '@clerk/clerk-react'
+import { ArrowRight } from 'lucide-react'
+
+import { Landing } from '../components/landing'
+import { Features, HowItWorks, SiteFooter } from '../components/features'
+import { Celebrate } from '../components/celebrate'
+import { Button } from '../components/ui/button'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -9,35 +14,64 @@ export const Route = createFileRoute('/')({
 
 function Home() {
   const { isLoaded, userId } = useAuth()
+  const { hash } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+    const id = hash.replace(/^#/, '')
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [hash])
 
   if (isLoaded && userId) {
     return <Navigate to="/dashboard" replace />
   }
 
   return (
-    <div className="flex flex-col items-center w-full grow mx-auto overflow-hidden ">
-      {/* Landing Section */}
+    <div className="flex min-w-0 flex-col overflow-x-clip">
       <Landing />
+      <Features />
+      <HowItWorks />
 
-      {/* Features Section */}
-      <div id="features">
-        <Features />
-      </div>
-
-      {/* Try It Now Section */}
-      <section className="flex flex-col rounded-lg items-center text-center justify-center w-full py-12 sm:py-16 px-4">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-6">What are you waiting for?</h2>
-        <p className="text-lg sm:text-xl mb-8 font-bold">Stay on track with Applitrack</p>
-        <Link to="/sign-in">
-          <p className="
-            px-6 py-3 bg-primary text-primary-foreground
-            rounded-md font-semibold duration-500
-            hover:scale-110 text-lg"
-          >
-            Get started
-          </p>
-        </Link>
+      <section className="border-b border-border/70 bg-card/50 py-16 sm:py-20 lg:py-24">
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              Ready when you are
+            </p>
+            <h2 className="mt-3 max-w-xl font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              Give every application a clear next step.
+            </h2>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
+              Bring your applications into one organised workspace and keep the status of each
+              opportunity current. Start free, then move at your own pace.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button asChild size="lg" className="h-12 rounded-[8px] px-6 text-base">
+                <Link to="/sign-up">
+                  Start tracking for free
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="h-12 rounded-[8px] border-border bg-background px-6 text-base"
+              >
+                <Link to="/sign-in">Log in</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="flex min-w-0 justify-center lg:justify-end">
+            <Celebrate className="w-full max-w-sm" />
+          </div>
+        </div>
       </section>
+
+      <SiteFooter />
     </div>
   )
 }

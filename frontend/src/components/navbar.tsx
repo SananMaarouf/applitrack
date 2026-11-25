@@ -1,31 +1,32 @@
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "@tanstack/react-router";
-import {
-  SignOutButton,
-  useAuth,
-} from "@clerk/clerk-react";
-import { BarChart2, ClipboardList, Home, LogOut, Plus, User, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "@tanstack/react-router";
+import { SignOutButton, useAuth } from "@clerk/clerk-react";
+import { BarChart2, ClipboardList, Home, LogOut, Plus, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { JobApplicationForm } from "@/components/jobApplicationForm";
+import { cn } from "@/lib/utils";
+import { useFirstRunNavigation } from "@/store/dashboardModeStore";
 
-function AppMark() {
+const landingSections = [
+  { id: "features", label: "Features" },
+  { id: "how-it-works", label: "How It Works" },
+] as const;
+
+function AppMark({ compact = false }: { compact?: boolean }) {
   return (
     <Link
       to="/"
-      className="group flex items-center gap-2 text-xl font-bold italic transition-all duration-300 hover:gap-3"
+      className="group flex shrink-0 items-center gap-2 text-lg font-bold italic text-foreground transition-colors hover:text-primary"
+      aria-label="Applitrack home"
     >
-      <span className="md:hidden">AT</span>
-      <span className="hidden md:inline">Applitrack</span>
+      <span className={compact ? "hidden sm:inline" : "inline"}>Applitrack</span>
       <svg
-        className="transition-transform duration-300 group-hover:scale-110"
-        width="28"
-        height="28"
+        className="transition-transform duration-300 group-hover:scale-105"
+        width="26"
+        height="26"
         viewBox="0 0 48 48"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -41,93 +42,128 @@ function AppMark() {
 
 export function Navbar() {
   const { userId } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const [addOpen, setAddOpen] = useState(false);
-  const isSignedIn = Boolean(userId);
-  const isMyAccountRoute = location.pathname.startsWith('/my-account');
 
-  const scrollToSection = (id: string) => {
-    const scroll = () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    if (location.pathname === '/dashboard') {
-      window.history.replaceState(null, '', `#${id}`);
-      scroll();
-    } else {
-      navigate({ to: '/dashboard', hash: id });
-    }
+  const isSignedIn = Boolean(userId);
+  const isDashboard = location.pathname === "/dashboard";
+  const isMyAccountRoute = location.pathname.startsWith("/my-account");
+  const activeSection = location.hash.replace(/^#/, "");
+  const firstRunMode = useFirstRunNavigation(userId);
+  const isFirstRun = isDashboard && firstRunMode;
+
+  useEffect(() => {
+    if (isFirstRun) setAddOpen(false);
+  }, [isFirstRun]);
+
+  const scrollToSectionIfCurrent = (sectionId: string) => {
+    if (location.hash !== `#${sectionId}`) return;
+    const element = document.getElementById(sectionId);
+    if (!element) return;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    element.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
   };
 
   if (isSignedIn) {
+    const bottomItem = (active: boolean) =>
+      cn(
+        "flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-[8px] px-1 text-[11px] font-medium transition-colors",
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+      );
+
     return (
       <>
-        <header className="w-full px-4 pt-4">
-          <div className="mx-auto flex w-full max-w-7xl items-center justify-between rounded-xl px-4 py-4 ">
+        <header className="w-full border-b border-border/70 bg-background/90 px-4 py-3 backdrop-blur md:hidden">
+          <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3">
             <AppMark />
-            <div className="flex items-center gap-2 md:hidden">
-              <ThemeSwitcher variant="icon-only" />
+            <div className="flex items-center gap-2">
               {isMyAccountRoute && (
                 <SignOutButton redirectUrl="/">
-                  <Button variant="destructive" aria-label="Sign out">
+                  <Button variant="outline" size="sm" className="rounded-[8px]" aria-label="Sign out">
                     <LogOut className="size-4" />
-                    Sign out
+                    <span className="hidden sm:inline">Sign out</span>
                   </Button>
                 </SignOutButton>
               )}
+              <ThemeSwitcher variant="icon-only" />
             </div>
           </div>
         </header>
 
-        <nav className="fixed right-0 bottom-0 left-0 z-50 mx-4 flex h-[calc(4rem+env(safe-area-inset-bottom))] items-end justify-around rounded-xl bg-primary px-2 pb-[env(safe-area-inset-bottom)] md:hidden">
+        <nav
+          aria-label="Primary"
+          className="fixed inset-x-3 bottom-[calc(0.75rem_+_env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-stretch gap-1 rounded-2xl border border-border bg-card/95 p-1.5 shadow-xl backdrop-blur md:hidden"
+        >
           <Link
             to="/dashboard"
-            activeProps={{ className: "flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-primary-foreground" }}
-            inactiveProps={{ className: "flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-primary-foreground/50 transition-colors hover:text-primary-foreground" }}
+            activeOptions={{ exact: true, includeHash: true }}
+            className={bottomItem(isDashboard && !activeSection)}
           >
             <Home className="size-5" />
-            <span className="text-xs">Home</span>
+            <span>Home</span>
           </Link>
 
-          <button
-            onClick={() => scrollToSection('stats-section')}
-            className="flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-primary-foreground/50 transition-colors hover:text-primary-foreground"
-          >
-            <BarChart2 className="size-5" />
-            <span className="text-xs">Stats</span>
-          </button>
-
-          <div className="flex flex-col text-primary-foreground">
-            <button
-              onClick={() => setAddOpen((prev) => !prev)}
-              className="z-50 flex h-full flex-1 cursor-pointer flex-col items-center justify-center text-primary-foreground/50 transition-all duration-500 hover:scale-110 hover:text-primary-foreground"
-              aria-label={addOpen ? "Close" : "Add job application"}
+          {!isFirstRun && (
+            <Link
+              to="/dashboard"
+              hash="stats-section"
+              activeOptions={{ exact: true, includeHash: true }}
+              onClick={() => scrollToSectionIfCurrent("stats-section")}
+              className={bottomItem(isDashboard && activeSection === "stats-section")}
             >
-              <div className="z-50 -translate-y-3 rounded-full bg-primary-foreground p-2.5 text-primary shadow-lg ring-4 ring-primary">
-                {addOpen ? <X className="size-5" /> : <Plus className="size-5" />}
-              </div>
-            </button>
-            <span className="self-center text-xs">Add</span>
-          </div>
+              <BarChart2 className="size-5" />
+              <span>Stats</span>
+            </Link>
+          )}
 
-          <button
-            onClick={() => scrollToSection('datatable-section')}
-            className="flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-primary-foreground/50 transition-colors hover:text-primary-foreground"
-          >
-            <ClipboardList className="size-5" />
-            <span className="text-xs">Edit</span>
-          </button>
+          {!isFirstRun && (
+            <button
+              type="button"
+              onClick={() => setAddOpen((prev) => !prev)}
+              aria-label={addOpen ? "Close register application" : "Register application"}
+              aria-expanded={addOpen}
+              className="flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-[8px] px-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm ring-4 ring-card">
+                <Plus className={cn("size-5 transition-transform", addOpen && "rotate-45")} />
+              </span>
+              <span>Add</span>
+            </button>
+          )}
+
+          {!isFirstRun && (
+            <Link
+              to="/dashboard"
+              hash="datatable-section"
+              activeOptions={{ exact: true, includeHash: true }}
+              onClick={() => scrollToSectionIfCurrent("datatable-section")}
+              className={bottomItem(isDashboard && activeSection === "datatable-section")}
+            >
+              <ClipboardList className="size-5" />
+              <span>Applications</span>
+            </Link>
+          )}
 
           <Link
-            to={'/my-account' as any}
-            activeProps={{ className: "flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-primary-foreground" }}
-            inactiveProps={{ className: "flex h-full flex-1 flex-col items-center justify-center gap-0.5 text-primary-foreground/50 transition-colors hover:text-primary-foreground" }}
+            to={"/my-account" as any}
+            activeOptions={{ exact: true, includeHash: true }}
+            className={bottomItem(isMyAccountRoute)}
           >
             <User className="size-5" />
-            <span className="text-xs">Profile</span>
+            <span>Profile</span>
           </Link>
         </nav>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogContent showCloseButton={false} className="top-auto bottom-[calc(5rem+env(safe-area-inset-bottom))] max-h-[calc(100dvh-6rem-env(safe-area-inset-bottom))] translate-y-0 overflow-y-auto p-0 md:top-[50%] md:bottom-auto md:max-h-[90dvh] md:translate-y-[-50%]">
+          <DialogContent
+            showCloseButton={false}
+            className="mobile-add-dialog top-auto bottom-[calc(7rem+env(safe-area-inset-bottom))] max-h-[calc(100dvh-8rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] translate-y-0 overflow-y-auto p-0 md:top-[50%] md:bottom-auto md:max-h-[90dvh] md:translate-y-[-50%]"
+          >
             {userId && <JobApplicationForm user_id={userId} onClose={() => setAddOpen(false)} />}
           </DialogContent>
         </Dialog>
@@ -136,16 +172,35 @@ export function Navbar() {
   }
 
   return (
-    <header className="flex w-full px-4 pt-2">
-      <div className="mx-auto mt-2 flex w-full max-w-7xl items-center justify-between rounded-lg px-6 py-5">
-        <div className="flex items-center">
-          <AppMark />
-        </div>
+    <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:flex-nowrap sm:px-6">
+        <AppMark compact />
 
-        <div className="flex items-center gap-2 md:gap-6">
+        <nav
+          aria-label="Landing page"
+          className="hidden items-center gap-5 text-sm font-medium text-muted-foreground sm:ml-3 sm:flex"
+        >
+          {landingSections.map((section) => (
+            <Link
+              key={section.id}
+              to="/"
+              hash={section.id}
+              activeOptions={{ exact: true, includeHash: true }}
+              onClick={() => scrollToSectionIfCurrent(section.id)}
+              className="transition-colors hover:text-foreground"
+            >
+              {section.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <ThemeSwitcher variant="icon-only" />
-          <Button variant="default" asChild>
-            <Link to="/sign-in">Get started</Link>
+          <Button asChild variant="ghost" size="sm" className="rounded-[8px] px-2.5">
+            <Link to="/sign-in">Log in</Link>
+          </Button>
+          <Button asChild size="sm" className="rounded-[8px] px-3">
+            <Link to="/sign-up">Get started</Link>
           </Button>
         </div>
       </div>

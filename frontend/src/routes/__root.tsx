@@ -17,12 +17,12 @@ function Root() {
 
   if (isLoaded && userId) {
     return (
-      <SidebarProvider defaultOpen className="md:flex-row-reverse">
+      <SidebarProvider defaultOpen className="min-h-svh">
         <Toaster />
         <AppSidebar />
-        <SidebarInset className="min-h-screen">
+        <SidebarInset className="min-h-svh min-w-0">
           <Navbar />
-          <main className="flex-1 p-4 pb-20 md:pb-4">
+          <main className="min-w-0 flex-1 px-4 pb-24 pt-4 md:px-6 md:pb-8 md:pt-6">
             <Outlet />
           </main>
         </SidebarInset>
@@ -31,10 +31,10 @@ function Root() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex min-h-svh flex-col bg-background text-foreground">
       <Toaster />
       <Navbar />
-      <main className="p-4 pb-20 md:pb-4">
+      <main className="flex min-w-0 flex-1 flex-col">
         <Outlet />
       </main>
     </div>
@@ -43,16 +43,19 @@ function Root() {
 
 function NotFound() {
   return (
-    <div className="text-center mt-12">
-      <img 
-        src="/confused_travolta.gif" 
-        width={300} 
-        height={300} 
-        alt="404 gif"
+    <div className="mx-auto flex max-w-md flex-col items-center px-4 py-16 text-center">
+      <img
+        src="/confused_travolta.gif"
+        width={300}
+        height={300}
+        alt=""
         className="mx-auto"
       />
-      <h1 className="mt-6 text-xl">404 - Page not found</h1>
-      <Button asChild className="mt-6">
+      <h1 className="mt-6 font-serif text-2xl font-semibold">404 — Page not found</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        The page you were looking for is no longer here.
+      </p>
+      <Button asChild className="mt-6 rounded-[8px]">
         <Link to="/dashboard">Go back home</Link>
       </Button>
     </div>

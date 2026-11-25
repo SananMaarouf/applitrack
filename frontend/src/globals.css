@@ -2,121 +2,214 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  --background: oklch(0.9885 0.0057 84.5659);
-  --foreground: oklch(0.3660 0.0251 49.6085);
-  --card: oklch(0.9686 0.0091 78.2818);
-  --card-foreground: oklch(0.3660 0.0251 49.6085);
-  --popover: oklch(0.9686 0.0091 78.2818);
-  --popover-foreground: oklch(0.3660 0.0251 49.6085);
-  --primary: oklch(0.5553 0.1455 48.9975);
-  --primary-foreground: oklch(1.0000 0 0);
-  --secondary: var(--primary-foreground);
-  --secondary-foreground: oklch(0.4444 0.0096 73.6390);
-  --muted: oklch(0.9363 0.0218 83.2637);
-  --muted-foreground: oklch(0.5534 0.0116 58.0708);
-  --accent: oklch(0.9000 0.0500 74.9889);
-  --accent-foreground: oklch(0.4444 0.0096 73.6390);
-  --destructive: oklch(0.4437 0.1613 26.8994);
-  --destructive-foreground: oklch(1.0000 0 0);
-  --border: oklch(0.8866 0.0404 89.6994);
-  --input: oklch(0.8866 0.0404 89.6994);
-  --ring: oklch(0.5553 0.1455 48.9975);
-  --chart-1: var(--primary);
-  --chart-2: oklch(47.05% 0.24165 264.513);
-  --chart-3: oklch(53.368% 0.28658 298.29);
-  --chart-4: oklch(91.53% 0.20209 112.234);
-  --chart-5: oklch(72.109% 0.22032 140.72);
-  --chart-6: var(--destructive);
-  --chart-7: oklch(86.725% 0.01947 295.698);
-  --sidebar: oklch(0.9363 0.0218 83.2637);
-  --sidebar-foreground: oklch(0.3660 0.0251 49.6085);
-  --sidebar-primary: oklch(0.5553 0.1455 48.9975);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
-  --sidebar-accent: oklch(0.5538 0.1207 66.4416);
-  --sidebar-accent-foreground: oklch(1.0000 0 0);
-  --sidebar-border: oklch(0.8866 0.0404 89.6994);
-  --sidebar-ring: oklch(0.5553 0.1455 48.9975);
+:root,
+[data-color-palette="light"] {
+  /* Canonical semantic palette (light) */
+  --bg-primary: #F7F5F0;
+  --bg-surface: #EFEBE3;
+  --bg-elevated: #FCFBF9;
+  --border-subtle: #DED7CC;
+  --border-control: #8B8175;
+  --text-primary: #1F1D1A;
+  --text-secondary: #625A51;
+  --accent-primary: #9D472A;
+  --accent-on-primary: #FCFBF9;
+  --accent-subtle: #F3E2D6;
+  --focus-ring: #9D472A;
+
+  /* shadcn aliases keep inherited dark-theme remapping working */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --surface: var(--bg-surface);
+  --elevated: var(--bg-elevated);
+  --card: var(--bg-elevated);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+
+  /* Brand / actions */
+  --primary: var(--accent-primary);
+  --primary-foreground: var(--accent-on-primary);
+  --secondary: var(--bg-surface);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-surface);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--accent-subtle);
+  --accent-foreground: var(--text-primary);
+  --destructive: #7B3733;
+  --destructive-foreground: #FCFBF9;
+
+  /* Lines, controls and focus */
+  --border: var(--border-subtle);
+  --input: var(--border-control);
+  --ring: var(--focus-ring);
+  --overlay: rgb(22 18 15 / 0.55);
+
+  /* Status triples: bg / fg / chart */
+  --status-applied-bg: #DFE9F2;
+  --status-applied-fg: #294D69;
+  --status-applied-chart: #527FA2;
+  --status-interview-bg: #F4E7CE;
+  --status-interview-fg: #684619;
+  --status-interview-chart: #986821;
+  --status-second-interview-bg: #ECE2F0;
+  --status-second-interview-fg: #62406E;
+  --status-second-interview-chart: #8A5E99;
+  --status-third-interview-bg: #DDECE9;
+  --status-third-interview-fg: #235953;
+  --status-third-interview-chart: #427F77;
+  --status-offer-bg: #E2ECDD;
+  --status-offer-fg: #35562D;
+  --status-offer-chart: #5D8350;
+  --status-rejected-bg: #F3E0DE;
+  --status-rejected-fg: #7B3733;
+  --status-rejected-chart: #AD5C56;
+  --status-ghosted-bg: #EAE5DF;
+  --status-ghosted-fg: #5D5148;
+  --status-ghosted-chart: #807368;
+
+  /* Chart aliases, in status order: applied → ghosted */
+  --chart-1: var(--status-applied-chart);
+  --chart-2: var(--status-interview-chart);
+  --chart-3: var(--status-second-interview-chart);
+  --chart-4: var(--status-third-interview-chart);
+  --chart-5: var(--status-offer-chart);
+  --chart-6: var(--status-rejected-chart);
+  --chart-7: var(--status-ghosted-chart);
+
+  --sidebar: var(--bg-elevated);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent-primary);
+  --sidebar-primary-foreground: var(--accent-on-primary);
+  --sidebar-accent: var(--accent-subtle);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-ring: var(--focus-ring);
+
   --font-sans: Oxanium, sans-serif;
   --font-serif: Merriweather, serif;
   --font-mono: Fira Code, monospace;
-  --radius: 0.3rem;
+  --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 2px;
   --shadow-blur: 3px;
   --shadow-spread: 0px;
-  --shadow-opacity: 0.18;
+  --shadow-opacity: 0.12;
   --shadow-color: hsl(28 18% 25%);
-  --shadow-2xs: 0px 2px 3px 0px hsl(28 18% 25% / 0.09);
-  --shadow-xs: 0px 2px 3px 0px hsl(28 18% 25% / 0.09);
-  --shadow-sm: 0px 2px 3px 0px hsl(28 18% 25% / 0.18), 0px 1px 2px -1px hsl(28 18% 25% / 0.18);
-  --shadow: 0px 2px 3px 0px hsl(28 18% 25% / 0.18), 0px 1px 2px -1px hsl(28 18% 25% / 0.18);
-  --shadow-md: 0px 2px 3px 0px hsl(28 18% 25% / 0.18), 0px 2px 4px -1px hsl(28 18% 25% / 0.18);
-  --shadow-lg: 0px 2px 3px 0px hsl(28 18% 25% / 0.18), 0px 4px 6px -1px hsl(28 18% 25% / 0.18);
-  --shadow-xl: 0px 2px 3px 0px hsl(28 18% 25% / 0.18), 0px 8px 10px -1px hsl(28 18% 25% / 0.18);
-  --shadow-2xl: 0px 2px 3px 0px hsl(28 18% 25% / 0.45);
+  --shadow-2xs: 0px 1px 2px 0px hsl(28 18% 25% / 0.06);
+  --shadow-xs: 0px 1px 2px 0px hsl(28 18% 25% / 0.08);
+  --shadow-sm: 0px 1px 2px 0px hsl(28 18% 25% / 0.08), 0px 1px 3px 0px hsl(28 18% 25% / 0.06);
+  --shadow: 0px 1px 2px 0px hsl(28 18% 25% / 0.08), 0px 2px 4px -1px hsl(28 18% 25% / 0.08);
+  --shadow-md: 0px 2px 4px -1px hsl(28 18% 25% / 0.10), 0px 4px 8px -2px hsl(28 18% 25% / 0.08);
+  --shadow-lg: 0px 4px 8px -2px hsl(28 18% 25% / 0.10), 0px 8px 16px -4px hsl(28 18% 25% / 0.08);
+  --shadow-xl: 0px 8px 16px -4px hsl(28 18% 25% / 0.12), 0px 16px 32px -8px hsl(28 18% 25% / 0.10);
+  --shadow-2xl: 0px 16px 32px -8px hsl(28 18% 25% / 0.18);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
 
 .dark {
-  --background: oklch(0.2161 0.0061 56.0434);
-  --foreground: oklch(0.9699 0.0013 106.4238);
-  --card: oklch(0.2685 0.0063 34.2976);
-  --card-foreground: oklch(0.9699 0.0013 106.4238);
-  --popover: oklch(0.2685 0.0063 34.2976);
-  --popover-foreground: oklch(0.9699 0.0013 106.4238);
-  --primary: oklch(0.7049 0.1867 47.6044);
-  --primary-foreground: oklch(1.0000 0 0);
-  --secondary: var(--primary-foreground);
-  --secondary-foreground: var(--muted);
-  --muted: oklch(0.2330 0.0073 67.4563);
-  --muted-foreground: oklch(0.7161 0.0091 56.2590);
-  --accent: var(--primary);
-  --accent-foreground: var(--primary-foreground);
-  --destructive: oklch(0.5771 0.2152 27.3250);
-  --destructive-foreground: oklch(1.0000 0 0);
-  --border: oklch(0.3741 0.0087 67.5582);
-  --input: oklch(0.3741 0.0087 67.5582);
-  --ring: oklch(0.7049 0.1867 47.6044);
-  --chart-1: var(--primary);
-  --chart-2: oklch(47.05% 0.24165 264.513);
-  --chart-3: oklch(53.368% 0.28658 298.29);
-  --chart-4: oklch(91.53% 0.20209 112.234);
-  --chart-5: oklch(72.109% 0.22032 140.72);
-  --chart-6: var(--destructive);
-  --chart-7: oklch(86.725% 0.01947 295.698);
-  --sidebar: var(--card);
-  --sidebar-foreground: var(--card-foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--primary);
-  --sidebar-accent-foreground: var(--primary-foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  /* Canonical semantic palette (dark) */
+  --bg-primary: #141312;
+  --bg-surface: #1E1C1A;
+  --bg-elevated: #262320;
+  --border-subtle: #39332E;
+  --border-control: #87796D;
+  --text-primary: #F4EDE4;
+  --text-secondary: #BDB1A4;
+  --accent-primary: #F0A17A;
+  --accent-on-primary: #241710;
+  --accent-subtle: #3A2922;
+  --focus-ring: #F0A17A;
+
+  /* shadcn aliases resolve against the dark canonical values above */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --surface: var(--bg-surface);
+  --elevated: var(--bg-elevated);
+  --card: var(--bg-elevated);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-primary);
+  --primary-foreground: var(--accent-on-primary);
+  --secondary: var(--bg-surface);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-surface);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--accent-subtle);
+  --accent-foreground: var(--text-primary);
+  --border: var(--border-subtle);
+  --input: var(--border-control);
+  --ring: var(--focus-ring);
+
+  --destructive: #F3BEB8;
+  --destructive-foreground: #241710;
+  --overlay: rgb(0 0 0 / 0.65);
+
+  /* Status triples: bg / fg / chart */
+  --status-applied-bg: #243542;
+  --status-applied-fg: #B9D7EF;
+  --status-applied-chart: #81B0D4;
+  --status-interview-bg: #3A3020;
+  --status-interview-fg: #F3D499;
+  --status-interview-chart: #DEAC57;
+  --status-second-interview-bg: #382A3E;
+  --status-second-interview-fg: #E7C5F0;
+  --status-second-interview-chart: #C697D5;
+  --status-third-interview-bg: #233632;
+  --status-third-interview-fg: #ADE0D5;
+  --status-third-interview-chart: #76BEB1;
+  --status-offer-bg: #283626;
+  --status-offer-fg: #C1DEB6;
+  --status-offer-chart: #94BE82;
+  --status-rejected-bg: #402A28;
+  --status-rejected-fg: #F3BEB8;
+  --status-rejected-chart: #DB8B83;
+  --status-ghosted-bg: #33302C;
+  --status-ghosted-fg: #D3C6BA;
+  --status-ghosted-chart: #A89A8D;
+
+  --sidebar: var(--bg-elevated);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent-primary);
+  --sidebar-primary-foreground: var(--accent-on-primary);
+  --sidebar-accent: var(--accent-subtle);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-ring: var(--focus-ring);
+
   --font-sans: Oxanium, sans-serif;
   --font-serif: Merriweather, serif;
   --font-mono: Fira Code, monospace;
-  --radius: 0.3rem;
+  --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 2px;
   --shadow-blur: 3px;
   --shadow-spread: 0px;
   --shadow-opacity: 0.18;
   --shadow-color: hsl(0 0% 5%);
-  --shadow-2xs: 0px 2px 3px 0px hsl(0 0% 5% / 0.09);
-  --shadow-xs: 0px 2px 3px 0px hsl(0 0% 5% / 0.09);
-  --shadow-sm: 0px 2px 3px 0px hsl(0 0% 5% / 0.18), 0px 1px 2px -1px hsl(0 0% 5% / 0.18);
-  --shadow: 0px 2px 3px 0px hsl(0 0% 5% / 0.18), 0px 1px 2px -1px hsl(0 0% 5% / 0.18);
-  --shadow-md: 0px 2px 3px 0px hsl(0 0% 5% / 0.18), 0px 2px 4px -1px hsl(0 0% 5% / 0.18);
-  --shadow-lg: 0px 2px 3px 0px hsl(0 0% 5% / 0.18), 0px 4px 6px -1px hsl(0 0% 5% / 0.18);
-  --shadow-xl: 0px 2px 3px 0px hsl(0 0% 5% / 0.18), 0px 8px 10px -1px hsl(0 0% 5% / 0.18);
-  --shadow-2xl: 0px 2px 3px 0px hsl(0 0% 5% / 0.45);
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 5% / 0.24);
+  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 5% / 0.28);
+  --shadow-sm: 0px 1px 2px 0px hsl(0 0% 5% / 0.32), 0px 1px 3px 0px hsl(0 0% 5% / 0.24);
+  --shadow: 0px 1px 2px 0px hsl(0 0% 5% / 0.32), 0px 2px 4px -1px hsl(0 0% 5% / 0.26);
+  --shadow-md: 0px 2px 4px -1px hsl(0 0% 5% / 0.34), 0px 4px 8px -2px hsl(0 0% 5% / 0.28);
+  --shadow-lg: 0px 4px 8px -2px hsl(0 0% 5% / 0.36), 0px 8px 16px -4px hsl(0 0% 5% / 0.32);
+  --shadow-xl: 0px 8px 16px -4px hsl(0 0% 5% / 0.40), 0px 16px 32px -8px hsl(0 0% 5% / 0.36);
+  --shadow-2xl: 0px 16px 32px -8px hsl(0 0% 5% / 0.52);
+}
+
+/* An explicitly light subtree stays light for native controls and scrollbars
+   without changing the document-level color scheme in dark mode. */
+[data-color-palette="light"] {
+  color-scheme: light;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -129,11 +222,13 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-strong: var(--primary);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -173,9 +268,200 @@
   *,
   *::before,
   *::after {
-    @apply border-border outline-ring/50 transition-colors duration-700;
+    border-color: var(--border);
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+  }
+  ::selection {
+    background-color: var(--accent);
+    color: var(--accent-foreground);
+  }
+}
+
+/* Status tints are intentionally unlayered so they can theme controls that
+   would otherwise inherit a surface background from component variants. */
+.status-tint {
+  --status-bg: var(--muted);
+  --status-fg: var(--foreground);
+  background-color: var(--status-bg);
+  color: var(--status-fg);
+  border-color: color-mix(in srgb, var(--status-fg) 20%, transparent);
+}
+
+.status-tint[data-status="applied"],
+.status-tint-applied {
+  --status-bg: var(--status-applied-bg);
+  --status-fg: var(--status-applied-fg);
+}
+.status-tint[data-status="interview"],
+.status-tint-interview {
+  --status-bg: var(--status-interview-bg);
+  --status-fg: var(--status-interview-fg);
+}
+.status-tint[data-status="second-interview"],
+.status-tint-second-interview {
+  --status-bg: var(--status-second-interview-bg);
+  --status-fg: var(--status-second-interview-fg);
+}
+.status-tint[data-status="third-interview"],
+.status-tint-third-interview {
+  --status-bg: var(--status-third-interview-bg);
+  --status-fg: var(--status-third-interview-fg);
+}
+.status-tint[data-status="offer"],
+.status-tint-offer {
+  --status-bg: var(--status-offer-bg);
+  --status-fg: var(--status-offer-fg);
+}
+.status-tint[data-status="rejected"],
+.status-tint-rejected {
+  --status-bg: var(--status-rejected-bg);
+  --status-fg: var(--status-rejected-fg);
+}
+.status-tint[data-status="ghosted"],
+.status-tint-ghosted {
+  --status-bg: var(--status-ghosted-bg);
+  --status-fg: var(--status-ghosted-fg);
+}
+
+.status-dot {
+  --status-chart: var(--muted-foreground);
+  background-color: var(--status-chart);
+}
+.status-dot[data-status="applied"],
+.status-dot-applied {
+  --status-chart: var(--status-applied-chart);
+}
+.status-dot[data-status="interview"],
+.status-dot-interview {
+  --status-chart: var(--status-interview-chart);
+}
+.status-dot[data-status="second-interview"],
+.status-dot-second-interview {
+  --status-chart: var(--status-second-interview-chart);
+}
+.status-dot[data-status="third-interview"],
+.status-dot-third-interview {
+  --status-chart: var(--status-third-interview-chart);
+}
+.status-dot[data-status="offer"],
+.status-dot-offer {
+  --status-chart: var(--status-offer-chart);
+}
+.status-dot[data-status="rejected"],
+.status-dot-rejected {
+  --status-chart: var(--status-rejected-chart);
+}
+.status-dot[data-status="ghosted"],
+.status-dot-ghosted {
+  --status-chart: var(--status-ghosted-chart);
+}
+
+/* Landing card stacks: only while a section is single-column do its cards stay
+   in normal flow (so DOM and focus order are unchanged) and stick below the
+   landing navbar as the page scrolls. Each later card paints above the previous
+   one, forming a deck. No scroll handlers or animation. Larger viewports keep
+   the original multi-column layouts with their Tailwind grid classes, and short
+   viewports or reduced-motion users keep the static layout with natural card
+   heights. */
+@media (min-height: 36rem) and (prefers-reduced-motion: no-preference) and (max-width: 39.999rem) {
+  .landing-card-stack--features {
+    /* Equal 1fr rows keep every card as tall as the tallest one, so a shorter
+       later card never lets the previous card's content peek out below it. */
+    grid-auto-rows: 1fr;
+  }
+
+  .landing-card-stack--features > *:nth-child(1) {
+    --landing-stack-index: 0;
+    --landing-stack-offset: 0rem;
+  }
+
+  .landing-card-stack--features > *:nth-child(2) {
+    --landing-stack-index: 1;
+    --landing-stack-offset: 0.5rem;
+  }
+
+  .landing-card-stack--features > *:nth-child(3) {
+    --landing-stack-index: 2;
+    --landing-stack-offset: 1rem;
+  }
+
+  .landing-card-stack--features > *:nth-child(4) {
+    --landing-stack-index: 3;
+    --landing-stack-offset: 1.5rem;
+  }
+
+  .landing-card-stack--features > * {
+    position: sticky;
+    top: calc(5rem + var(--landing-stack-offset, 0rem));
+    z-index: calc(var(--landing-stack-index, 0) + 1);
+  }
+}
+
+@media (min-height: 36rem) and (prefers-reduced-motion: no-preference) and (max-width: 47.999rem) {
+  .landing-card-stack--steps {
+    grid-auto-rows: 1fr;
+  }
+
+  .landing-card-stack--steps > *:nth-child(1) {
+    --landing-stack-index: 0;
+    --landing-stack-offset: 0rem;
+  }
+
+  .landing-card-stack--steps > *:nth-child(2) {
+    --landing-stack-index: 1;
+    --landing-stack-offset: 0.5rem;
+  }
+
+  .landing-card-stack--steps > *:nth-child(3) {
+    --landing-stack-index: 2;
+    --landing-stack-offset: 1rem;
+  }
+
+  .landing-card-stack--steps > * {
+    position: sticky;
+    top: calc(5rem + var(--landing-stack-offset, 0rem));
+    z-index: calc(var(--landing-stack-index, 0) + 1);
+  }
+}
+
+/* Mobile "Register application" sheet: a short rise/fade on entry and the
+   reverse on exit. Scoped to .mobile-add-dialog so desktop dialogs are
+   untouched, and the distinct keyframe names let Radix Presence keep the
+   content mounted until the closing animation ends. The transform composes
+   with Tailwind's translate utilities, which use the separate `translate`
+   property. */
+@media (max-width: 47.999rem) and (prefers-reduced-motion: no-preference) {
+  .mobile-add-dialog[data-state="open"] {
+    animation: mobile-add-dialog-in 200ms ease-out both;
+  }
+
+  .mobile-add-dialog[data-state="closed"] {
+    animation: mobile-add-dialog-out 160ms ease-in both;
+  }
+}
+
+@keyframes mobile-add-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobile-add-dialog-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.75rem);
   }
 }

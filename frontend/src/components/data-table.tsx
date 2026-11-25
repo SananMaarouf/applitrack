@@ -9,7 +9,7 @@ import { useAggregatedStatusHistoryStore } from "@/store/aggregatedStatusHistory
 import { deleteApplication, updateApplicationStatus, getStatusFlow } from "@/api/applications";
 import { useAuth } from "@clerk/clerk-react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { ClipboardList, Loader2, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import {
   Table,
   TableRow,
@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select2";
-import { JobStatus } from "@/types/jobStatus";
+import { JOB_STATUS_OPTIONS } from "@/lib/job-status-ui";
 import type { JobApplication } from "@/types/jobApplication";
 import {
   flexRender,
@@ -47,27 +47,33 @@ import {
 const LOCAL_STORAGE_KEY = "tableVisibilityState";
 
 export function DataTable() {
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState<any>([]);
+  const [globalFilter, setGlobalFilter] = useState<string>("");
   const jobApplications = useJobsStore((state) => state.jobApplications);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
   useEffect(() => {
-    if (jobApplications.length > 0 || loading) {
-      setLoading(false);
-    }
-  }, [jobApplications, loading]);
+    setLoading(false);
+  }, [jobApplications]);
 
   const setJobApplications = useJobsStore((state) => state.setJobs);
   const setAggregatedStatusHistory = useAggregatedStatusHistoryStore(
     (state) => state.setAggregatedStatusHistory,
   );
 
+  // Late refreshes from a delete/status request must not write into the store
+  // after the dashboard has switched to another account.
+  const isCurrentOwner = () => {
+    const owner = useJobsStore.getState().activeJobsOwnerId;
+    return !owner || owner === userId;
+  };
+
   const refreshStatusFlow = async (token: string) => {
     const flow = await getStatusFlow(token);
+    if (!isCurrentOwner()) return;
     setAggregatedStatusHistory(flow);
   };
 
@@ -86,7 +92,11 @@ export function DataTable() {
       return;
     }
 
-    const jobsToDelete = selectedRows.map((row) => row.original);
+    // Track the whole optimistic bulk delete as one pending transaction so a
+    // partial result can never be mistaken for a fully emptied account.
+    const transactionId = useJobsStore
+      .getState()
+      .beginDelete(userId ?? null, selectedIds);
 
     const remainingJobs = jobApplications.filter(
       (job) => !selectedIds.includes(job.id),
@@ -94,15 +104,55 @@ export function DataTable() {
     setJobApplications(remainingJobs);
     table.resetRowSelection();
 
-    try {
-      await Promise.all(selectedIds.map((id) => deleteApplication(token, id)));
-      await refreshStatusFlow(token);
-      toast.success(`Successfully deleted ${selectedIds.length} job application(s)`);
-    } catch (error: any) {
-      setJobApplications([...remainingJobs, ...jobsToDelete]);
-      toast.error(error?.message || "Failed to delete applications");
-      console.error(error);
+    const results = await Promise.allSettled(
+      selectedIds.map((id) => deleteApplication(token, id)),
+    );
+    const failedJobs = selectedRows
+      .filter((_, index) => results[index]?.status === "rejected")
+      .map((row) => row.original);
+    const succeededCount = selectedIds.length - failedJobs.length;
+    const firstFailure = results.find((result) => result.status === "rejected");
+    const reason = firstFailure?.status === "rejected" ? firstFailure.reason : null;
+
+    if (failedJobs.length > 0 && isCurrentOwner()) {
+      // Re-read the store: rows saved while the deletes were in flight must
+      // survive. Restore only failed rows that are missing, never overwrite.
+      const currentJobs = useJobsStore.getState().jobApplications;
+      const currentIds = new Set(currentJobs.map((job) => job.id));
+      const missingFailedJobs = failedJobs.filter((job) => !currentIds.has(job.id));
+      setJobApplications([...currentJobs, ...missingFailedJobs]);
     }
+
+    // Resolve the transaction only after failed rows are restored, so an
+    // all-succeeded bulk delete (and only that) leaves the account empty.
+    const succeededIds = selectedIds.filter(
+      (_, index) => results[index]?.status === "fulfilled",
+    );
+    const jobsStore = useJobsStore.getState();
+    if (succeededIds.length > 0) {
+      jobsStore.confirmDelete(userId ?? null, transactionId, succeededIds);
+    } else {
+      jobsStore.failDelete(userId ?? null, transactionId);
+    }
+
+    if (succeededCount > 0) {
+      // A partial delete still changed server state, so refresh best-effort.
+      try {
+        await refreshStatusFlow(token);
+      } catch (error) {
+        console.warn("Deleted applications but failed to refresh status flow", error);
+      }
+    }
+
+    if (failedJobs.length > 0) {
+      toast.error(
+        reason instanceof Error ? reason.message : "Failed to delete applications",
+      );
+      console.error(reason);
+      return;
+    }
+
+    toast.success(`Successfully deleted ${selectedIds.length} job application(s)`);
   };
 
   const handleBulkStatusUpdate = async (newStatus: string) => {
@@ -155,11 +205,13 @@ export function DataTable() {
           : `Successfully updated ${jobsToUpdate.length} job application(s)`;
       toast.success(message);
     } catch (error: any) {
-      const restoredJobs = jobApplications.map((job) => {
-        const original = originalJobs.find((oj) => oj.id === job.id);
-        return original || job;
-      });
-      setJobApplications(restoredJobs);
+      if (isCurrentOwner()) {
+        const restoredJobs = jobApplications.map((job) => {
+          const original = originalJobs.find((oj) => oj.id === job.id);
+          return original || job;
+        });
+        setJobApplications(restoredJobs);
+      }
       toast.error(error?.message || "Failed to update applications");
       console.error(error);
     }
@@ -198,45 +250,66 @@ export function DataTable() {
     }
   }, [columnVisibility]);
 
+  const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-card border text-card-foreground px-3 rounded-xl">
-        <div className="flex items-center py-4 gap-2">
-          <Input
-            placeholder="search..."
-            value={table.getState().globalFilter ?? ""}
-            onChange={(e) => table.setGlobalFilter(String(e.target.value))}
-            className="max-w-sm rounded-xl text-primary-foreground"
-          />
-          {table.getFilteredSelectedRowModel().rows.length > 0 && (
-            <>
+    <div className="mx-auto w-full max-w-6xl">
+      <div className="overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border p-3 sm:flex sm:flex-row sm:items-center sm:justify-between sm:p-4">
+          <div className="relative w-full min-w-0 sm:max-w-xs">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              aria-label="Search applications"
+              placeholder="Search applications…"
+              value={globalFilter}
+              onChange={(event) => table.setGlobalFilter(event.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {selectedCount > 0 && (
+            <div className="col-span-2 flex flex-wrap items-center gap-2 sm:ml-auto">
+              <span className="text-sm text-muted-foreground">
+                {selectedCount} selected
+              </span>
               <Select onValueChange={handleBulkStatusUpdate}>
-                <SelectTrigger className="w-45 cursor-pointer bg-primary text-primary-foreground">
-                  <SelectValue placeholder="Update Status" />
+                <SelectTrigger
+                  className="w-44"
+                  aria-label="Update status for selected rows"
+                >
+                  <SelectValue placeholder="Update status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={JobStatus.APPLIED.toString()}>Applied</SelectItem>
-                  <SelectItem value={JobStatus.INTERVIEW.toString()}>Interview</SelectItem>
-                  <SelectItem value={JobStatus.SECOND_INTERVIEW.toString()}>Second Interview</SelectItem>
-                  <SelectItem value={JobStatus.THIRD_INTERVIEW.toString()}>Third Interview</SelectItem>
-                  <SelectItem value={JobStatus.OFFER.toString()}>Offer</SelectItem>
-                  <SelectItem value={JobStatus.REJECTED.toString()}>Rejected</SelectItem>
-                  <SelectItem value={JobStatus.GHOSTED.toString()}>Ghosted</SelectItem>
+                  {JOB_STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value.toString()}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <Button variant="destructive" onClick={handleBulkDelete} className="flex items-center gap-2">
-                <Trash2 className="h-4 w-4" />
-                Delete ({table.getFilteredSelectedRowModel().rows.length})
+              <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+                <Trash2 className="size-4" aria-hidden="true" />
+                Delete ({selectedCount})
               </Button>
-            </>
+            </div>
           )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" className="ml-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                className="col-start-2 row-start-1 justify-self-end"
+              >
+                <SlidersHorizontal className="size-4" aria-hidden="true" />
                 Columns
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="rounded-md" align="end">
+            <DropdownMenuContent className="w-44" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -244,7 +317,7 @@ export function DataTable() {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize cursor-pointer hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
+                      className="cursor-pointer capitalize"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) => column.toggleVisibility(!!value)}
                     >
@@ -257,18 +330,19 @@ export function DataTable() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-96 text-muted-foreground text-sm font-semibold">
-            Loading job applications...
+          <div className="flex h-72 items-center justify-center gap-2 text-sm font-medium text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            Loading job applications…
           </div>
         ) : jobApplications.length > 0 ? (
-          <div>
-            <Table>
+          <>
+            <Table className="min-w-[760px]">
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id} className="bg-primary text-primary-foreground">
+                        <TableHead key={header.id}>
                           {header.isPlaceholder
                             ? null
                             : flexRender(header.column.columnDef.header, header.getContext())}
@@ -278,7 +352,7 @@ export function DataTable() {
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody className="bg-table">
+              <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
                     <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
@@ -291,45 +365,53 @@ export function DataTable() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      No applications match your search.
                     </TableCell>
                   </TableRow>
                 )}
               </TableBody>
             </Table>
 
-            <div className="flex items-center justify-between py-4 px-2">
-              <div className="text-sm ">
-                Showing {table.getRowModel().rows.length} of {table.getFilteredRowModel().rows.length} job applications
-              </div>
-              <div className="text-sm">
-                Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+            <div className="flex flex-col gap-3 border-t border-border px-3 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-4">
+              <p>
+                Showing {table.getRowModel().rows.length} of{" "}
+                {table.getFilteredRowModel().rows.length} job applications
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm">
+                  Page {table.getState().pagination.pageIndex + 1} of{" "}
+                  {Math.max(table.getPageCount(), 1)}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  Next
+                </Button>
               </div>
             </div>
-
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          </>
         ) : (
-          <div className="flex items-center justify-center h-96 text-background text-sm font-semibold">
-            No job applications. Add some to get started!
+          <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
+            <ClipboardList className="size-8 text-muted-foreground" aria-hidden="true" />
+            <p className="font-medium text-foreground">No applications yet</p>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Add your first job application to start tracking its progress.
+            </p>
           </div>
         )}
       </div>

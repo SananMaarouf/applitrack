@@ -3,7 +3,7 @@
  * signed same-origin URL the frontend opens, and cleanup on delete.
  */
 import { SELF, env } from "cloudflare:test";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TOKEN_A, TOKEN_B, api, createApplication, resetAttachments, resetDatabase } from "./helpers";
 
 beforeEach(resetDatabase);
@@ -59,6 +59,43 @@ describe("uploading an attachment", () => {
 
     expect(second.attachment_key).toBe(`attachments/user_a/${id}/second.pdf`);
     expect(await env.ATTACHMENTS.get(first.attachment_key!)).toBeNull();
+  });
+
+  it("keeps the just-written object when replacing with the same filename", async () => {
+    const id = await createApplication(TOKEN_A);
+    const first = (await (await upload(id, pdfFile("cv.pdf"))).json()) as ApplicationBody;
+    const replacement = new File(["replacement"], "cv.pdf", { type: "application/pdf" });
+
+    const response = await upload(id, replacement);
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as ApplicationBody;
+    expect(body.attachment_key).toBe(first.attachment_key);
+    expect(await attachmentKey(id)).toBe(first.attachment_key);
+
+    const stored = await env.ATTACHMENTS.get(body.attachment_key!);
+    expect(stored).not.toBeNull();
+    expect(await stored!.text()).toBe("replacement");
+  });
+
+  it("keeps the previous attachment when the replacement write fails", async () => {
+    const id = await createApplication(TOKEN_A);
+    const first = (await (await upload(id, pdfFile("cv.pdf"))).json()) as ApplicationBody;
+    const oldKey = first.attachment_key!;
+
+    const putSpy = vi
+      .spyOn(env.ATTACHMENTS, "put")
+      .mockRejectedValueOnce(new Error("R2 unavailable"));
+
+    try {
+      const response = await upload(id, pdfFile("new.pdf"));
+      expect(response.status).toBe(500);
+    } finally {
+      putSpy.mockRestore();
+    }
+
+    expect(await attachmentKey(id)).toBe(oldKey);
+    expect(await env.ATTACHMENTS.get(oldKey)).not.toBeNull();
   });
 
   it("rejects a non-PDF file", async () => {
